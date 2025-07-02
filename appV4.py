@@ -1,0 +1,1291 @@
+import streamlit as st
+import pickle
+import io
+import joblib
+import os
+import math
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from copy import deepcopy
+from sklearn.metrics import accuracy_score
+import seaborn as sns
+from framework.reader import DataReader
+from framework.analyzer import DataAnalyzer
+from framework.model_trainer import ModelTrainer, experiment_fairness, postProcessing
+import aux_func
+from framework.data_preprocessing import impute_missing_values, oversampling, augment_minority_group, change_labels, reweigh, Dir, Learning_fair_representations, dataset_bias_metrics
+import streamlit.components.v1 as components
+from streamlit_js_eval import streamlit_js_eval
+import webbrowser
+from frontend import main_frontend, style_b1, style_b2, style_b3, style_b4, style_b5,style_b6
+from sklearn.metrics import accuracy_score, classification_report
+# File paths for saving reports
+imbalance_report_file = "reports/imbalance_report.csv"
+missing_values_report_file = "reports/missing_values_report.csv"
+model_report_file = "reports/model_performance.csv"
+fairness_report_file = "reports/fairness_report.csv"
+
+#-----------------------------------------------------
+
+st.set_page_config(page_title="JS-Python Page Switcher")
+
+# Initialize the session state
+if "pagina" not in st.session_state:
+    st.session_state.pagina = "upload"
+
+selected_page = streamlit_js_eval(js_expressions="window.selectedPage", key="eval_page")
+
+if selected_page and selected_page != st.session_state.pagina:
+    st.session_state.pagina = selected_page
+
+#-----------------------------------------------------
+
+
+# Função para abrir o link em uma nova aba
+def abrir_link(url):
+    webbrowser.open(url, new=2)
+
+# Configuração do Streamlit
+#st.set_page_config(page_title="ML Framework", layout="wide")
+
+main_frontend()
+
+
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+def b0():
+    st.session_state["b2"] = True
+    st.session_state["b1"] = False
+    st.session_state["b3"] = False
+    st.session_state["b4"] = False
+    st.session_state["b5"] = False
+    st.session_state["b6"] = False
+def b1():
+    st.session_state["b5"] = True   
+    st.session_state["b1"] = False
+    st.session_state["b3"] = False
+    st.session_state["b2"] = False
+    st.session_state["b4"] = False
+    st.session_state["b6"] = False
+def b2():
+    st.session_state["b3"] = True
+    st.session_state["b1"] = False
+    st.session_state["b2"] = False
+    st.session_state["b4"] = False
+    st.session_state["b5"] = False
+    st.session_state["b6"] = False
+def b3():
+    st.session_state["b4"] = False
+    st.session_state["b1"] = False
+    st.session_state["b3"] = False
+    st.session_state["b2"] = False
+    st.session_state["b5"] = False
+    st.session_state["b6"] = True
+def b4():
+    st.session_state["b4"] = True
+    st.session_state["b1"] = False
+    st.session_state["b3"] = False
+    st.session_state["b2"] = False
+    st.session_state["b5"] = False
+    st.session_state["b6"] = False
+ 
+
+def tipical_sensitive_information():
+    return {
+        "gender", "sex", "biological_sex", "assigned_sex", "sex_at_birth", "gender_identity",
+        "gender_expression", "gender_category", "race", "ethnicity", "ethnic_group",
+        "racial_identity", "cultural_background", "dob",
+        "year_of_birth", "religion", "belief", "faith", "spirituality", "religious_affiliation", "sex9", "marital", "marital_status"
+    }
+
+def compute_max_fairness_value(automatic_results, selected_measures, column, protected_group):
+        unprotected_group = "not_" + str(protected_group)
+        max_value = 0
+        for fairness_measure in selected_measures:
+            if fairness_measure == "disparate_impact":
+                continue
+            for key in automatic_results:
+                _, fairness_dict = automatic_results[key]
+                if column in fairness_dict["XGBoost"]:
+
+                    value = fairness_dict["XGBoost"][column].get((protected_group, unprotected_group), {}).get(fairness_measure, None)
+                    if value is not None:
+                        max_value = max(max_value, abs(value))
+        return max_value
+
+available_fairness_metrics = ["equal_opportunity", "predictive_equality", "positive_predictive_parity", "true_positive_rate", "statistical_parity" , "disparate_impact"]     
+available_models = [
+            "Logistic Regression",
+            "Random Forest",
+            "XGBoost",
+            "LightGBM",
+            "SVM",
+            "MLP (Neural Network)"
+        ]
+
+def automatic():
+    df = st.session_state["df"]
+    st.session_state["automatic"] = True
+    missing_data = DataAnalyzer.check_missing_values(st.session_state["df"], file_path=missing_values_report_file)
+    colunas_lower = {col.lower(): col for col in st.session_state["df"].columns}
+    sensitive_col = [colunas_lower[col] for col in colunas_lower if col in tipical_sensitive_information()]
+    print(sensitive_col)
+    clusters = 1
+    for col in sensitive_col:
+        clusters *= len(st.session_state["df"][col].unique())
+    print("\n\n\n---------Clust-------")
+    print(clusters)
+    #se existir missing values 
+    if missing_data.iloc[0, 1] > 0:
+        
+            
+        
+        dados_automaticos = st.session_state["df"]
+        missing_possibilities_names = ["Original","MICE"]
+        automatic_combinations = ["Original", "MICE","Smote", "MICE & Smote"," LFR", "MICE & Smote & LFR"]
+        for i in range(len(automatic_combinations)):
+            dados_automaticos = st.session_state["df"]
+            if i == 0:
+                dados_automaticos = dados_automaticos
+            if i == 1 or i == 3 or i == 5:
+                dados_automaticos, method = impute_missing_values(
+                        dados_automaticos,  # O dataframe com os valores ausentes
+                        numeric_strategy="",
+                        categorical_strategy="",
+                        custom_value="",
+                        use_knn=False,
+                        use_iterative=True,
+                        use_rf=False
+                    )
+            if i == 2 or i == 3 or i == 5:
+                dados_automaticos = oversampling(dados_automaticos, 
+                target_column=df.columns.tolist()[-1], 
+                sensitive_columns=sensitive_col, 
+                method="Smote",
+                clusters=clusters)
+            
+            if i == 4 or i == 5:
+                dados_automaticos, _ , _ = Learning_fair_representations(dados_automaticos,
+                target = df.columns.tolist()[-1],
+                favorable_classes = dados_automaticos[df.columns.tolist()[-1]].unique().tolist()[0],
+                protected_attribute_name  = sensitive_col[0], 
+                privileged_classes = dados_automaticos[sensitive_col[0]].unique().tolist()[0],
+                drop_columns =  sensitive_col.copy())
+
+                
+            st.session_state["sensitive_columns"] = sensitive_col
+            print("\n\n\n-----------Sensitive")
+            print(st.session_state["sensitive_columns"])
+            st.session_state["selected_metrics_fairness"] = available_fairness_metrics
+            
+            modelo_automatico = ModelTrainer(dados_automaticos, df.columns.tolist()[-1], sensitive_col, test_size=0.3, random_state=42, selected_models="XGBoost", train_columns = df.columns.to_list(), favorable_classes_target = st.session_state["favorable_classes_target"], )
+            st.session_state["current_model"] = modelo_automatico
+            #modelo_automatico.fairness_method = "adversarial_debiasing"
+            #modelo_automatico.fairness_params = {"eta": 25}
+            #modelo_automatico.sensitive_attr = sensitive_col[0]
+
+            print(sensitive_col)
+            perfom_aut, fair_aut  = modelo_automatico.train_and_evaluate(selected_fairness=available_fairness_metrics, file_path = model_report_file, fairness_file_path = fairness_report_file)
+
+            perfom_aut_write = pd.DataFrame.from_dict(aux_func.extract_metrics(perfom_aut), orient="index", columns=["Accuracy"])
+            
+            st.session_state["automatic_results"][automatic_combinations[i]] = [perfom_aut_write, fair_aut]
+            
+            
+            st.session_state["b4"] = True
+            st.session_state["b1"] = False
+        
+    else:
+            automatic_combinations = ["Original","Smote"," LFR", "Smote & LFR"]
+            for i in range(len(automatic_combinations)):
+                dados_automaticos = st.session_state["df"]
+
+                if i == 1 or i == 3:
+                    dados_automaticos = oversampling(dados_automaticos, 
+                    target_column=df.columns.tolist()[-1], 
+                    sensitive_columns=sensitive_col, 
+                    method="Smote",
+                    clusters=clusters)
+                
+                if i == 2 or i == 3:
+                    dados_automaticos, _ , _ = Learning_fair_representations(dados_automaticos,
+                    target = df.columns.tolist()[-1],
+                    favorable_classes = dados_automaticos[df.columns.tolist()[-1]].unique().tolist()[0],
+                    protected_attribute_name  = sensitive_col[0], 
+                    privileged_classes = dados_automaticos[sensitive_col[0]].unique().tolist()[0],
+                    drop_columns =  sensitive_col.copy())
+
+           
+
+                st.session_state["sensitive_columns"] = sensitive_col
+                st.session_state["selected_metrics_fairness"] = available_fairness_metrics
+                
+                modelo_automatico = ModelTrainer(dados_automaticos, df.columns.tolist()[-1], sensitive_col, test_size=0.2, random_state=42, selected_models="XGBoost", train_columns = df.columns.to_list(),  favorable_classes_target = st.session_state["favorable_classes_target"], sample_weight = st.session_state["instance_weights"])
+
+        
+
+                perfom_aut, fair_aut  = modelo_automatico.train_and_evaluate(selected_fairness=available_fairness_metrics, file_path = model_report_file, fairness_file_path = fairness_report_file)
+
+                perfom_aut_write = pd.DataFrame.from_dict(aux_func.extract_metrics(perfom_aut), orient="index", columns=["Accuracy"])
+            
+                st.session_state["automatic_results"][automatic_combinations[i]] = [perfom_aut_write, fair_aut]
+            
+            
+            st.session_state["b4"] = True
+            st.session_state["b1"] = False
+    st.session_state.current_model = modelo_automatico
+    return
+
+
+
+st.markdown('<div class="conteudo">', unsafe_allow_html=True)
+if st.session_state["b1"]:
+    st.subheader("Upload dataset")
+    style_b1()
+    # 📂 Upload dataset
+    uploaded_file = st.file_uploader(
+        "Upload a CSV, JSON, Excel, or DATA file", 
+        type=["csv", "json", "xlsx", "data"]
+    )
+    shown = False
+
+
+    
+    if uploaded_file:
+        if st.button("Load Dataset"):
+            with st.spinner("Loading dataset..."):
+                print("inicio")
+                df = DataReader.read_data(uploaded_file)
+                
+                # Salvar o dataset no session_state
+                st.session_state["df"] = df
+                #st.session_state["df_previus"] = None  # Resetar histórico de edições
+                st.session_state["df_original"] = df.copy()  # Manter a versão original
+                if "saved_models" not in st.session_state:
+                    st.session_state["saved_models"] = {}
+
+                colunas_lower = {col.lower(): col for col in df.columns}
+                st.session_state["changes"] = []
+                st.session_state["current_model"] = None
+                st.session_state["columns_train"] = df.columns.to_list()
+                st.session_state["default_target_column"] = df.columns.tolist()[-1]
+                st.session_state["favorable_classes_target"] = df[st.session_state["default_target_column"]].unique()[1]
+
+                print("\n\n\n-----------AQUI----")
+                print(st.session_state["favorable_classes_target"])
+                st.session_state["sensitive_columns"] = [colunas_lower[col] for col in colunas_lower if col in tipical_sensitive_information()]
+                st.session_state["selected_models"] = available_models
+                st.session_state["selected_metrics_fairness"] = available_fairness_metrics
+                st.session_state["inprocessing_method"] = None
+                st.session_state["inprocessing_params"] = None
+                st.session_state["inprocessing_sensitive_attr"] = None
+                st.session_state["inprocessing_models"] = None
+                st.session_state["inprocessing_eta"] = None
+                st.session_state["postprocessing_method"] = None
+                st.session_state["final_report"] = {}
+                st.session_state["instance_weights"] = []
+                st.session_state["final_report"]["dataset_car"] = []
+                st.session_state["final_report"]["preprocessing"] = []
+                st.session_state["final_report"]["inprocessing"] = "None"
+                st.session_state["final_report"]["results"] = []
+                st.session_state["automatic"] = False
+                st.session_state["automatic_results"] = {}
+                if "atual_final_report" not in st.session_state:
+                    st.session_state["atual_final_report"]={} 
+                    st.session_state["previus_final_report"]={}
+
+
+            #st.success("Dataset uploaded successfully!")
+            st.write("### Dataset Preview:")
+            st.write(df.head())
+
+
+            shown = True
+            #st.session_state["b1"] = False
+            #st.session_state["b2"] = True
+            #st.session_state["b3"] = False
+            #st.session_state["b4"] = False
+            #st.session_state["b5"] = False
+            st.button('Automatic', on_click = automatic)
+            #st.button('Continue', key='continue0', on_click = b0)
+
+
+
+    if "df" in st.session_state and not shown:
+        st.write("### Dataset Preview:")
+        st.write(st.session_state["df"].head())
+
+
+
+    #download
+    st.subheader("Download Test dataset")
+    data_path = "C:/Users/emanuel/Desktop/Framework/framwork_Thesis/experiment_premade_model/data.csv"
+    df = pd.read_csv(data_path, sep=";")
+
+    #st.dataframe(df)
+
+    # Criar botão de download
+    buffer = io.StringIO()
+    df.to_csv(buffer, index=False, sep=";")
+    st.download_button(
+        label="Baixar dataset de exemplo",
+        data=buffer.getvalue(),
+        file_name="dataset_exemplo.csv",
+        mime="text/csv",
+        key='download_button'
+    )
+
+    #st.button("Check Missing Values")
+
+    #upload test results
+    st.subheader("Upload Test Results")
+    uploaded_file = st.file_uploader(
+        "Upload a CSV, JSON, Excel, or DATA file with the dataset and the last column should be the predictions", 
+        type=["csv", "json", "xlsx", "data"]
+    )
+    if uploaded_file :
+        if st.button("Check Fairness"):
+            st.session_state["df_test"] = DataReader.read_data(uploaded_file)
+            colunas_lower = {col.lower(): col for col in st.session_state["df_test"].columns}
+            sensitive_col = [colunas_lower[col] for col in colunas_lower if col in tipical_sensitive_information()]
+            #print(st.session_state["df"].iloc[:, -1].to_numpy())
+
+            unique_vals = sorted(st.session_state["df_test"].iloc[:, -1].unique())
+
+            
+
+            try:
+                if unique_vals != [0, 1]:
+                    raise ValueError("The last column must contain only 0 and 1 as prediction values.")
+                dicio_all_fair = experiment_fairness(
+                    predictions=st.session_state["df_test"].iloc[:, -1].to_numpy(),
+                    name="",
+                    sensitive_columns=sensitive_col,
+                    target=st.session_state["df_test"].columns[-2],
+                    positive_target=df[st.session_state["df_test"].columns[-2]].unique()[1],
+                    selected_fairness=available_fairness_metrics,
+                    test_dataset=st.session_state["df_test"]
+                )
+                print(dicio_all_fair)
+                aux_func.show_fairness_test_model(dicio_all_fair)
+
+            except Exception as e:
+                st.error(
+                    "Error processing dataset. Please ensure that the dataset has the last column with predictions (values 0 or 1) "
+                    "and the penultimate column with the true target values."
+                )
+                print(f"Exception: {e}")
+
+    #--------------------
+    #Upload Model
+    st.subheader("Upload Pre-trained Model (.pkl)")
+    uploaded_model_file = st.file_uploader(
+        "Upload a pre-trained model in .pkl format", 
+        type=["pkl"]
+    )
+
+    if uploaded_model_file is not None:
+        try:
+            model = pickle.load(uploaded_model_file)
+            st.session_state["model"] = model
+            st.success("Model successfully loaded!")
+        except Exception as e:
+            st.error(f"Failed to load model: {e}")
+
+        #if st.button("Check model Fairness"):
+    
+    st.button('Continue', key='continue0', on_click = b0)
+            
+
+elif st.session_state["b2"]:
+    style_b2()
+    st.session_state["b1"] = False
+    st.session_state["b2"] = True
+    st.session_state["b3"] = False
+    st.session_state["b4"] = False
+    st.session_state["b5"] = False
+    st.session_state["b6"] = False
+    
+    
+    if "df" in st.session_state:
+    
+    #---------------------------------Especificações do utilizador
+    #   Valores selecionados pelo user
+        st.session_state["default_target_column"], default_sensitive_columns,st.session_state["sensitive_columns"], numeric_strategy, custom_value, categorical_strategy, custom_value_cat, use_knn, use_iterative, use_rf, resampling_method, clusters, sensitive_synt, group_synt, number_synt, include_columns, sensitive_change, group_change, number_change, protected_attribute_name_reweigh, privileged_classes_reweigh, st.session_state["favorable_classes_target"], repair_level_dir, protected_attribute_name_dir, privileged_classes_dir, protected_attribute_name_lfr, privileged_classes_lfr,priveleged_classes = aux_func.display_categorys(st.session_state["df"])
+
+
+
+        favorable_classes_target = st.session_state["favorable_classes_target"]
+        default_target_column = st.session_state["default_target_column"]
+        sensitive_columns = st.session_state["sensitive_columns"]
+        selected_models = st.session_state["selected_models"]
+        selected_metrics_fairness = st.session_state["selected_metrics_fairness"]
+
+        if st.button("Check Bias"):
+            dataset_bias_metrics(st.session_state["df"],sensitive_columns,priveleged_classes,default_target_column ,favorable_classes_target)
+            
+        st.subheader("Missing Data Handling")
+        if st.button("Check Missing Values"):
+            with st.spinner("Checking for missing values..."):
+                missing_data = DataAnalyzer.check_missing_values(st.session_state["df"], file_path=missing_values_report_file)
+            st.text(missing_data)
+            aux_info = ["#### Missing Values:\n"]
+            for _, row in missing_data.iterrows():
+                aux_info.append(f" - {row['column']}: **{row['missing_percentage']:.2f}%** \n")
+            missing_info_str = "".join(aux_info)
+            st.session_state["final_report"]["dataset_car"].append(missing_info_str)
+            st.success("Missing values report saved!")
+
+        if st.button("Impute Missing Values"):
+            with st.spinner("Imputing missing values..."):
+                if "df" in st.session_state:
+                    st.session_state["df_previous"] = st.session_state["df"]
+                st.session_state["df"], method = impute_missing_values(
+                    st.session_state["df"],
+                    numeric_strategy=numeric_strategy,
+                    categorical_strategy=categorical_strategy,
+                    custom_value=custom_value,
+                    use_knn=use_knn,
+                    use_iterative=use_iterative,
+                    use_rf=use_rf
+                )
+                st.session_state["changes"].append("Imputed missing values with: " + method)
+            st.success("Missing values imputed!")
+
+        st.subheader("Class Imbalance Handling")
+        if st.button("Analyze Imbalance"):
+            with st.spinner("Running class imbalance analysis..."):
+                report = DataAnalyzer.analyze_multiple_targets(st.session_state["df"], sensitive_columns, threshold=0.05, file_path=imbalance_report_file)
+                st.session_state["final_report"]["dataset_car"].append(aux_func.display_class_distribution(report))
+            st.success("Imbalance report saved!")
+
+        if st.button("Resample"):
+            st.session_state["df_previus"] = st.session_state["df"]
+            st.session_state["changes"].append(f"Remsampled with {resampling_method}")
+            with st.spinner(f"Applying {resampling_method}..."):
+                st.session_state["df"] = oversampling(st.session_state["df"], 
+                                                        target_column=default_target_column, 
+                                                        sensitive_columns=sensitive_columns, 
+                                                        method=resampling_method, clusters=clusters)
+            st.success(f"{resampling_method} applied!")
+
+        if st.button("Generate syntetic data"):
+            st.session_state["df_previus"] = st.session_state["df"]
+            st.session_state["changes"].append(f"Generated {number_synt} syntetic data for  {sensitive_synt} -> {group_synt}")
+            with st.spinner(f"Generating syntetic data for  {sensitive_synt} -> {group_synt}..."):
+                st.session_state["df"] = augment_minority_group(st.session_state["df"], 
+                                                    target_column=default_target_column, 
+                                                    sensitive_column=sensitive_synt, 
+                                                    group_value = group_synt,
+                                                    N = number_synt)
+            st.success(f"Generated {number_synt} syntetic  data for  {sensitive_synt} -> {group_synt} applied!")
+
+        st.subheader("Bias & Fairness Preprocessing")
+        if st.button("Bliding"):
+            removed_att = ", ".join([item for item in st.session_state["df_original"].columns.to_list() if item not in include_columns])
+            st.session_state["columns_train"] = include_columns
+            st.session_state["changes"].append(f"Blinding attributes:{removed_att}")
+            st.success(f"Blinded attributes:{removed_att} applied!")
+
+        if st.button("Massaging"):
+            st.session_state["df_previus"] = st.session_state["df"]
+            st.session_state["changes"].append(f"Changed {number_change} targets from {sensitive_change} with value {group_change}")
+            with st.spinner(f"Changing {number_change} targets from {sensitive_change} with value {group_change}..."):
+                st.session_state["df"] = change_labels(st.session_state["df"],target_column=default_target_column, 
+                sensitive_column=sensitive_change, 
+                sensitive_group_to_replace = group_change,
+                N = number_change)
+            st.success(f"Changed {number_change} targets from {sensitive_change} with value {group_change}")
+
+        if st.button("reweigh"):
+            st.session_state["df_previus"] = st.session_state["df"]
+            st.session_state["changes"].append(f"reweigh {protected_attribute_name_reweigh} with privileged group {privileged_classes_reweigh}")
+            with st.spinner(f"reweighing {protected_attribute_name_reweigh} with privileged group {privileged_classes_reweigh}..."):
+                st.session_state["df"], st.session_state["instance_weights"] = reweigh(st.session_state["df"],
+                target = default_target_column,
+                favorable_classes = favorable_classes_target,
+                protected_attribute_name  = protected_attribute_name_reweigh, 
+                privileged_classes = privileged_classes_reweigh)
+            st.success(f" reweighed {protected_attribute_name_reweigh} with privileged group {privileged_classes_reweigh}")
+
+        if st.button("LFR"):
+            st.session_state["df_previus"] = st.session_state["df"]
+            st.session_state["changes"].append(f"LFR {protected_attribute_name_lfr} with privileged group {privileged_classes_lfr}")
+            with st.spinner(f"LFR {protected_attribute_name_lfr} with privileged group {privileged_classes_lfr}..."):
+                st.session_state["df"], df_legivel, encoders = Learning_fair_representations(st.session_state["df"],
+                target = default_target_column,
+                favorable_classes = favorable_classes_target,
+                protected_attribute_name  = protected_attribute_name_lfr, 
+                privileged_classes = privileged_classes_lfr,
+                drop_columns =  st.session_state["sensitive_columns"])
+            st.success(f" LFR {protected_attribute_name_lfr} with privileged group {privileged_classes_lfr}")
+
+        dir = """if st.button("DisparateImpactRemover"):
+            st.session_state["df_previus"] = st.session_state["df"]
+            st.session_state["changes"].append(f"Removing disparate impact from {protected_attribute_name_dir} with privileged group {privileged_classes_dir} using a repair level of {repair_level_dir}")
+            with st.spinner(f"Removing disparate impact from {protected_attribute_name_dir} with privileged group {privileged_classes_dir} using a repair level of {repair_level_dir}..."):
+                st.session_state["df"] = Dir(df = st.session_state["df"],
+                target = default_target_column,
+                
+                protected_attribute  = protected_attribute_name_dir, 
+                
+                repair_level = repair_level_dir,
+                drop_columns = st.session_state["sensitive_columns"])
+            st.success(f" Removed disparate impact from {protected_attribute_name_dir} with privileged group {privileged_classes_dir} using a repair level of {repair_level_dir}")
+        """
+        st.subheader("Modifications applied to the current dataset")
+        st.session_state["final_report"]["preprocessing"] = st.session_state["changes"]
+        for change in range(len(st.session_state["changes"])):
+            st.markdown(f"{change + 1}º: {st.session_state['changes'][change]}")
+        st.button("Continue", key='continue0', on_click = b1)
+
+
+    else:
+        st.subheader("LMissing the dataset")
+
+elif st.session_state["b5"]:
+    style_b5()
+    st.session_state["b1"] = False
+    st.session_state["b2"] = False
+    st.session_state["b3"] = False
+    st.session_state["b4"] = False
+    st.session_state["b5"] = True
+    st.session_state["b6"] = False
+    st.session_state["inprocessing_eta"], st.session_state["inprocessing_sensitive_attr"], st.session_state["inprocessing_models"] = aux_func.inprocessing_categorys(st.session_state["df"])
+
+    st.write("### Inprocessing Methods")
+
+    if st.button("None"):
+        st.session_state["inprocessing_method"] = None
+        st.session_state["inprocessing_params"] = None
+        st.success("During training it will not be applied any inprocessing method")
+        st.session_state["final_report"]["inprocessing"] = "None"
+
+    # ----------------------------------
+    st.subheader("Logistic Regression Classifier")
+    if st.button("Prejudice Remover"):
+        st.session_state["inprocessing_method"] = "prejudice_remover"
+        st.session_state["inprocessing_params"] = {"eta": st.session_state["inprocessing_eta"]}
+        st.success("Using Prejudice Remover")
+        st.session_state["final_report"]["inprocessing"] = "Prejudice Remover"
+
+    if st.button("Meta Fair Classifier"):
+        st.session_state["inprocessing_method"] = "meta_fair_classifier"
+        st.session_state["inprocessing_params"] = {"eta": st.session_state["inprocessing_eta"]}
+        st.success("Using Meta Fair Classifier")
+        st.session_state["final_report"]["inprocessing"] = "Meta Fair Classifier"
+
+    if st.button("Gerry Fair Classifier"):
+        st.session_state["inprocessing_method"] = "gerry_fair_classifier"
+        st.session_state["inprocessing_params"] = {"eta": st.session_state["inprocessing_eta"]}
+        st.success("Using Gerry Fair Classifier")
+        st.session_state["final_report"]["inprocessing"] = "Gerry Fair Classifier"
+
+
+    st.subheader("Neural Net")  
+    if st.button("Adversarial Debiasing"):
+        st.session_state["inprocessing_method"] = "adversarial_debiasing"
+        st.session_state["inprocessing_params"] = {"eta": st.session_state["inprocessing_eta"]}
+        st.success("Using Adversarial Debiasing")
+        st.session_state["final_report"]["inprocessing"] = "Adversarial Debiasing"
+
+    st.subheader("Choosen Models")
+    
+
+    if st.button("Exponentiated Gradient Reduction"):
+        st.session_state["inprocessing_method"] = "Exponentiated Gradient Reduction"
+        st.session_state["inprocessing_params"] = {"eta": st.session_state["inprocessing_eta"]}
+        st.success("Using Exponentiated Gradient Reduction")
+        st.session_state["final_report"]["inprocessing"] = "Exponentiated Gradient Reduction"
+
+    if st.button("Grid Search Reduction"):
+        st.session_state["inprocessing_method"] = "grid_search_reduction"
+        st.session_state["inprocessing_params"] = {"eta": st.session_state["inprocessing_eta"]}
+        st.success("Using Grid Search Reduction")
+        st.session_state["final_report"]["inprocessing"] = "Grid Search Reduction"
+
+
+    
+    st.button("Continue",  key='continue0',on_click = b2)
+       
+elif st.session_state["b3"]:
+    style_b3()
+    st.session_state["b1"] = False
+    st.session_state["b2"] = False
+    st.session_state["b3"] = True
+    st.session_state["b4"] = False
+    st.session_state["b5"] = False
+    st.session_state["b6"] = False
+    
+    def sidebar():
+        default_models = ["Logistic Regression", "Random Forest", "XGBoost", "LightGBM", "SVM", "MLP (Neural Network)"]
+        available_metrics = ["Accuracy", "Precision", "Recall", "F1-Score"]
+        available_fairness_metrics = ["equal_opportunity", "predictive_equality", "positive_predictive_parity", "true_positive_rate", "statistical_parity", "disparate_impact"]
+
+        # Models selection inside an expander
+        st.sidebar.markdown("""<h2>Models</h2>""", unsafe_allow_html=True)
+        with st.sidebar.expander("", expanded=False):
+            selected_models = st.multiselect(
+                "Select models:", 
+                default_models, 
+                default=default_models
+            )
+
+        # Fairness measures selection inside an expander
+        st.sidebar.markdown("""<h2>Fairness Measures</h2>""", unsafe_allow_html=True)
+        with st.sidebar.expander("", expanded=False):
+            selected_metrics_fairness = st.multiselect(
+                "Select fairness metrics:", 
+                available_fairness_metrics, 
+                default=available_fairness_metrics
+            )
+        
+        return selected_models, selected_metrics_fairness
+    st.session_state["selected_models"], st.session_state["selected_metrics_fairness"] = sidebar() 
+    st.subheader("Train Models")
+
+    
+
+    if st.button("Train Models and Compare Performance & Fairness"): 
+
+        if st.session_state["atual_final_report"] == {}:
+        
+            st.session_state["atual_final_report"] = deepcopy(st.session_state["final_report"])
+            
+            
+        else:
+            print("\n\n\nAQUII\n\n\n")
+            st.session_state["previus_final_report"] = deepcopy(st.session_state["atual_final_report"])
+            st.session_state["atual_final_report"] = deepcopy(st.session_state["final_report"])
+
+        if "report_after_performance" not in st.session_state:
+            st.session_state["accuracy_atual"] = None
+            st.session_state["accuracy_anterior"] = None
+            st.session_state["report_after_performance"] = None
+
+            fair_atual = None
+            fair_anterior = None
+            st.session_state["report_after_fairness"] = None
+            
+        else:
+            
+            st.session_state["report_before_performance"] = st.session_state["report_after_performance"]
+            st.session_state["accuracy_anterior"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_after_performance"]), orient="index", columns=["Accuracy"])
+
+            st.session_state["report_before_fairness"] = st.session_state["report_after_fairness"]
+
+        with st.spinner("Training models on corrected data..."):
+            
+            trainer_after = ModelTrainer(st.session_state["df"], st.session_state["default_target_column"], st.session_state["sensitive_columns"], test_size=0.3, random_state=42, selected_models=st.session_state["selected_models"], train_columns = st.session_state["columns_train"], favorable_classes_target =  st.session_state["favorable_classes_target"], sample_weight = st.session_state["instance_weights"])
+
+            #TODO: COLOCAR ISTO EM PARAMETROS
+            trainer_after.fairness_method = st.session_state["inprocessing_method"]
+            trainer_after.fairness_params = st.session_state["inprocessing_params"]
+            trainer_after.sensitive_attr = st.session_state["inprocessing_sensitive_attr"]
+            trainer_after.inprocessing_models = st.session_state["inprocessing_models"]
+
+            st.session_state["current_model"] = trainer_after
+            
+            st.session_state["report_after_performance"], st.session_state["report_after_fairness"]  = trainer_after.train_and_evaluate(selected_fairness=st.session_state["selected_metrics_fairness"], file_path = model_report_file, fairness_file_path = fairness_report_file)
+            st.session_state["accuracy_atual"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_after_performance"]), orient="index", columns=["Accuracy"])
+
+
+
+            trainer_orig = ModelTrainer(st.session_state["df_original"], st.session_state["default_target_column"], st.session_state["sensitive_columns"], test_size=0.3, random_state=42, selected_models=st.session_state["selected_models"], train_columns = st.session_state["df_original"].columns.to_list(), favorable_classes_target = st.session_state["favorable_classes_target"])
+            trainer_orig.fairness_method = None
+            st.session_state["report_orig_performance"], st.session_state["report_orig_fairness"]  = trainer_orig.train_and_evaluate(selected_fairness=st.session_state["selected_metrics_fairness"], file_path = model_report_file, fairness_file_path = fairness_report_file)
+
+            st.session_state["accuracy_orig"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_orig_performance"]), orient="index", columns=["Accuracy"])
+            
+
+        st.success("Models trained on both datasets! Comparing results...")
+    if st.button("Save current Model"): 
+        st.session_state["saved_models"]["_".join(st.session_state["changes"])] = st.session_state["current_model"]
+    
+    st.button("Continue",  key='continue0',on_click = b3)
+
+elif st.session_state["b6"]:
+    style_b6()
+    st.session_state["b1"] = False
+    st.session_state["b2"] = False
+    st.session_state["b3"] = False
+    st.session_state["b4"] = False
+    st.session_state["b5"] = False
+    st.session_state["b6"] = True
+    
+    sensitive_post, priveledge_post = aux_func.postProcessing_caracteristics(st.session_state["df"])
+    st.write("### PostProcessing Methods")
+
+    if st.button("None"):
+        st.session_state["postprocessing_method"] = None
+        
+        st.success("It will not be applied a postprocessing method")
+        st.session_state["final_report"]["postprocessing"] = "None"
+
+    # ----------------------------------
+    #st.subheader("Logistic Regression Classifier")
+    if st.button("Equalized Odds"):
+        st.session_state["postprocessing_method"] = "Equalized Odds"
+        st.success("Using Equalized Odds")
+        st.session_state["final_report"]["postprocessing"] = "Equalized Odds"
+
+    if st.button("Calibrated Equalized Odds"):
+        st.session_state["postprocessing_method"] = "Calibrated Equalized Odds"
+        st.success("Using Calibrated Equalized Odds")
+        st.session_state["final_report"]["postprocessing"] = "Calibrated Equalized Odds"
+
+    if st.button("Threshold Optimizer"):
+        st.session_state["postprocessing_method"] = "Threshold Optimizer"
+        st.success("Using Threshold Optimizer")
+        st.session_state["final_report"]["postprocessing"] = "Threshold Optimizer"
+
+    if st.button("Reject Option Classification"):
+        st.session_state["postprocessing_method"] = "Reject Option Classification"
+        st.success("Using Reject Option Classification")
+        st.session_state["final_report"]["postprocessing"] = "Reject Option Classification"
+
+    if st.session_state["postprocessing_method"] != None:
+        dicio_all_fair = {}
+        report_lines = ["===== Model Training & Evaluation Report ====="]
+        for model in st.session_state["selected_models"]:
+            if model == "SVM" and st.session_state["postprocessing_method"] == "Threshold Optimizer":
+                continue
+            new_pred = postProcessing(st.session_state["postprocessing_method"], st.session_state["current_model"].predictions[model], st.session_state["current_model"].df_test, st.session_state["current_model"].models[model], sensitive_post, priveledge_post, st.session_state["default_target_column"])
+            
+            dicio_all_fair[model] = experiment_fairness(
+                        predictions=new_pred,
+                        name=model,
+                        sensitive_columns=st.session_state["sensitive_columns"],
+                        target=st.session_state["default_target_column"],
+                        positive_target=st.session_state["favorable_classes_target"],
+                        selected_fairness=available_fairness_metrics,
+                        test_dataset=st.session_state["current_model"].df_test
+                    )
+            print(model)
+            print(st.session_state["current_model"].y_test)
+            print(new_pred)
+            accuracy = accuracy_score(st.session_state["current_model"].y_test, new_pred)
+
+            classification_rep = classification_report(st.session_state["current_model"].y_test, new_pred)
+            result = f"\n{model} - Accuracy: {accuracy:.4f}\n{classification_rep}"
+            report_lines.append(result)
+        st.session_state["report_after_fairness"] = dicio_all_fair
+
+        st.session_state["report_after_performance"] = "\n".join(report_lines)
+        st.session_state["accuracy_atual"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_after_performance"]), orient="index", columns=["Accuracy"])
+        print(st.session_state["accuracy_atual"])
+    st.button("Continue",  key='continue0',on_click = b4)
+
+
+elif st.session_state["b4"]:
+    style_b4()
+    st.session_state["b1"] = False
+    st.session_state["b2"] = False
+    st.session_state["b3"] = False
+    st.session_state["b4"] = True
+    st.session_state["b5"] = False
+    st.session_state["b6"] = False
+    if  st.session_state["automatic"]:
+        st.subheader("\n\n\n Accuracy")
+        x_labels = []
+        performance_values = []
+        for key, value in st.session_state["automatic_results"].items():
+            perfom_aut_write, fair_aut = value  # unpack
+            x_labels.append(key)
+            
+            # Supondo que perfom_aut_write seja um DF com uma coluna chamada 'accuracy'
+            # Você pode ajustar isso para sua métrica (ex: f1, precision...)
+            performance = perfom_aut_write["Accuracy"].mean()  # ou algum outro agregador
+            performance_values.append(performance)
+
+        # Plotando
+        fig = plt.figure(figsize=(10, 6))
+        plt.bar(x_labels, performance_values, color='skyblue')
+        plt.xlabel("Scenario")
+        plt.ylabel("Performance (accuracy)")
+        plt.title("Model Performance by Scenario")
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()
+        st.pyplot(fig)
+        selected_measures = st.session_state["selected_metrics_fairness"]
+        num_measures = len(selected_measures)
+        cols = 3
+        rows = math.ceil(num_measures / cols)
+        sensitive_attribute, protected_group, show_fairness = aux_func.automatic_fairness(st.session_state["df"])
+        
+        if show_fairness:
+
+            max_fairness_value = compute_max_fairness_value(
+                st.session_state["automatic_results"],
+                selected_measures,
+                column=sensitive_attribute,
+                protected_group=protected_group
+            )
+            st.markdown('<div style="margin-bottom: 50px;">', unsafe_allow_html=True)
+            st.subheader("\n\n\n Fairness")
+            fig, axs = plt.subplots(rows, cols, figsize=(6 * cols, 4 * rows))
+            axs = axs.flatten()
+
+            for i, fairness_measure in enumerate(selected_measures):
+                ax = axs[i]
+
+                aux_func.show_fairness_plot_single_model(
+                    st.session_state["automatic_results"],
+                    column=sensitive_attribute,
+                    protected_group=protected_group,
+                    selected_fairness=fairness_measure,
+                    ax=ax,
+                    max_y=max_fairness_value
+                )
+                ax.set_title(fairness_measure.replace('_', ' ').title())
+
+            # Clean empty axes if needed
+            for j in range(len(selected_measures), len(axs)):
+                fig.delaxes(axs[j])
+
+            plt.tight_layout()
+            st.pyplot(fig)
+
+
+
+
+            
+    else:
+        if st.session_state["previus_final_report"] == {}:
+            st.subheader("Current:")
+            aux_func.display_final_report(st.session_state["atual_final_report"])
+        else:
+            st.subheader("Previus:")
+            aux_func.display_final_report(st.session_state["previus_final_report"])
+            st.subheader("Current:")
+            aux_func.display_final_report(st.session_state["atual_final_report"])
+        sensitive_attribute, protected_group, show_fairness, sensitive_attribute_scatter, protected_group_scatter, selected_metric_1_scatter, selected_metric_2_scatter, show_scatter = aux_func.ola (1)
+        
+        #------------------------------------------------Graficos
+        if "report_after_performance"  in st.session_state:
+            st.subheader("\n\n\n Accuracy")
+            st.pyplot(aux_func.show_plots(len(st.session_state["selected_models"]),st.session_state["accuracy_anterior"], st.session_state["accuracy_atual"],st.session_state["accuracy_orig"] , "Accuracy" ))
+        #-----------------------------------------------------Fairness
+
+            
+            # Plotando o gráfico
+            if show_fairness:
+                st.subheader("\n\n\n Fairness")
+                selected_measures = st.session_state["selected_metrics_fairness"]
+                num_measures = len(selected_measures)
+                cols = 3
+                rows = math.ceil(num_measures / cols)
+
+
+                # Coleta os valores máximos para definir a escala
+                max_fairness_value = 0
+
+                for fairness_measure in selected_measures:
+                    if fairness_measure == "disparate_impact":
+                        continue  # Pula disparate impact
+
+                    for model in st.session_state["report_after_fairness"]:
+                        if "report_before_fairness" in st.session_state:
+                            for report in [st.session_state["report_orig_fairness"],
+                                        st.session_state["report_before_fairness"],
+                                        st.session_state["report_after_fairness"]]:
+                                if model in report and sensitive_attribute in report[model]:
+                                    value = report[model][sensitive_attribute].get(
+                                        (protected_group, "not_" + protected_group), {}).get(fairness_measure, None)
+                                    if value is not None:
+                                        max_fairness_value = max(max_fairness_value, abs(value))
+                        else:
+                            for report in [st.session_state["report_orig_fairness"],
+                                        st.session_state["report_after_fairness"]]:
+                                if model in report and sensitive_attribute in report[model]:
+                                    value = report[model][sensitive_attribute].get(
+                                        (str(protected_group), "not_" + str(protected_group)), {}).get(fairness_measure, None)
+                                    if value is not None:
+                                        max_fairness_value = max(max_fairness_value, abs(value))
+
+                fig, axs = plt.subplots(rows, cols, figsize=(6 * cols, 4 * rows))
+                axs = axs.flatten()
+
+                for i, fairness_measure in enumerate(selected_measures):
+                    ax = axs[i]
+                    
+                    aux_func.show_plots_fairness(
+                        st.session_state.get("report_before_fairness", {}),
+                        st.session_state.get("report_after_fairness", {}),
+                        st.session_state.get("report_orig_fairness", {}),
+                        sensitive_attribute,
+                        protected_group,
+                        
+                        fairness_measure,
+                        ax=ax,
+                        max_y=max_fairness_value  # <-- novo parâmetro
+                    )
+                    ax.set_title(fairness_measure.replace('_', ' ').title())
+
+                # Apagar os eixos vazios, se houver
+                for j in range(len(selected_measures), len(axs)):
+                    fig.delaxes(axs[j])
+
+                plt.tight_layout()
+                st.pyplot(fig)
+            
+            if show_scatter:
+                st.markdown('<div style="margin-bottom: 50px;">', unsafe_allow_html=True)
+                st.subheader("\n\n\n Fairness Scatter")
+                fig = aux_func.show_comparison_scatter_plot(
+                st.session_state.get("accuracy_anterior", {}),
+                st.session_state.get("accuracy_atual", {}),
+                st.session_state.get("report_before_fairness", {}),
+                st.session_state.get("report_after_fairness", {}),
+                sensitive_attribute_scatter,
+                protected_group_scatter,
+                selected_metric_1_scatter,
+                selected_metric_2_scatter
+                )
+                st.pyplot(fig)
+                st.markdown('</div>', unsafe_allow_html=True)
+
+        # ----------------------------------------Show models saved
+
+        #if st.button("Report"):
+            
+
+        
+        if st.session_state["saved_models"] != None:
+            if st.markdown('<div class="custom-history-button">', unsafe_allow_html=True):
+                        if st.button("History"):
+                            Nmodelo = 1
+                            for nome, versao in st.session_state["saved_models"].items():
+                                st.markdown(f"### 🔹 {Nmodelo}º Modelo")
+                                Nmodelo += 1
+                                partes = nome.split('_')
+                                if nome == "":
+                                    st.markdown("Original")
+                                else:
+                                    for i, parte in enumerate(partes, start=1):
+                                        st.markdown(f" {i}º {parte}")
+                        st.markdown('</div>', unsafe_allow_html=True)
+
+    
+
+    # Example model_trainer usage
+    # trainer = ModelTrainer(...)
+    # final_report, fairness_dict = trainer.train_and_evaluate(...)
+    # df_test = trainer.df_test
+
+    # Simulate output
+    # Replace these with actual results
+    # model = trainer.models["Random Forest"]
+    # df_fairness = pd.read_csv("fairness.csv", sep=";")
+
+    def sidebar_model_download():
+        st.sidebar.markdown("""<h2>Model Download</h2>""", unsafe_allow_html=True)
+        with st.sidebar.expander(" ", expanded=False):
+            model_name = st.selectbox("Model Name:", st.session_state.current_model.models.keys())
+        return model_name
+
+    
+
+
+    def download_dataframe(df, filename="data.csv"):
+        buffer = io.StringIO()
+        df.to_csv(buffer, index=False, sep=";")
+        st.download_button(
+            label="Download DataFrame as CSV",
+            data=buffer.getvalue(),
+            file_name=filename,
+            mime="text/csv",
+            key="csvdownload"
+        )
+
+    
+    def download_model(model, filename="model.pkl"):
+        buffer = io.BytesIO()
+        joblib.dump(model, buffer)
+        buffer.seek(0)
+        st.download_button(
+            label="Download Trained Model",
+            data=buffer,
+            file_name=filename,
+            mime="application/octet-stream",
+            key="modeldownload"
+        )
+    # UI Usage
+    
+    st.markdown("""
+    <style>
+    .st-key-csvdownload button:active {
+        background-color: #325D79;
+        color: white;
+        border-color:#325D79;
+    }
+    .st-key-modeldownload button:active {
+        background-color: #325D79;
+        color: white;
+        border-color:#325D79;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    
+
+    st.subheader("Dataset Downloads")
+    download_dataframe(st.session_state.df, filename="data.csv")
+    if "current_model" in st.session_state:
+        model_name = sidebar_model_download()
+        model = st.session_state.current_model.models[model_name]
+
+
+        st.subheader(f"Model: {model_name}")
+        download_model(model, filename=f"{model_name.replace(' ', '_').lower()}.pkl")
+    else:
+        st.warning("Train a model first to enable downloads.")
+
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#--------------------------------------last one
+#st.title("📊 Comparação de Performance & Fairness Antes e Depois")
+
+#-----------------------------------------------------
+a =''' st.session_state structure
+df -> dataset atualizado (com as mudanças selecionadas)
+df_previus -> dataset com todas as mudanças excepto a ultima
+df_original -> dataset original
+report_before_performance -> performance  no dataset anterior
+report_after_performance -> performance  no dataset atual
+report_before_fairness -> fairness  no dataset anterior
+report_after_fairness -> fairness  no dataset atual
+accuracy_atual 
+accuracy_anterior
+changes -> lista de string com as alteraçoes feita no modelo
+saved_models -> dicionario em que key é string com alteraçoes que contem e valor é a class do modelo  ( o modelo esta em self.models["tipo modelo"])
+current_model -> class do modelo
+columns_train -> colunas que vao ser usadas no treino ( no teste sao todas usadas)
+b1, b2,b3,b4 -> butoes de sessao
+
+'''
+a="""with st.sidebar.expander("📂 Upload Your Dataset", expanded=True):
+    print("sdff")"""
+
+d= """
+# Adicionar um botão para carregar o dataset
+if uploaded_file and st.button("🔄 Load Dataset"):
+    with st.spinner("📂 Loading dataset..."):
+        print("inicio")
+        df = DataReader.read_data(uploaded_file)
+        
+        # Salvar o dataset no session_state
+        st.session_state["df"] = df
+        #st.session_state["df_previus"] = None  # Resetar histórico de edições
+        st.session_state["df_original"] = df.copy()  # Manter a versão original
+        st.session_state["saved_models"] = {}
+        st.session_state["changes"] = []
+        st.session_state["current_model"] = None
+        st.session_state["columns_train"] = df.columns.to_list()
+
+    st.success("✅ Dataset uploaded successfully!")
+    st.write("### 📌 Dataset Preview:")
+    st.write(df.head())
+
+
+"""
+
+#-----------------------------------------------------
+# Configuração de correção de dados
+c= """if "df" in st.session_state:
+    
+#---------------------------------Especificações do utilizador
+#   Valores selecionados pelo user
+    default_target_column, default_sensitive_columns,sensitive_columns, selected_models, selected_metrics_fairness, numeric_strategy, custom_value, categorical_strategy, custom_value_cat, use_knn, use_iterative, use_rf, resampling_method, clusters, sensitive_synt, group_synt, number_synt, include_columns, sensitive_change, group_change, number_change = aux_func.display_categorys(st.session_state["df"])
+
+    st.subheader("📉 Missing Values Analysis")
+    if st.button("Check Missing Values"):
+        with st.spinner("🔎 Checking for missing values..."):
+            missing_data = DataAnalyzer.check_missing_values(st.session_state["df"], file_path=missing_values_report_file)
+        st.text(missing_data)
+        st.success("✅ Missing values report saved!")
+
+    # Se o botão 'Impute' for pressionado, aplicar imputação
+    if st.button("Impute Missing Values"):
+        
+        with st.spinner("🔧 Imputing missing values..."):
+            # Save previous dataset
+            if "df" in st.session_state:
+                st.session_state["df_previous"] = st.session_state["df"]
+            st.session_state["df"], method= impute_missing_values(
+                st.session_state["df"],  # O dataframe com os valores ausentes
+                numeric_strategy=numeric_strategy,
+                categorical_strategy=categorical_strategy,
+                custom_value=custom_value,
+                use_knn=use_knn,
+                use_iterative=use_iterative,
+                use_rf=use_rf
+            )
+            st.session_state["changes"].append("Imputed missing values with: " + method)
+        st.success("✅ Missing values imputed!")
+        st.subheader("Imputed DataFrame")
+        #st.write(st.session_state["df"])
+
+    st.subheader("⚖️ Class Imbalance Analysis")
+    if st.button("Analyze Imbalance"):
+        with st.spinner("📊 Running class imbalance analysis..."):
+            report = DataAnalyzer.analyze_multiple_targets(st.session_state["df"], sensitive_columns, threshold=0.05, file_path=imbalance_report_file)
+            aux_func.display_class_distribution(report)
+        st.success("✅ Imbalance report saved!")
+    
+    if st.button("Resample"):
+        st.session_state["df_previus"] = st.session_state["df"]
+        st.session_state["changes"].append(f"Remsampled with {resampling_method}")
+        with st.spinner(f"Applying {resampling_method}..."):
+            st.session_state["df"] = oversampling(st.session_state["df"], 
+                                                target_column=default_target_column, 
+                                                sensitive_columns=sensitive_columns, 
+                                                method=resampling_method, clusters=clusters)
+        st.success(f"✅ {resampling_method} applied!")
+
+
+
+        #present changes in the current dataset 
+    
+    
+    if st.button("Generate syntetic data"):
+        st.session_state["df_previus"] = st.session_state["df"]
+        st.session_state["changes"].append(f"Generated {number_synt} syntetic data for  {sensitive_synt} -> {group_synt}")
+        with st.spinner(f"Generating syntetic data for  {sensitive_synt} -> {group_synt}..."):
+            st.session_state["df"] = augment_minority_group(st.session_state["df"], 
+                                                target_column=default_target_column, 
+                                                sensitive_column=sensitive_synt, 
+                                                group_value = group_synt,
+                                                N = number_synt)
+        st.success(f"✅ Generated {number_synt} syntetic  data for  {sensitive_synt} -> {group_synt} applied!")
+    
+    if st.button("Bliding"):
+        removed_att = ", ".join([item for item in st.session_state["df_original"].columns.to_list() if item not in include_columns])
+        st.session_state["columns_train"] = include_columns
+        st.session_state["changes"].append(f"Blinding attributes:{removed_att}")
+
+        st.success(f"✅ Blinded attributes:{removed_att} applied!")
+
+
+    if st.button("Change Lables"):
+        st.session_state["df_previus"] = st.session_state["df"]
+        st.session_state["changes"].append(f"Changed {number_change} targets from {sensitive_change} with value {group_change}")
+        with st.spinner(f"Changing {number_change} targets from {sensitive_change} with value {group_change}..."):
+            st.session_state["df"] = change_labels(st.session_state["df"],target_column=default_target_column, 
+            sensitive_column=sensitive_change, 
+            sensitive_group_to_replace = group_change,
+            N = number_change)
+        st.success(f"✅ Changed {number_change} targets from {sensitive_change} with value {group_change}")
+
+    
+    st.subheader("Modifications applied to the current dataset")
+
+    for change in range(len(st.session_state["changes"])):
+        st.markdown(f"{change + 1}º: {st.session_state['changes'][change]}")"""
+
+
+
+
+
+
+#----------------------------------Treinar Modelo
+    
+a= """    st.subheader("🚀 Train Models")
+
+
+    if st.button("Train Models and Compare Performance & Fairness"): 
+        if "report_after_performance" not in st.session_state:
+            st.session_state["accuracy_atual"] = None
+            st.session_state["accuracy_anterior"] = None
+            st.session_state["report_after_performance"] = None
+
+            fair_atual = None
+            fair_anterior = None
+            st.session_state["report_after_fairness"] = None
+            
+        else:     
+            st.session_state["report_before_performance"] = st.session_state["report_after_performance"]
+            st.session_state["accuracy_anterior"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_after_performance"]), orient="index", columns=["Accuracy"])
+
+            st.session_state["report_before_fairness"] = st.session_state["report_after_fairness"]
+
+            #print("\n\n\n\n\n-----------------Aqui-------------")
+            #print(st.session_state["report_before_fairness"]["XGBoost"]["sex"][(" Male", " Female")]["Statistical Parity"])
+            #print("\n\n\n\n\n")
+
+        with st.spinner("🚀 Training models on corrected data..."):
+            
+            trainer_after = ModelTrainer(st.session_state["df"], default_target_column, sensitive_columns, test_size=0.2, random_state=42, selected_models=selected_models, train_columns = st.session_state["columns_train"])
+            st.session_state["current_model"] = trainer_after
+            
+            st.session_state["report_after_performance"], st.session_state["report_after_fairness"]  = trainer_after.train_and_evaluate(selected_fairness=selected_metrics_fairness, file_path = model_report_file, fairness_file_path = fairness_report_file)
+            st.session_state["accuracy_atual"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_after_performance"]), orient="index", columns=["Accuracy"])
+
+        st.success("✅ Models trained on both datasets! Comparing results...")
+    if st.button("Save current Model"): 
+        st.session_state["saved_models"]["_".join(st.session_state["changes"])] = st.session_state["current_model"]"""
+
+
+
+#Results
+c= """#------------------------------------------------Graficos
+    if "report_after_performance"  in st.session_state:
+        st.pyplot(aux_func.show_plots(len(selected_models),st.session_state["accuracy_anterior"], st.session_state["accuracy_atual"], "Accuracy" ))
+
+
+
+#-----------------------------------------------------Fairness
+        # Seleção dinâmica do fairness metric e do grupo protegido
+        selected_fairness = st.selectbox("Choose fairness metric:", selected_metrics_fairness)
+        sensitive_attribute = st.selectbox("Choose sensitive attribute:", sensitive_columns )
+        protected_group = st.selectbox("Protected Group:", st.session_state["df"][sensitive_attribute].unique().tolist())
+        unprotected_group = st.selectbox("Unprotected Group:", [val for val in st.session_state["df"][sensitive_attribute].unique().tolist() if val != protected_group])
+        
+        # Plotando o gráfico
+        if st.button("Show Fairness Plot"):
+            fig = aux_func.show_plots_fairness(
+                st.session_state.get("report_before_fairness", {}),
+                st.session_state.get("report_after_fairness", {}),
+                sensitive_attribute,  # Coluna fixa como exemplo, pode ser alterada dinamicamente
+                protected_group,
+                unprotected_group,
+                selected_fairness
+            )
+            st.pyplot(fig)
+        
+
+        aux_func.select_metrics_and_plot(selected_metrics_fairness, sensitive_columns)
+    # ----------------------------------------Show models saved
+
+    with st.expander("📂 Show saved models"):
+        st.write("# 📋 Models List")
+        if st.session_state["saved_models"] != None:
+            Nmodelo = 1
+            for nome, versao in st.session_state["saved_models"].items():
+                st.markdown(f"### 🔹 {Nmodelo}º Modelo")
+                Nmodelo += 1
+                partes = nome.split('_')
+                if nome == "":
+                    st.markdown("Original")
+                else:
+                    for i, parte in enumerate(partes, start=1):
+                        st.markdown(f" {i}º {parte}")"""
