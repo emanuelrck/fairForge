@@ -1295,6 +1295,20 @@ if st.session_state["b1"]:
             for col in TestModel_sens:
                     TestModel_priveledge.append(st.selectbox("Enter the priveleged class of "+col, prediction_dataset[col].unique().tolist()))
 
+            
+            if st.button("Check Fairness"):
+                dicio_all_fair = experiment_fairness(
+                    predictions=prediction_dataset.iloc[:, -1].to_numpy(),
+                    name="",
+                    sensitive_columns=TestModel_sens,
+                    target=TestModel_target,
+                    positive_target=TestModel_target_positive,
+                    selected_fairness=available_fairness_metrics,
+                    test_dataset=prediction_dataset
+                )
+                print(dicio_all_fair)
+                aux_func.show_fairness_test_model(dicio_all_fair)
+
         else: 
             st.sidebar.markdown("""<h3>Load prediction dataset</h3>""", unsafe_allow_html=True)
 
