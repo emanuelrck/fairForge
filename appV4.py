@@ -1289,7 +1289,7 @@ if st.session_state["b1"]:
             TestModel_sens = st.multiselect(
                     "Select sensitive attributes:", 
                     prediction_dataset.columns.tolist(), 
-                    index=[prediction_dataset.columns[0]]
+                    index=[prediction_dataset.columns.tolist()[0]]
                 )
             TestModel_priveledge = []
             for col in TestModel_sens:
