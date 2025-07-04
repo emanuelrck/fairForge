@@ -1262,7 +1262,7 @@ if st.session_state["b1"]:
         st.write(st.session_state["df"].head())
 
 
-
+    st.button('Continue', key='continue0', on_click = b0)
    
             
 
