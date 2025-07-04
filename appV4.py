@@ -1263,7 +1263,7 @@ if st.session_state["b1"]:
 
     #------------------------------------ MODEL
     st.subheader("Test Model")
-
+    prediction_dataset = None
     prediction_dataset_raw = st.file_uploader(
             "Upload a CSV, JSON, Excel, or DATA file", 
             type=["csv", "json", "xlsx", "data"], key="uploader2"
