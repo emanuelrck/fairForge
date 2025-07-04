@@ -1,4 +1,4 @@
-﻿absl-py==2.2.2
+absl-py==2.2.2
 adversarial-robustness-toolbox==1.19.1
 aequitas==1.0.0
 aif360==0.6.1
@@ -149,6 +149,11 @@ pydeck==0.9.1
 Pygments==2.19.1
 pyparsing==3.2.1
 pytest==8.3.5
+pytest-cov==6.1.1
+python-dateutil==2.9.0.post0
+python-json-logger==3.3.0
+pytz==2025.1
+pywin32==310
 pywinpty==2.0.15
 PyYAML==6.0.2
 pyzmq==26.4.0
