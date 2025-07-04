@@ -242,7 +242,7 @@ def automatic():
 
 st.markdown('<div class="conteudo">', unsafe_allow_html=True)
 if st.session_state["b1"]:
-    st.subheader("Upload dataset")
+    st.subheader("Upload dataset new")
     style_b1()
     # 📂 Upload dataset
     uploaded_file = st.file_uploader(
