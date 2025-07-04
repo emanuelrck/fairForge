@@ -1264,11 +1264,12 @@ if st.session_state["b1"]:
     #------------------------------------ MODEL
     st.subheader("Test Model")
 
-    prediction_dataset = st.file_uploader(
+    prediction_dataset_raw = st.file_uploader(
             "Upload a CSV, JSON, Excel, or DATA file", 
             type=["csv", "json", "xlsx", "data"], key="uploader2"
         )
     st.sidebar.markdown("""<h2>Test Model</h2>""", unsafe_allow_html=True)
+    prediction_dataset = DataReader.read_data(prediction_dataset_raw)
     with st.sidebar.expander("", expanded=False):
         # 📂 Upload dataset
         if prediction_dataset:
@@ -1294,7 +1295,7 @@ if st.session_state["b1"]:
                     TestModel_priveledge.append(st.selectbox("Enter the priveleged class of "+col, prediction_dataset[col].unique().tolist()))
 
         else: 
-            st.write("Load the predictions dataset")
+            st.sidebar.markdown("""<h3>Load prediction dataset</h3>""", unsafe_allow_html=True)
 
 
 
