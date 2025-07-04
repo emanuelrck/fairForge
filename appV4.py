@@ -1271,7 +1271,7 @@ if st.session_state["b1"]:
                     )
                     st.session_state["favorable_classes_target"] = st.selectbox("Enter the privileged category:",st.session_state["df"][st.session_state["default_target_column"]].unique().tolist(), index =1, key="favorable_classes")
                     colunas_lower = {col.lower(): col for col in df.columns}
-                    default_sensitive_columns = [colunas_lower[col] for col in colunas_lower if col in tipical_sensitive_information]
+                    default_sensitive_columns = [colunas_lower[col] for col in colunas_lower if col in tipical_sensitive_information()]
 
                     st.session_state["sensitive_columns"] = st.multiselect(
                         "Select sensitive attributes:", 
