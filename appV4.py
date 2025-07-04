@@ -1195,7 +1195,7 @@ if st.session_state["b1"]:
     # 📂 Upload dataset
     uploaded_file = st.file_uploader(
         "Upload a CSV, JSON, Excel, or DATA file", 
-        type=["csv", "json", "xlsx", "data"]
+        type=["csv", "json", "xlsx", "data"], key="uploader1"
     )
     shown = False
 
@@ -1266,7 +1266,7 @@ if st.session_state["b1"]:
 
     prediction_dataset = st.file_uploader(
             "Upload a CSV, JSON, Excel, or DATA file", 
-            type=["csv", "json", "xlsx", "data"]
+            type=["csv", "json", "xlsx", "data"], key="uploader2"
         )
     st.sidebar.markdown("""<h2>Test Model</h2>""", unsafe_allow_html=True)
     with st.sidebar.expander("", expanded=False):
