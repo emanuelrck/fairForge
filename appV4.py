@@ -1263,7 +1263,7 @@ if st.session_state["b1"]:
 
 
             st.sidebar.markdown("""<h2>Attribute Specifications</h2>""", unsafe_allow_html=True)
-                with st.sidebar.expander("", expanded=False):
+            with st.sidebar.expander("", expanded=False):
                     st.session_state["default_target_column"] = st.selectbox(
                         "Choose target column:", 
                         df.columns.tolist(), 
