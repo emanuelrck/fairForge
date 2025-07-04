@@ -1085,6 +1085,7 @@ def automatic():
         clusters *= len(st.session_state["df"][col].unique())
     print("\n\n\n---------Clust-------")
     print(clusters)
+    progress = st.progress(0)
     #se existir missing values 
     if missing_data.iloc[0, 1] > 0:
         
@@ -1094,6 +1095,7 @@ def automatic():
         missing_possibilities_names = ["Original","MICE"]
         automatic_combinations = ["Original", "MICE","Smote", "MICE & Smote"," LFR", "MICE & Smote & LFR"]
         for i in range(len(automatic_combinations)):
+            progress.progress((i + 1) / len(automatic_combinations))
             dados_automaticos = st.session_state["df"]
             if i == 0:
                 dados_automaticos = dados_automaticos
@@ -1148,6 +1150,7 @@ def automatic():
     else:
             automatic_combinations = ["Original","Smote"," LFR", "Smote & LFR"]
             for i in range(len(automatic_combinations)):
+                progress.progress((i + 1) / len(automatic_combinations))
                 dados_automaticos = st.session_state["df"]
 
                 if i == 1 or i == 3:
