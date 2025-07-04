@@ -1269,7 +1269,8 @@ if st.session_state["b1"]:
             type=["csv", "json", "xlsx", "data"], key="uploader2"
         )
     st.sidebar.markdown("""<h2>Test Model</h2>""", unsafe_allow_html=True)
-    prediction_dataset = DataReader.read_data(prediction_dataset_raw)
+    if prediction_dataset_raw:
+        prediction_dataset = DataReader.read_data(prediction_dataset_raw)
     with st.sidebar.expander("", expanded=False):
         # 📂 Upload dataset
         if prediction_dataset:
