@@ -165,33 +165,8 @@ def display_categorys(df):
     #------------------------------------atributos
     
 
-    st.sidebar.markdown("""<h2>Attribute Specifications</h2>""", unsafe_allow_html=True)
-    with st.sidebar.expander("", expanded=False):
-        default_target_column = st.selectbox(
-            "Choose target column:", 
-            df.columns.tolist(), 
-            index=len(df.columns) - 1
-        )
-        favorable_classes_target = st.selectbox("Enter the privileged category:",st.session_state["df"][default_target_column].unique().tolist(), index =1, key="favorable_classes")
-        colunas_lower = {col.lower(): col for col in df.columns}
-        default_sensitive_columns = [colunas_lower[col] for col in colunas_lower if col in tipical_sensitive_information]
 
-        sensitive_columns = st.multiselect(
-            "Select sensitive attributes:", 
-            df.columns.tolist(), 
-            default=default_sensitive_columns
-        )
-        priveleged_classes = []
-        for col in sensitive_columns:
-            priveleged_classes.append(st.selectbox("Enter the priveleged class of "+col, st.session_state["df"][col].unique().tolist()))
-            
-
-
-
-    # Default parameters
     
-    
-
 
     #--------------------------------------------------------------------correçoes de data
     st.sidebar.markdown("""<h2>Missing Data</h2>""", unsafe_allow_html=True)
@@ -288,11 +263,11 @@ def display_categorys(df):
             
         
 
-    
+    default_sensitive_columns = [colunas_lower[col] for col in colunas_lower if col in tipical_sensitive_information]
 
 
 
-    return default_target_column, default_sensitive_columns,sensitive_columns, numeric_strategy, custom_value, categorical_strategy, custom_value_cat, use_knn, use_iterative, use_rf,resampling_method, cluster, sensitive_synt, group_synt, number_synt, include_columns, sensitive_change, group_change, number_change, protected_attribute_name_reweigh, privileged_classes_reweigh, favorable_classes_target, repair_level_dir, protected_attribute_name_dir, privileged_classes_dir, protected_attribute_name_lfr, privileged_classes_lfr, priveleged_classes
+    return default_sensitive_columns,  numeric_strategy, custom_value, categorical_strategy, custom_value_cat, use_knn, use_iterative, use_rf,resampling_method, cluster, sensitive_synt, group_synt, number_synt, include_columns, sensitive_change, group_change, number_change, protected_attribute_name_reweigh, privileged_classes_reweigh, repair_level_dir, protected_attribute_name_dir, privileged_classes_dir, protected_attribute_name_lfr, privileged_classes_lfr
 
 def extract_metrics(report):
             """Processa o relatório para extrair métricas de performance e fairness"""

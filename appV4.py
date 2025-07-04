@@ -1261,6 +1261,31 @@ if st.session_state["b1"]:
 
 
 
+
+            st.sidebar.markdown("""<h2>Attribute Specifications</h2>""", unsafe_allow_html=True)
+                with st.sidebar.expander("", expanded=False):
+                    st.session_state["default_target_column"] = st.selectbox(
+                        "Choose target column:", 
+                        df.columns.tolist(), 
+                        index=len(df.columns) - 1
+                    )
+                    st.session_state["favorable_classes_target"] = st.selectbox("Enter the privileged category:",st.session_state["df"][st.session_state["default_target_column"]].unique().tolist(), index =1, key="favorable_classes")
+                    colunas_lower = {col.lower(): col for col in df.columns}
+                    default_sensitive_columns = [colunas_lower[col] for col in colunas_lower if col in tipical_sensitive_information]
+
+                    st.session_state["sensitive_columns"] = st.multiselect(
+                        "Select sensitive attributes:", 
+                        df.columns.tolist(), 
+                        default=default_sensitive_columns
+                    )
+                    st.session_state["priveleged_classes"] = []
+                    for col in st.session_state["sensitive_columns"]:
+                        st.session_state["priveleged_classes"].append(st.selectbox("Enter the priveleged class of "+col, st.session_state["df"][col].unique().tolist()))
+        
+
+
+
+
     #------------------------------------ MODEL
     st.subheader("Test Model")
     prediction_dataset = None
@@ -1342,10 +1367,10 @@ elif st.session_state["b2"]:
     
     #---------------------------------Especificações do utilizador
     #   Valores selecionados pelo user
-        st.session_state["default_target_column"], default_sensitive_columns,st.session_state["sensitive_columns"], numeric_strategy, custom_value, categorical_strategy, custom_value_cat, use_knn, use_iterative, use_rf, resampling_method, clusters, sensitive_synt, group_synt, number_synt, include_columns, sensitive_change, group_change, number_change, protected_attribute_name_reweigh, privileged_classes_reweigh, st.session_state["favorable_classes_target"], repair_level_dir, protected_attribute_name_dir, privileged_classes_dir, protected_attribute_name_lfr, privileged_classes_lfr,priveleged_classes = aux_func.display_categorys(st.session_state["df"])
+         default_sensitive_columns, numeric_strategy, custom_value, categorical_strategy, custom_value_cat, use_knn, use_iterative, use_rf, resampling_method, clusters, sensitive_synt, group_synt, number_synt, include_columns, sensitive_change, group_change, number_change, protected_attribute_name_reweigh, privileged_classes_reweigh, repair_level_dir, protected_attribute_name_dir, privileged_classes_dir, protected_attribute_name_lfr, privileged_classes_lfr = aux_func.display_categorys(st.session_state["df"])
 
 
-
+        priveleged_classes = st.session_state["priveleged_classes"]
         favorable_classes_target = st.session_state["favorable_classes_target"]
         default_target_column = st.session_state["default_target_column"]
         sensitive_columns = st.session_state["sensitive_columns"]
