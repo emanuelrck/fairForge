@@ -1284,7 +1284,7 @@ if st.session_state["b1"]:
                     prediction_dataset.columns.tolist(), 
                     index=len(prediction_dataset.columns) - 2
                 )
-            TestModel_target_positive = st.selectbox("Enter the privileged category:",TestModel_target)
+            TestModel_target_positive = st.selectbox("Enter the privileged category:",prediction_dataset[TestModel_target].unique().tolist())
 
             TestModel_sens = st.multiselect(
                     "Select sensitive attributes:", 
