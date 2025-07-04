@@ -1273,7 +1273,7 @@ if st.session_state["b1"]:
         prediction_dataset = DataReader.read_data(prediction_dataset_raw)
     with st.sidebar.expander("", expanded=False):
         # 📂 Upload dataset
-        if prediction_dataset != None:
+        if prediction_dataset is not None:
             TestModel_predictions = st.selectbox(
                     "Choose target column:", 
                     prediction_dataset.columns.tolist(), 
