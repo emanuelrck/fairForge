@@ -1293,8 +1293,8 @@ if st.session_state["b1"]:
             for col in TestModel_sens:
                     TestModel_priveledge.append(st.selectbox("Enter the priveleged class of "+col, prediction_dataset[col].unique().tolist()))
 
-    else: 
-        st.write("Load the predictions dataset")
+        else: 
+            st.write("Load the predictions dataset")
 
 
 
