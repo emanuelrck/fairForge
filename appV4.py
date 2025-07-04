@@ -687,7 +687,9 @@ def main_frontend():
         flex-direction: column;
         gap: 0rem;
     }
-
+    .st-emotion-cache-1gulkj5{
+    background-color: rgb(50 93 121);
+    }
     .st-emotion-cache-1vsah7k p, .st-emotion-cache-1vsah7k ol, .st-emotion-cache-1vsah7k ul, .st-emotion-cache-1vsah7k dl, .st-emotion-cache-1vsah7k li {
         font-size: inherit;
         color: #325d79;
