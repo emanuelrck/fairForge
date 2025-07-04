@@ -678,7 +678,9 @@ def main_frontend():
         flex-direction: column;
         gap: 0rem;
     }
-
+    .st-emotion-cache-1aehpvj{
+    color: rgb(255 255 255);
+    }
     .st-emotion-cache-xxjg8 {
         width: 217.594px;
         position: relative;
