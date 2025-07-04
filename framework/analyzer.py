@@ -38,9 +38,9 @@ class DataAnalyzer:
             print(f"✅ No significant imbalance detected in '{target_column}'")
 
         # Save to CSV if file_path is provided
-        if file_path:
-            imbalance_report_df = pd.DataFrame([imbalance_report])
-            imbalance_report_df.to_csv(file_path, mode='a', header=not pd.io.common.file_exists(file_path), index=False, sep=';')
+        #if file_path:
+        #    imbalance_report_df = pd.DataFrame([imbalance_report])
+        #    imbalance_report_df.to_csv(file_path, mode='a', header=not pd.io.common.file_exists(file_path), index=False, sep=';')
 
         return imbalance_report
 
@@ -69,10 +69,10 @@ class DataAnalyzer:
             else:
                 msg = f"⚠️ Warning: Column '{column}' not found in dataset.\n"
                 print(msg)
-                if file_path:
-                    # Save the warning to CSV
-                    warning_report_df = pd.DataFrame([{"target_column": column, "class_distribution": "N/A", "imbalanced_classes": msg}])
-                    warning_report_df.to_csv(file_path, mode='w', header=not pd.io.common.file_exists(file_path), index=False, sep=';')
+                #if file_path:
+                #    # Save the warning to CSV
+                #    warning_report_df = pd.DataFrame([{"target_column": column, "class_distribution": "N/A", "imbalanced_classes": msg}])
+                #    warning_report_df.to_csv(file_path, mode='w', header=not pd.io.common.file_exists(file_path), index=False, sep=';')
 
         return reports
 
@@ -137,8 +137,8 @@ class DataAnalyzer:
             print(f"{row['column']}: {row['missing_percentage']:.2f}% missing")
 
         # Save to CSV if file_path is provided
-        if file_path:
-            missing_report_df.to_csv(file_path, mode='w', header=not pd.io.common.file_exists(file_path), index=False, sep=';')
+        #if file_path:
+        #    missing_report_df.to_csv(file_path, mode='w', header=not pd.io.common.file_exists(file_path), index=False, sep=';')
 
         return missing_report_df
 
