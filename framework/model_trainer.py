@@ -246,7 +246,8 @@ def experiment_fairness(predictions, name, sensitive_columns, target, positive_t
                 continue
         dicio_all_fair[sense_att] = {}
         groups = test_dataset[sense_att].unique()
-        
+        if len(groups) > 5:
+            groups = groups [:5]
         metrics = {}
         
         for priveledge in groups:
