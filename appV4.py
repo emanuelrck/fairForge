@@ -1190,7 +1190,7 @@ def automatic():
 
 st.markdown('<div class="conteudo">', unsafe_allow_html=True)
 if st.session_state["b1"]:
-    st.subheader("Upload dataset")
+    st.subheader("Improve Data")
     style_b1()
     # 📂 Upload dataset
     uploaded_file = st.file_uploader(
@@ -1258,6 +1258,40 @@ if st.session_state["b1"]:
             #st.session_state["b5"] = False
             st.button('Automatic', on_click = automatic)
             #st.button('Continue', key='continue0', on_click = b0)
+
+
+
+    #------------------------------------ MODEL
+    st.subheader("Test Model")
+    st.sidebar.markdown("""<h2>Test Model</h2>""", unsafe_allow_html=True)
+    with st.sidebar.expander("", expanded=False):
+        # 📂 Upload dataset
+        prediction_dataset = st.file_uploader(
+            "Upload a CSV, JSON, Excel, or DATA file", 
+            type=["csv", "json", "xlsx", "data"]
+        )
+        TestModel_predictions = st.selectbox(
+                "Choose target column:", 
+                prediction_dataset.columns.tolist(), 
+                index=len(df.columns) - 1
+            )
+        TestModel_target = st.selectbox(
+                "Choose target column:", 
+                prediction_dataset.columns.tolist(), 
+                index=len(df.columns) - 2
+            )
+        TestModel_target_positive = st.selectbox("Enter the privileged category:",TestModel_target)
+
+        TestModel_sens = st.multiselect(
+                "Select sensitive attributes:", 
+                prediction_dataset.columns.tolist(), 
+                default=default_sensitive_columns
+            )
+        TestModel_priveledge = []
+        for col in TestModel_sens:
+                TestModel_priveledge.append(st.selectbox("Enter the priveleged class of "+col, prediction_dataset[col].unique().tolist()))
+
+
 
 
 
