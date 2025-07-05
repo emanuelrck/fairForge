@@ -1387,8 +1387,8 @@ if st.session_state["b1"]:
             for col in TestModel_sens:
                     TestModel_priveledge.append(st.selectbox("Enter the priveleged class of "+col, prediction_dataset[col].unique().tolist()))
 
-        else: 
-            st.sidebar.markdown("""<h3>Load prediction dataset</h3>""", unsafe_allow_html=True)
+       # else: 
+        #    st.sidebar.markdown("""<h3>Load prediction dataset</h3>""", unsafe_allow_html=True)
 
     if prediction_dataset is not None and st.button("Check Fairness"):
         with st.spinner("Calculating fairness metrics..."):
