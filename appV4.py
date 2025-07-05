@@ -72,7 +72,9 @@ def main_frontend():
             background-color: #e1eef4;
         }
 
-    
+        .st-cg {
+            background-color: #e1eef4 !important;
+        }
 
 
 
