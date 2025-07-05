@@ -965,6 +965,22 @@ def style_b6():
 
     .st-em:hove{
         color: white !important;}
+
+    .st-emotion-cache-ocsh0s:hover {
+        border-color: rgb(50 93 121);
+        color: rgb(50 93 121);
+    }
+    .st-emotion-cache-ocsh0s:focus:not(:active) {
+        border-color: rgb(50 93 121);
+        color: rgb(50 93 121);
+    }
+
+    .st-emotion-cache-ocsh0s:active) {
+        border-color: rgb(50 93 121);
+        color: rgb(50 93 121);
+        background-color: rgb(225 238 244);
+    }
+
     </style>
     """, unsafe_allow_html=True)
 
