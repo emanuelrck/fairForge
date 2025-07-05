@@ -26,7 +26,11 @@ from sklearn.metrics import accuracy_score, classification_report
 def main_frontend():
     st.markdown("""
     <style>
-    
+
+        button:hover {
+            background-color: pink !important;
+        }
+
         /* Remove Menu e Footer do Streamlit */
         #MainMenu {visibility: hidden; display: none;}
         footer {visibility: hidden; display: none;}
