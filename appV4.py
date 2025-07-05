@@ -45,6 +45,13 @@ def main_frontend():
            border-color: rgb(50 93 121)  !important;
         }
 
+        .st-emotion-cache-1tokvoz {
+            display: inline !important;
+            transition: left 300ms;
+            color: rgb(128, 132, 149);
+            line-height: 0;
+        }
+
         /* Remove Menu e Footer do Streamlit */
         #MainMenu {visibility: hidden; display: none;}
         footer {visibility: hidden; display: none;}
@@ -1012,12 +1019,7 @@ def style_b6():
         color: rgb(50 93 121)  !important;
     }
   
-    .st-emotion-cache-1tokvoz {
-        display: inline !important;
-        transition: left 300ms;
-        color: rgb(128, 132, 149);
-        line-height: 0;
-    }
+    
     
 
     </style>
