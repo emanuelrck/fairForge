@@ -141,6 +141,22 @@ def main_frontend():
             background-color: #f5f5f5 !important;
         }
 
+        .st-emotion-cache-m2hdlh {
+            margin: 0px;
+            border: none;
+            height: 100%;
+            display: flex;
+            -webkit-box-align: center;
+            align-items: center;
+            width: 2rem;
+            -webkit-box-pack: center;
+            justify-content: center;
+            color: rgb(49, 51, 63);
+            transition: color 300ms, backgroundColor 300ms;
+            background-color: rgb(225 238 244);
+            border-radius: 0px;
+        }
+
 
 
 
