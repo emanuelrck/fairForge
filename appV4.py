@@ -1019,7 +1019,12 @@ def style_b6():
         color: rgb(50 93 121)  !important;
     }
   
-    
+    .st-emotion-cache-fsammq {
+        font-family: "Source Sans Pro", sans-serif;
+        font-size: 14px;
+        color: #325d79;
+        /* font-size: 15px; */
+    }
     
 
     </style>
@@ -1326,7 +1331,7 @@ if st.session_state["b1"]:
 
 
             st.sidebar.markdown("""<h2>Attribute Specifications</h2>""", unsafe_allow_html=True)
-            with st.sidebar.expander("""<h2>Attribute Specifications</h2>""", expanded=False):
+            with st.sidebar.expander("Attribute Specifications", expanded=False):
                     st.session_state["default_target_column"] = st.selectbox(
                         "Choose target column:", 
                         df.columns.tolist(), 
