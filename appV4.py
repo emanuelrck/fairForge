@@ -678,9 +678,11 @@ def main_frontend():
         flex-direction: column;
         gap: 0rem;
     }
-    .st-emotion-cache-1aehpvj{
-    color: rgb(255 255 255);
+
+    .st-emotion-cache-1aehpvj {
+        color: rgb(50 93 121);
     }
+
     .st-emotion-cache-xxjg8 {
         width: 217.594px;
         position: relative;
@@ -689,9 +691,11 @@ def main_frontend():
         flex-direction: column;
         gap: 0rem;
     }
+
     .st-emotion-cache-1gulkj5{
     background-color: rgb(50 93 121);
     }
+
     .st-emotion-cache-1vsah7k p, .st-emotion-cache-1vsah7k ol, .st-emotion-cache-1vsah7k ul, .st-emotion-cache-1vsah7k dl, .st-emotion-cache-1vsah7k li {
         font-size: inherit;
         color: #325d79;
@@ -966,6 +970,11 @@ def style_b6():
     .st-em:hove{
         color: white !important;}
 
+    .st-emotion-cache-ocsh0s {
+        border-color: rgb(50 93 121);
+        color: rgb(50 93 121);
+    }
+
     .st-emotion-cache-ocsh0s:hover {
         border-color: rgb(50 93 121);
         color: rgb(50 93 121);
@@ -975,7 +984,7 @@ def style_b6():
         color: rgb(50 93 121);
     }
 
-    .st-emotion-cache-ocsh0s:active) {
+    .st-emotion-cache-ocsh0s:active {
         border-color: rgb(50 93 121);
         color: rgb(50 93 121);
         background-color: rgb(225 238 244);
