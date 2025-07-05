@@ -976,12 +976,12 @@ def style_b6():
     }
 
     .st-emotion-cache-ocsh0s:hover {
-        border-color: rgb(50 93 121);
-        color: rgb(50 93 121);
+        border-color: rgb(50 93 121)  !important;
+        color: rgb(50 93 121)  !important;
     }
     .st-emotion-cache-ocsh0s:focus:not(:active) {
-        border-color: rgb(50 93 121);
-        color: rgb(50 93 121);
+        border-color: rgb(50 93 121) !important;
+        color: rgb(50 93 121) !important;
     }
 
     .st-emotion-cache-ocsh0s:active {
