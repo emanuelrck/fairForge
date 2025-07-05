@@ -75,6 +75,11 @@ def main_frontend():
         .st-cg {
             background-color: #e1eef4 !important;
         }
+        
+        .st-d9 {
+            background-color: rgb(50 93 121);
+        }
+
 
 
 
