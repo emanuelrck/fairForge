@@ -126,6 +126,21 @@ def main_frontend():
         }
 
 
+        .st-emotion-cache-ue6h4q {
+            font-size: 14px;
+            color: rgb(49, 51, 63);
+            display: flex;
+            visibility: visible;
+            margin-bottom: 0.25rem;
+            height: auto;
+            min-height: 1.5rem;
+            vertical-align: middle;
+            flex-direction: row;
+            -webkit-box-align: center;
+            align-items: center;
+            background-color: #f5f5f5 !important;
+        }
+
 
 
 
@@ -657,9 +672,6 @@ def main_frontend():
     }
     
     
-    .st-cg {
-        background-color: #325D79;
-    }
     
     %Processamento
     .st-g9 {
