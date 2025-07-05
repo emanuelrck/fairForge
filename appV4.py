@@ -113,6 +113,10 @@ def main_frontend():
             flex-shrink: 0;
         }
 
+        .st-e5 {
+            color: #325d79 !important;
+        }
+
 
 
 
