@@ -117,6 +117,10 @@ def main_frontend():
             color: #325d79 !important;
         }
 
+        .st-eb {
+            color: rgb(50 93 121);
+        }
+
 
 
 
