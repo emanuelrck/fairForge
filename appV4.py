@@ -380,9 +380,7 @@ def main_frontend():
 
 
     %Sidebar
-    .st-d2 {
-        background-color: #325D79;
-    }
+    
     .st-dv {
         background-color: #E0E0E0;
         box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
@@ -405,9 +403,7 @@ def main_frontend():
     .st-d1 {
         color: #325D79;
     }
-    .st-d2 {
-        background-color: #325D79 !important;
-    }
+    
     .st-ga {
         color: #325D79;
     }
