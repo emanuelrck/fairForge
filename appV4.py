@@ -962,6 +962,9 @@ def style_b6():
         background-color: #325D79 !important; 
         color: white !important;
     }
+
+    .st-em:hove{
+        color: white !important;}
     </style>
     """, unsafe_allow_html=True)
 
