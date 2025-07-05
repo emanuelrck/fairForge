@@ -52,6 +52,12 @@ def main_frontend():
             line-height: 0;
         }
 
+        .st-emotion-cache-fsammq {
+            font-family: "Source Sans Pro", sans-serif;
+            font-size: 14px;
+            color: #325d79 !important;
+        }
+
         /* Remove Menu e Footer do Streamlit */
         #MainMenu {visibility: hidden; display: none;}
         footer {visibility: hidden; display: none;}
@@ -1017,13 +1023,6 @@ def style_b6():
 
     .st-emotion-cache-1hyd1ho:hover {
         color: rgb(50 93 121)  !important;
-    }
-  
-    .st-emotion-cache-fsammq {
-        font-family: "Source Sans Pro", sans-serif;
-        font-size: 14px;
-        color: #325d79;
-        /* font-size: 15px; */
     }
     
 
