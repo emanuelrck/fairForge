@@ -85,7 +85,7 @@ def main_frontend():
             color: #325d79 !important;
         }
         .st-bn {
-            color: rgb(50 93 121);
+            color: rgb(50 93 121) !important;
         }
 
         .st-d3 {
