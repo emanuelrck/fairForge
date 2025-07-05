@@ -1012,19 +1012,7 @@ def style_b6():
         color: rgb(50 93 121)  !important;
     }
   
-     /* Alvo específico para o botão de colapsar a sidebar */
-    [data-testid="collapsedControl"] {
-        opacity: 1 !important;
-        visibility: visible !important;
-        transition: none !important;
-        pointer-events: all !important;
-    }
-
-    /* Se a seta estiver dentro da sidebar quando expandida */
-    section[data-testid="stSidebar"] [data-testid="collapsedControl"] {
-        opacity: 1 !important;
-        visibility: visible !important;
-    }
+    
 
     </style>
     """, unsafe_allow_html=True)
