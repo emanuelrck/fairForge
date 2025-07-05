@@ -63,6 +63,11 @@ def main_frontend():
             border: none;
         }
 
+        .st-bs {
+            background-color: rgb(225 238 244);
+            border: none;
+        }
+
         .st-emotion-cache-fsammq {
             font-family: "Source Sans Pro", sans-serif;
             font-size: 14px;
