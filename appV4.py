@@ -68,9 +68,6 @@ def main_frontend():
             border-color: #325d79;
         }
 
-        .st-d3 {
-            background-color: #e1eef4;
-        }
 
         .st-cg {
             background-color: #e1eef4 !important;
@@ -86,6 +83,13 @@ def main_frontend():
 
         span.st-ar.st-cn.st-co.st-cp.st-cq {
             color: #325d79 !important;
+        }
+        .st-bn {
+            color: rgb(50 93 121);
+        }
+
+        .st-d3 {
+            background-color: #e1eef4 !important;
         }
 
         
@@ -464,9 +468,6 @@ def main_frontend():
     }
     .st-emotion-cache-s1invk:hover svg {
         fill: #325D79;
-    }
-    .st-d3 {
-        background-color: #325D79;
     }
     .st-cx {
         white-space: nowrap;
