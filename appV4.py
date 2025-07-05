@@ -80,6 +80,12 @@ def main_frontend():
             background-color: rgb(50 93 121);
         }
 
+        .st-d2 {
+            background-color: #e1eef4 !important;
+        }
+
+        
+
 
 
 
