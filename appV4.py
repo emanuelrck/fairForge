@@ -92,7 +92,26 @@ def main_frontend():
             background-color: #e1eef4 !important;
         }
 
-        
+        span.st-emotion-cache-9ycgxx.e1blfcsg3 {
+            color: #ffffff !important;
+        }
+
+        .st-emotion-cache-1aehpvj {
+            color: rgb(255 255 255);
+        }
+
+        .st-emotion-cache-133trn5 {
+            vertical-align: middle;
+            overflow: hidden;
+            fill: rgb(255 255 255);
+            display: inline-flex;
+            -webkit-box-align: center;
+            align-items: center;
+            font-size: 2.3rem;
+            width: 2.3rem;
+            height: 2.3rem;
+            flex-shrink: 0;
+        }
 
 
 
@@ -226,8 +245,12 @@ def main_frontend():
         }
 
         /* Títulos e textos */
-        h1, h2, h3, h4, h5, h6, span {
+        h1, h2, h3, h4, h5, h6 {
             color: #325D79 !important;
+        }
+        
+        span {
+            color: #325D79;
         }
         p{
             color: #325D79 !;
