@@ -1013,7 +1013,7 @@ def style_b6():
     }
   
     .st-emotion-cache-1tokvoz {
-        display: inline;
+        display: inline !important;
         transition: left 300ms;
         color: rgb(128, 132, 149);
         line-height: 0;
