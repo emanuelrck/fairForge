@@ -1012,6 +1012,12 @@ def style_b6():
         color: rgb(50 93 121)  !important;
     }
   
+    .st-emotion-cache-1tokvoz {
+        display: inline;
+        transition: left 300ms;
+        color: rgb(128, 132, 149);
+        line-height: 0;
+    }
     
 
     </style>
