@@ -261,7 +261,7 @@ def display_categorys(df):
             group_synt = st.selectbox("Enter the Unrepresented category:", st.session_state["df"][sensitive_synt].unique().tolist(), key="Unrepresented category")
             number_synt = st.number_input("Enter constant value", value=100)
             
-        
+    print("a")    
     colunas_lower = {col.lower(): col for col in df.columns}
     default_sensitive_columns = [colunas_lower[col] for col in colunas_lower if col in tipical_sensitive_information]
 
