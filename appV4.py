@@ -39,6 +39,12 @@ def main_frontend():
            border-color: rgb(50 93 121)  !important;
         }
 
+        button:focus:not(:active) {
+           background-color: #F5F5F5 !important;
+           color: rgb(50 93 121)  !important;
+           border-color: rgb(50 93 121)  !important;
+        }
+
         /* Remove Menu e Footer do Streamlit */
         #MainMenu {visibility: hidden; display: none;}
         footer {visibility: hidden; display: none;}
