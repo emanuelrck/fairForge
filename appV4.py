@@ -52,6 +52,17 @@ def main_frontend():
             line-height: 0;
         }
 
+        .st-emotion-cache-1h9usn1 {
+            margin-bottom: 0px;
+            margin-top: 0px;
+            width: 100%;
+            border-style: solid;
+            border-width: 1px;
+            border-color: rgba(49, 51, 63, 0.2);
+            border-radius: 0.5rem;
+            border: none;
+        }
+
         .st-emotion-cache-fsammq {
             font-family: "Source Sans Pro", sans-serif;
             font-size: 14px;
@@ -1328,7 +1339,7 @@ if st.session_state["b1"]:
 
 
 
-
+            st.sidebar.markdown("""<h2>Attribute Specifications</h2>""", unsafe_allow_html=True)
             with st.sidebar.expander("**Attribute Specifications**", expanded=False):
                     st.session_state["default_target_column"] = st.selectbox(
                         "Choose target column:", 
