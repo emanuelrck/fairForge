@@ -1330,7 +1330,7 @@ if st.session_state["b1"]:
 
 
 
-            with st.sidebar.expander("**## Attribute Specifications**", expanded=False):
+            with st.sidebar.expander("**Attribute Specifications**", expanded=False):
                     st.session_state["default_target_column"] = st.selectbox(
                         "Choose target column:", 
                         df.columns.tolist(), 
@@ -1360,10 +1360,10 @@ if st.session_state["b1"]:
             "Upload a CSV, JSON, Excel, or DATA file", 
             type=["csv", "json", "xlsx", "data"], key="uploader2"
         )
-    st.sidebar.markdown("""<h2>Test Model</h2>""", unsafe_allow_html=True)
+    #st.sidebar.markdown("""<h2>Test Model</h2>""", unsafe_allow_html=True)
     if prediction_dataset_raw:
         prediction_dataset = DataReader.read_data(prediction_dataset_raw)
-    with st.sidebar.expander("", expanded=False):
+    with st.sidebar.expander("**Test Model**", expanded=False):
         # 📂 Upload dataset
         if prediction_dataset is not None:
             TestModel_predictions = st.selectbox(
