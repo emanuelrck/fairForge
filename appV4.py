@@ -72,9 +72,7 @@ def main_frontend():
             background-color: #e1eef4;
         }
 
-        .st-d2 {
-            background-color: #e1eef4 !important;
-        }
+    
 
 
 
