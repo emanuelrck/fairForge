@@ -28,7 +28,8 @@ def main_frontend():
     <style>
 
         button:hover {
-            background-color: pink !important;
+           background-color: #F5F5F5 !important;
+            color: rgb(50 93 121)  !important;
         }
 
         /* Remove Menu e Footer do Streamlit */
