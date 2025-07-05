@@ -28,6 +28,12 @@ def main_frontend():
     <style>
 
         button:hover {
+           background-color: #F5F5F5 ;
+           color: rgb(50 93 121)  ;
+           border-color: rgb(50 93 121)  ;
+        }
+
+        button:active {
            background-color: #F5F5F5 !important;
            color: rgb(50 93 121)  !important;
            border-color: rgb(50 93 121)  !important;
