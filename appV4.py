@@ -65,7 +65,7 @@ def main_frontend():
 
         .st-bs {
             background-color: rgb(225 238 244);
-            border: none;
+            border-color: #325d79;
         }
 
         .st-emotion-cache-fsammq {
