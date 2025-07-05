@@ -262,7 +262,7 @@ def display_categorys(df):
             number_synt = st.number_input("Enter constant value", value=100)
             
         
-
+    colunas_lower = {col.lower(): col for col in df.columns}
     default_sensitive_columns = [colunas_lower[col] for col in colunas_lower if col in tipical_sensitive_information]
 
 
