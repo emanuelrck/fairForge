@@ -1012,6 +1012,11 @@ def style_b6():
         color: rgb(50 93 121)  !important;
     }
   
+    section[data-testid="stSidebar"] button[title="Collapse sidebar"] {
+        visibility: visible !important;
+        opacity: 1 !important;
+        transition: none !important;
+    }
 
     </style>
     """, unsafe_allow_html=True)
