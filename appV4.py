@@ -1330,7 +1330,7 @@ if st.session_state["b1"]:
 
 
 
-            with st.sidebar.expander("**Attribute Specifications**", expanded=False):
+            with st.sidebar.expander("**## Attribute Specifications**", expanded=False):
                     st.session_state["default_target_column"] = st.selectbox(
                         "Choose target column:", 
                         df.columns.tolist(), 
