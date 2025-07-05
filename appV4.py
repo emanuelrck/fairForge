@@ -1017,7 +1017,7 @@ def style_b6():
         transition: left 300ms;
         color: rgb(128, 132, 149);
         line-height: 0;
-    }dd
+    }
     
 
     </style>
