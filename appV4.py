@@ -1011,6 +1011,9 @@ def style_b6():
     .st-emotion-cache-1hyd1ho:hover {
         color: rgb(50 93 121)  !important;
     }
+    .st-emotion-cache-1tokvoz{
+        display: inline;
+    }
 
     </style>
     """, unsafe_allow_html=True)
