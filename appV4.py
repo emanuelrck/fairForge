@@ -84,6 +84,10 @@ def main_frontend():
             background-color: #e1eef4 !important;
         }
 
+        span.st-ar.st-cn.st-co.st-cp.st-cq {
+            color: #325d79 !important;
+        }
+
         
 
 
