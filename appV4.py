@@ -20,12 +20,16 @@ from streamlit_js_eval import streamlit_js_eval
 import webbrowser
 #from frontend import main_frontend, style_b1, style_b2, style_b3, style_b4, style_b5,style_b6
 from sklearn.metrics import accuracy_score, classification_report
-
+<input aria-label="Enter the eta value" aria-invalid="false" aria-required="false" autocomplete="on" id="number_input_133" inputmode="" name="" placeholder="" type="number" min="-Infinity" max="Infinity" step="1" data-testid="stNumberInputField" class="st-bb st-ch st-df st-dg st-dh st-di st-ci st-ck st-cj st-cl st-cn st-ae st-g4 st-cc st-bi st-fw st-c6 st-c7 st-c8 st-c9 st-b5 st-b6 st-b7 st-b8 st-b9 st-ba st-bu st-g5 st-g6" value="25">
 
 
 def main_frontend():
     st.markdown("""
     <style>
+
+        input[type="number"] {
+            background-color: red;  /* Cor de fundo azul clara */
+        }
         .st-dg {
             background-color: rgb(50 93 121);
         }
