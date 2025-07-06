@@ -69,6 +69,11 @@ def main_frontend():
             background-color: #e1eef4 !important;
             color: #325D79 !important;
         }
+        li[role="selected"] {
+            background-color: #e1eef4 !important;
+            color: #325D79 !important;
+        }
+
 
         .st-dg {
             background-color: rgb(50 93 121);
