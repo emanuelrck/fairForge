@@ -1446,28 +1446,6 @@ if st.session_state["b1"]:
 
     
     if uploaded_file:
-            help_button_html = """
-
-                <button id="help-button">?</button>
-                <div id="help-balloon">Olá Este é o teu assistente!</div>
-
-                <script>
-                const btn = document.getElementById("help-button");
-                const balloon = document.getElementById("help-balloon");
-
-                btn.addEventListener("click", () => {
-                    balloon.style.display = (balloon.style.display === "none" || balloon.style.display === "") 
-                        ? "block" 
-                        : "none";
-                });
-                </script>
-            """
-
-            # renderiza com altura mínima (mas > 0)
-            components.html(help_button_html, height=100)
-
-
-
         #if st.button("Load Dataset"):
             with st.spinner("Loading dataset..."):
                 print("inicio")
@@ -1615,6 +1593,24 @@ if st.session_state["b1"]:
 
 
     st.button('Continue', key='continue0', on_click = b0)
+
+                help_button_html = """
+
+                <button id="help-button">?</button>
+                <div id="help-balloon">Olá Este é o teu assistente!</div>
+
+                <script>
+                const btn = document.getElementById("help-button");
+                const balloon = document.getElementById("help-balloon");
+
+                btn.addEventListener("click", () => {
+                    balloon.style.display = (balloon.style.display === "none" || balloon.style.display === "") 
+                        ? "block" 
+                        : "none";
+                });
+                </script>
+            """
+            components.html(help_button_html, height=100)
 
     
         
