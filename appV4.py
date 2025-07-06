@@ -2344,7 +2344,7 @@ columns_train -> colunas que vao ser usadas no treino ( no teste sao todas usada
 b1, b2,b3,b4 -> butoes de sessao
 
 '''
-a="""with st.sidebar.expander("📂 Upload Your Dataset", expanded=True):
+a="""with st.sidebar.expander("📂 Upload Your Dataset", expanded=False):
     print("sdff")"""
 
 d= """
