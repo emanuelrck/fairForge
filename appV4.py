@@ -1278,7 +1278,7 @@ fairness_report_file = "reports/fairness_report.csv"
 
 #-----------------------------------------------------
 
-st.set_page_config(page_title="JS-Python Page Switcher")
+st.set_page_config(page_title="JS-Python Page Switcher", initial_sidebar_state="collapsed")
 
 # Initialize the session state
 if "pagina" not in st.session_state:
