@@ -26,6 +26,11 @@ from sklearn.metrics import accuracy_score, classification_report
 def main_frontend():
     st.markdown("""
     <style>
+       iframe.stIFrame.st-emotion-cache-7z085q.e1q9bkxk0 {
+            /*background-color: red;
+             margin-top: 50%; */
+            margin-left: 120%;
+        }
        #help-button {
                     position: fixed;
                     top: 20px;
