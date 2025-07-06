@@ -66,8 +66,8 @@ def main_frontend():
        }
 
        li[role="option"] {
-            background-color: red !important;  /* verde claro */
-            color: black !important;
+            background-color: #f5f5f5 !important;
+            color: #325D79 !important;
         }
 
         .st-dg {
