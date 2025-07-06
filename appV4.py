@@ -70,7 +70,7 @@ def main_frontend():
 
 
 
-        
+
 
         button:hover {
            background-color: #F5F5F5 !important;
@@ -1601,10 +1601,10 @@ if st.session_state["b1"]:
         
 
 
-        <button id="help-button">?</button>
-        <div id="help-balloon">Olá 👋 Este é o teu assistente!</div>
+    <button id="help-button">?</button>
+    <div id="help-balloon">Olá 👋 Este é o teu assistente!</div>
 
-        <script>
+    <script>
         const btn = document.getElementById("help-button");
         const balloon = document.getElementById("help-balloon");
 
@@ -1613,7 +1613,7 @@ if st.session_state["b1"]:
                 ? "block" 
                 : "none";
         });
-        </script>
+    </script>
         
 
     
