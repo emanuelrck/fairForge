@@ -26,6 +26,23 @@ from sklearn.metrics import accuracy_score, classification_report
 def main_frontend():
     st.markdown("""
     <style>
+    .st-key-csvdownload button:active {
+        background-color: #325D79;
+        color: white;
+        border-color:#325D79;
+
+    }
+    .st-key-modeldownload button:active {
+        background-color: #325D79;
+        color: white;
+        border-color:#325D79;
+        
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <style>
         .st-dg {
             background-color: rgb(50 93 121);
         }
@@ -2293,7 +2310,7 @@ elif st.session_state["b4"]:
         joblib.dump(model, buffer)
         buffer.seek(0)
         st.download_button(
-            label="                    Download Trained Model                      ",
+            label="Download Trained Model",
             data=buffer,
             file_name=filename,
             mime="application/octet-stream",
