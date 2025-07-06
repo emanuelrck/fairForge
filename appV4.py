@@ -28,7 +28,7 @@ def main_frontend():
     <style>
     .st-key-csvdownload button:active {
         background-color: #325D79;
-        color: white;
+        color: red !important;
         border-color:#325D79;
 
     }
@@ -40,7 +40,7 @@ def main_frontend():
     }
     </style>
     """, unsafe_allow_html=True)
-    
+
     st.markdown("""
     <style>
         .st-dg {
