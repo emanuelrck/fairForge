@@ -26,6 +26,9 @@ from sklearn.metrics import accuracy_score, classification_report
 def main_frontend():
     st.markdown("""
     <style>
+        span {
+            color: #325d79 !important;
+        }
        iframe.stIFrame.st-emotion-cache-7z085q.e1q9bkxk0 {
             /* margin-left: 90%; */
             width: 120%;
@@ -367,10 +370,6 @@ def main_frontend():
         h1, h2, h3, h4, h5, h6 {
             color: #325D79 !important;
         }
-        
-        span {
-            color: #325D79 !important;
-        }
         p{
             color: #325D79 !;
         }
@@ -534,9 +533,6 @@ def main_frontend():
         box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
         border-color: #325D79;
     }   
-    span {
-        color: white !important;
-    }
     .st-emotion-cache-s1invk:hover {
         color: #325D79;
     }
