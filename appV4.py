@@ -31,7 +31,7 @@ def main_frontend():
         }
 
         
-        div[data-testid="stWidgetLabel"] p {
+        div[data-testid="stMarkdownContainer"] p {
             background-color: #325D79;
         }
 
