@@ -35,6 +35,9 @@ def main_frontend():
             background-color: #325D79 !important;
         }
 
+        div[data-baseweb="tab-panel"] {
+            background-color: red !important; /* Escolha a cor desejada */
+        }
         .st-dg {
             background-color: rgb(50 93 121);
         }
