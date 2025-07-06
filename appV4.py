@@ -98,7 +98,8 @@ def main_frontend():
         }
 
         .st-f4 {
-            background-color: #325d79;
+            background-color: #325d79 !important;
+            border:none !important;
         }
 
         .st-d7 {
