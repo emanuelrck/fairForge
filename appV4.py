@@ -157,6 +157,10 @@ def main_frontend():
             border-radius: 0px;
         }
 
+        .stAlertContainer.st-b7.st-b8.st-b9.st-dc.st-bb.st-bc.st-hk.st-hl.st-cu.st-hm.st-fx.st-hn.st-ho.st-hp.st-ai.st-aj.st-hq.st-bf.st-bh.st-bi.st-bg.st-co.st-ex.st-e0.st-bu.st-hr.st-af.st-bj.st-ah.st-ag.st-hs {
+            background-color: #e1eef4;
+        }
+
 
 
 
