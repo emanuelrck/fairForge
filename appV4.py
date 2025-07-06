@@ -26,10 +26,6 @@ from sklearn.metrics import accuracy_score, classification_report
 def main_frontend():
     st.markdown("""
     <style>
-        .st-df {
-            background-color: rgb(50 93 121);
-            border: none;
-        }
         .st-dg {
             background-color: rgb(50 93 121);
         }
