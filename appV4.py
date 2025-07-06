@@ -26,6 +26,16 @@ from sklearn.metrics import accuracy_score, classification_report
 def main_frontend():
     st.markdown("""
     <style>
+        .st-df {
+            background-color: rgb(50 93 121);
+            border: none;
+        }
+        .st-dg {
+            background-color: rgb(50 93 121);
+        }
+        .st-gq {
+            background-color: #325D79 !important;
+        }
         span {
             color: #325d79 !important;
         }
@@ -801,9 +811,6 @@ def main_frontend():
     }
     .st-fx {
         fill: #325D79;
-    }
-    .st-gq {
-        color:  #325D79;
     }
     .st-e5 {
         color: #E1EEF4;
