@@ -25,9 +25,7 @@ from sklearn.metrics import accuracy_score, classification_report
 def main_frontend():
     st.markdown("""
     <style>
-         .st-bd st-be st-af st-d6 st-c6 st-d7 st-cb{
-            background-color: rgb(225 238 244); !important;
-        }
+         
 
         input[type="number"] {
             background-color: #e1eef4;  
@@ -46,6 +44,7 @@ def main_frontend():
 
         svg[data-baseweb="icon"] {
             background-color: #e1eef4 !important;
+            color: #325d79 !important;
         }
 
         div [data-baseweb="tab-list"]{
