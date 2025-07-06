@@ -2306,11 +2306,13 @@ elif st.session_state["b4"]:
         background-color: #325D79;
         color: white;
         border-color:#325D79;
+        width: 100%;
     }
     .st-key-modeldownload button:active {
         background-color: #325D79;
         color: white;
         border-color:#325D79;
+        width: 100%;
     }
     </style>
     """, unsafe_allow_html=True)
