@@ -41,7 +41,7 @@ def main_frontend():
         }
 
         div > svg[data-baseweb="icon"] {
-            background-color: red;
+            background-color: #e1eef4;
         }
         .st-dg {
             background-color: rgb(50 93 121);
