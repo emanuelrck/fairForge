@@ -52,7 +52,7 @@ def main_frontend():
         div [data-baseweb="tab-highlight"]{
             background-color: #325D79 !important;
         }
-        <div [data-baseweb="select"]{
+        div [data-baseweb="select"]{
             background-color: red !important;
         } 
         
