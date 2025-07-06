@@ -986,8 +986,8 @@ def main_frontend():
                 }
                 #help-balloon {
                             position: fixed;
-                            top: 80px;
-                            right: 20px;
+                            top: 8%;
+                            right: 6%;
                             background-color: #ffffff;
                             color: #333;
                             padding: 10px 15px;
