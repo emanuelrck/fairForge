@@ -27,7 +27,7 @@ def main_frontend():
     st.markdown("""
     <style>
        iframe.stIFrame.st-emotion-cache-7z085q.e1q9bkxk0 {
-            margin-left: 90%
+            margin-left: 90%;
             width: 100%;
             position: absolute;
         }
