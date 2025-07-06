@@ -65,7 +65,7 @@ def main_frontend():
             border-color: #325D79 !important;
        }
 
-       li[role="option"][aria-selected="true"] {
+       li[role="option"] {
             background-color: red !important;  /* verde claro */
             color: black !important;
         }
