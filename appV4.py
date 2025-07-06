@@ -70,7 +70,8 @@ def main_frontend():
         }
 
         .stDownloadButton {
-            padding-left: 10%;
+            display: flex;
+            justify-content: center;
         }
 
     
@@ -2292,7 +2293,7 @@ elif st.session_state["b4"]:
         joblib.dump(model, buffer)
         buffer.seek(0)
         st.download_button(
-            label="Download Trained Model",
+            label="                    Download Trained Model                      ",
             data=buffer,
             file_name=filename,
             mime="application/octet-stream",
@@ -2306,13 +2307,13 @@ elif st.session_state["b4"]:
         background-color: #325D79;
         color: white;
         border-color:#325D79;
-        width: 100% !important;
+
     }
     .st-key-modeldownload button:active {
         background-color: #325D79;
         color: white;
         border-color:#325D79;
-        width: 100% !important;
+        
     }
     </style>
     """, unsafe_allow_html=True)
