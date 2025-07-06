@@ -1503,7 +1503,7 @@ if st.session_state["b1"]:
         type=["csv", "json", "xlsx", "data"], key="uploader1"
     )
     shown = False
-    st.sidebar.expander("", expanded=False)
+    
 
     
     if uploaded_file:
@@ -1566,8 +1566,9 @@ if st.session_state["b1"]:
 
 
 
-            st.sidebar.markdown("""<h2>Attribute Specifications</h2>""", unsafe_allow_html=True)
+            
             with st.sidebar.expander("", expanded=False):
+                    st.sidebar.markdown("""<h2>Attribute Specifications</h2>""", unsafe_allow_html=True)
                     st.session_state["default_target_column"] = st.selectbox(
                         "Choose target column:", 
                         df.columns.tolist(), 
