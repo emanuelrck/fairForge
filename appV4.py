@@ -34,7 +34,28 @@ def main_frontend():
             margin-top: -15%;
         }
 
+        button.st-emotion-cache-ocsh0s.e1d5ycv52 {
+            /* 
+            width: 90%;
+            align-items: center;
+            border: none;
+            border-radius: 70px;
+            color: #325d79; */
 
+            background-color: white;
+            color: #325D79;
+            border: none;
+            padding: 12px 24px;
+            margin: 0 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); 
+        }
 
 
 
