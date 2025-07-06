@@ -984,7 +984,7 @@ def main_frontend():
                     cursor: pointer;
                     z-index: 1000;
                     margin-left: 75%;
-                    /* margin-top: 2%; */
+                    margin-top: 2%;
                 }
                 #help-balloon {
                             position: fixed;
