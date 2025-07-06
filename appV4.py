@@ -63,8 +63,8 @@ def main_frontend():
             padding-left: 10%;
         }
 
-        .st-ar st-cg st-cf st-dw st-dx:span{
-        color: #325D79
+        span.st-ar st-cg st-cf st-dw st-dx{
+        color: #325D79 !important;
         }
 
 
