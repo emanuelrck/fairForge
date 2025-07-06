@@ -124,7 +124,7 @@ def main_frontend():
         }
         
         .st-d9 {
-            background-color: rgb(50 93 121);
+            background-color: rgb(225 238 244) !important;
         }
 
         .st-d2 {
