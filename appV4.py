@@ -34,9 +34,14 @@ def main_frontend():
         label[data-baseweb="checkbox"] > span {
             background-color: #325D79 !important;
         }
+       
 
         div[data-baseweb="tab-panel"] {
             background-color: #f5f5f5 !important; 
+        }
+
+        div > svg[data-baseweb="icon"] {
+            background-color: red;
         }
         .st-dg {
             background-color: rgb(50 93 121);
