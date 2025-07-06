@@ -31,42 +31,6 @@ def main_frontend():
              margin-top: 50%; */
             margin-left: 120%;
         }
-       #help-button {
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    width: 50px;
-                    height: 50px;
-                    background-color: #E1EEF4;
-                    color: white;
-                    border: none;
-                    border-radius: 50%;
-                    font-size: 24px;
-                    cursor: pointer;
-                    z-index: 1000;
-                }
-        #help-balloon {
-                    position: fixed;
-                    top: 80px;
-                    right: 20px;
-                    background-color: #ffffff;
-                    color: #333;
-                    padding: 10px 15px;
-                    border-radius: 10px;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-                    display: none;
-                    font-family: sans-serif;
-                    z-index: 1000;
-                }
-        #help-balloon::after {
-                    content: "";
-                    position: absolute;
-                    top: -10px;
-                    right: 15px;
-                    border-width: 0 10px 10px 10px;
-                    border-style: solid;
-                    border-color: transparent transparent #ffffff transparent;
-                }
 
 
 
@@ -1600,11 +1564,49 @@ if st.session_state["b1"]:
     st.button('Continue', key='continue0', on_click = b0)
 
     help_button_html = """
+            <style>
+                #help-button {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    width: 50px;
+                    height: 50px;
+                    background-color: #E1EEF4;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    font-size: 24px;
+                    cursor: pointer;
+                    z-index: 1000;
+                }
+                #help-balloon {
+                            position: fixed;
+                            top: 80px;
+                            right: 20px;
+                            background-color: #ffffff;
+                            color: #333;
+                            padding: 10px 15px;
+                            border-radius: 10px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                            display: none;
+                            font-family: sans-serif;
+                            z-index: 1000;
+                        }
+                #help-balloon::after {
+                            content: "";
+                            position: absolute;
+                            top: -10px;
+                            right: 15px;
+                            border-width: 0 10px 10px 10px;
+                            border-style: solid;
+                            border-color: transparent transparent #ffffff transparent;
+                        }
+            </style>
 
-                <button id="help-button">?</button>
-                <div id="help-balloon">Olá Este é o teu assistente!</div>
+            <button id="help-button">?</button>
+            <div id="help-balloon">Olá Este é o teu assistente!</div>
 
-                <script>
+            <script>
                 const btn = document.getElementById("help-button");
                 const balloon = document.getElementById("help-balloon");
 
@@ -1613,7 +1615,7 @@ if st.session_state["b1"]:
                         ? "block" 
                         : "none";
                 });
-                </script>
+            </script>
             """
     components.html(help_button_html, height=100)
 
