@@ -56,17 +56,17 @@ def main_frontend():
         }
         
         ul[data-testid="stSelectboxVirtualDropdown"]{
-            background-color: #f5f5f5 !important;
+            background-color: #e1eef4 !important;
             color: #325D79 !important;
         }
        div[data-baseweb="select"]{
-            background-color: #f5f5f5 !important;
+            background-color: #e1eef4 !important;
             color: #325D79 !important;
             border-color: #325D79 !important;
        }
 
        li[role="option"] {
-            background-color: #f5f5f5 !important;
+            background-color: #e1eef4 !important;
             color: #325D79 !important;
         }
 
