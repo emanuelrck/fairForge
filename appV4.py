@@ -31,7 +31,7 @@ def main_frontend():
         }
 
         
-        div[data-testid="stMarkdownContainer"] p {
+        label[data-baseweb="checkbox"] > span {
             background-color: #325D79;
         }
 
