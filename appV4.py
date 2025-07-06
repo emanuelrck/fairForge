@@ -55,6 +55,10 @@ def main_frontend():
             background-color: #325D79 !important;
         }
         
+        ul [data-testid="stSelectboxVirtualDropdown"]{
+            background-color: #f5f5f5 !important;
+            color: #325D79 !important;
+        }
        
 
         .st-dg {
