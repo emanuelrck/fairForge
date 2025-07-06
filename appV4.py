@@ -27,6 +27,51 @@ def main_frontend():
     st.markdown("""
     <style>
 
+
+
+        #help-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        #help-balloon {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background-color: #ffffff;
+            color: #333;
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            display: none;
+            font-family: sans-serif;
+            z-index: 1000;
+        }
+        #help-balloon::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            right: 15px;
+            border-width: 10px 10px 0 10px;
+            border-style: solid;
+            border-color: #ffffff transparent transparent transparent;
+        }
+
+
+
+
+
+        
+
         button:hover {
            background-color: #F5F5F5 !important;
            color: rgb(50 93 121)  !important;
@@ -1552,45 +1597,9 @@ if st.session_state["b1"]:
 
     st.button('Continue', key='continue0', on_click = b0)
 
-    help_button_html = """
-        <style>
-        #help-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 1000;
-        }
-        #help-balloon {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            background-color: #ffffff;
-            color: #333;
-            padding: 10px 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            display: none;
-            font-family: sans-serif;
-            z-index: 1000;
-        }
-        #help-balloon::after {
-            content: "";
-            position: absolute;
-            bottom: -10px;
-            right: 15px;
-            border-width: 10px 10px 0 10px;
-            border-style: solid;
-            border-color: #ffffff transparent transparent transparent;
-        }
-        </style>
+    
+        
+
 
         <button id="help-button">?</button>
         <div id="help-balloon">Olá 👋 Este é o teu assistente!</div>
@@ -1605,7 +1614,7 @@ if st.session_state["b1"]:
                 : "none";
         });
         </script>
-        """
+        
 
     
    
