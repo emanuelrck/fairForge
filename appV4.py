@@ -101,6 +101,10 @@ def main_frontend():
             background-color: #325d79;
         }
 
+        .st-d7 {
+            background-color: rgb(50 93 121);
+        }
+
 
 
 
