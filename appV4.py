@@ -80,6 +80,23 @@ def main_frontend():
             border-color: #325D79 !important;
         }
 
+        .st-emotion-cache-1py5frv {
+            display: flex;
+            flex-flow: row;
+            -webkit-box-align: center;
+            align-items: center;
+            height: 2.5rem;
+            border-width: 1px;
+            border-style: solid;
+            border-color: rgb(240, 242, 246);
+            transition-duration: 200ms;
+            transition-property: border;
+            transition-timing-function: cubic-bezier(0.2, 0.8, 0.4, 1);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border-color: #325d79;
+        }
+
 
 
 
