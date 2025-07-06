@@ -28,7 +28,7 @@ def main_frontend():
     <style>
        iframe.stIFrame.st-emotion-cache-7z085q.e1q9bkxk0 {
             /* margin-left: 90%; */
-            width: 300%;
+            width: 120%;
             position: absolute;
             height: 800px;
             margin-top: -15%;
@@ -406,7 +406,9 @@ def main_frontend():
         background-color: #F5F5F5;
         display: flex;
         justify-content: center;
-        padding: 20px 20%;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        padding-left: 10%;
         z-index: 1000;
         box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
     }
@@ -981,13 +983,13 @@ def main_frontend():
                     font-size: 24px;
                     cursor: pointer;
                     z-index: 1000;
-                    margin-left: 80%;
+                    margin-left: 75%;
                     /* margin-top: 2%; */
                 }
                 #help-balloon {
                             position: fixed;
                             top: 8%;
-                            right: 6%;
+                            right: 4%;
                             background-color: #ffffff;
                             color: #333;
                             padding: 10px 15px;
