@@ -27,7 +27,7 @@ def main_frontend():
     <style>
 
         input[type="number"] {
-            background-color: red;  /* Cor de fundo azul clara */
+            background-color: #e1eef4;  /* Cor de fundo azul clara */
         }
         .st-dg {
             background-color: rgb(50 93 121);
