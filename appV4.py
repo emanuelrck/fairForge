@@ -161,6 +161,17 @@ def main_frontend():
             background-color: #e1eef4;
         }
 
+        .st-emotion-cache-1h9usn1 {
+            margin-bottom: 0px;
+            margin-top: -16%;
+            width: 100%;
+            border-style: solid;
+            border-width: 1px;
+            border-color: rgba(49, 51, 63, 0.2);
+            border-radius: 0.5rem;
+            border: none;
+        }
+
 
 
 
