@@ -27,9 +27,9 @@ def main_frontend():
     st.markdown("""
     <style>
        iframe.stIFrame.st-emotion-cache-7z085q.e1q9bkxk0 {
-            /*background-color: red;
-             margin-top: 50%; */
-            margin-left: 120%;
+            margin-left: 90%
+            width: 100%;
+            position: absolute;
         }
 
 
@@ -1567,19 +1567,20 @@ if st.session_state["b1"]:
     help_button_html = """
             <style>
                 #help-button {
-                position: fixed;
-                /* top: 20px; */
-                /* right: 20px; */
-                width: 40px;
-                height: 40px;
-                background-color: #325d79;
-                color: white;
-                border: none;
-                border-radius: 50%;
-                font-size: 24px;
-                cursor: pointer;
-                z-index: 1000;
-            }
+                    position: fixed;
+                    /* top: 20px; */
+                    /* right: 20px; */
+                    width: 40px;
+                    height: 40px;
+                    background-color: #325d79;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    font-size: 24px;
+                    cursor: pointer;
+                    z-index: 1000;
+                    margin-left: 50%;
+                }
                 #help-balloon {
                             position: fixed;
                             top: 80px;
