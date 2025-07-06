@@ -66,7 +66,7 @@ def main_frontend():
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); 
             margin-top: 2%;
             margin-bottom: 2%;
-            width: 90%;
+            /*width: 90%;*/
         }
 
         .stDownloadButton {
