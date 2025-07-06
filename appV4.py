@@ -63,6 +63,11 @@ def main_frontend():
             padding-left: 10%;
         }
 
+        .st-ar st-cg st-cf st-dw st-dx:span{
+        color: #325D79
+        }
+
+
 
 
 
@@ -1263,7 +1268,7 @@ def style_b6():
         color: rgb(50 93 121)  !important;
     }
     
-
+    
     </style>
     """, unsafe_allow_html=True)
 
