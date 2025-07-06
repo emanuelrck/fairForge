@@ -29,6 +29,12 @@ def main_frontend():
         input[type="number"] {
             background-color: #e1eef4;  /* Cor de fundo azul clara */
         }
+
+        
+        div[data-testid="stWidgetLabel"] p {
+            background-color: #325D79;
+        }
+
         .st-dg {
             background-color: rgb(50 93 121);
         }
