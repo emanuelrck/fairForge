@@ -56,7 +56,9 @@ def main_frontend():
             background-color: red !important;
         } 
         
-
+        .st-bd st-be st-af st-d6 st-c6 st-d7 st-cb{
+            background-color: #e1eef4 !important;
+        }
 
         .st-dg {
             background-color: rgb(50 93 121);
