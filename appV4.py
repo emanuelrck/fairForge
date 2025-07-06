@@ -73,6 +73,10 @@ def main_frontend():
             padding-left: 10%;
         }
 
+        .st-c4 {
+            background-color: rgb(50 93 121) !important;
+        }
+
     
         .st-cf {
             color: #325D79; !important;
