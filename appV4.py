@@ -2304,15 +2304,15 @@ elif st.session_state["b4"]:
     <style>
     .st-key-csvdownload button:active {
         background-color: #325D79;
-        color: red;
+        color: white;
         border-color:#325D79;
-        width: 100%;
+        width: 100% !important;
     }
     .st-key-modeldownload button:active {
         background-color: #325D79;
         color: white;
         border-color:#325D79;
-        width: 100%;
+        width: 100% !important;
     }
     </style>
     """, unsafe_allow_html=True)
