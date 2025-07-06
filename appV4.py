@@ -1594,7 +1594,7 @@ if st.session_state["b1"]:
 
     st.button('Continue', key='continue0', on_click = b0)
 
-                help_button_html = """
+    help_button_html = """
 
                 <button id="help-button">?</button>
                 <div id="help-balloon">Olá Este é o teu assistente!</div>
@@ -1610,7 +1610,7 @@ if st.session_state["b1"]:
                 });
                 </script>
             """
-            components.html(help_button_html, height=100)
+    components.html(help_button_html, height=100)
 
     
         
