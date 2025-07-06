@@ -32,7 +32,7 @@ def main_frontend():
 
         
         label[data-baseweb="checkbox"] > span {
-            background-color: #325D79;
+            background-color: #325D79 !important;
         }
 
         .st-dg {
