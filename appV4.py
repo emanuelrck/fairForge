@@ -1503,7 +1503,7 @@ if st.session_state["b1"]:
         type=["csv", "json", "xlsx", "data"], key="uploader1"
     )
     shown = False
-    st.sidebar.expander("", expanded=False):
+    st.sidebar.expander("", expanded=False)
 
     
     if uploaded_file:
