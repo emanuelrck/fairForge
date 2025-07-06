@@ -37,7 +37,7 @@ def main_frontend():
                     right: 20px;
                     width: 50px;
                     height: 50px;
-                    background-color: #007BFF;
+                    background-color: #E1EEF4;
                     color: white;
                     border: none;
                     border-radius: 50%;
