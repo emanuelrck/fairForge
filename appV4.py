@@ -1403,20 +1403,7 @@ def automatic():
 
 st.markdown('<div class="conteudo">', unsafe_allow_html=True)
 if st.session_state["b1"]:
-    st.subheader("Improve Data")
-    style_b1()
-    # 📂 Upload dataset
-    uploaded_file = st.file_uploader(
-        "Upload a CSV, JSON, Excel, or DATA file", 
-        type=["csv", "json", "xlsx", "data"], key="uploader1"
-    )
-    shown = False
-
-
-    
-    if uploaded_file:
-        #if st.button("Load Dataset"):
-            help_button_html = """
+    help_button_html = """
             <style>
                 #help-button {
                     position: fixed;
@@ -1471,7 +1458,21 @@ if st.session_state["b1"]:
                 });
             </script>
             """
-            components.html(help_button_html, height=100)
+    components.html(help_button_html, height=100)
+    
+    st.subheader("Improve Data")
+    style_b1()
+    # 📂 Upload dataset
+    uploaded_file = st.file_uploader(
+        "Upload a CSV, JSON, Excel, or DATA file", 
+        type=["csv", "json", "xlsx", "data"], key="uploader1"
+    )
+    shown = False
+
+
+    
+    if uploaded_file:
+        #if st.button("Load Dataset"):
             with st.spinner("Loading dataset..."):
                 print("inicio")
                 df = DataReader.read_data(uploaded_file)
