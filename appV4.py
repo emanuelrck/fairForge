@@ -369,7 +369,7 @@ def main_frontend():
         }
         
         span {
-            color: #325D79;
+            color: #325D79 !important;
         }
         p{
             color: #325D79 !;
