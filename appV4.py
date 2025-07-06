@@ -45,7 +45,9 @@ def main_frontend():
             background-color: #e1eef4 !important;
         }
 
-
+        div [data-baseweb="tab-list"]{
+            background-color: #f5f5f5 !important; 
+        }
 
         .st-dg {
             background-color: rgb(50 93 121);
