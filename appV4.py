@@ -196,7 +196,7 @@ def main_frontend():
         }
 
         .st-dp {
-            background-color: rgb(50 93 121);
+            background-color: rgb(225 238 244);
         }
 
 
