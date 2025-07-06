@@ -1471,8 +1471,8 @@ if st.session_state["b1"]:
                 });
             </script>
             """
-            components.html(help_button_html, height=100)
-            with st.spinner("Loading dataset..."):
+        components.html(help_button_html, height=100)
+        with st.spinner("Loading dataset..."):
                 print("inicio")
                 df = DataReader.read_data(uploaded_file)
                 
