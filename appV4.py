@@ -179,6 +179,13 @@ def main_frontend():
             color: rgb(50 93 121);
         }
 
+        .st-emotion-cache-1mw54nq {
+            font-family: "Source Sans Pro", sans-serif;
+            font-size: 1rem;
+            margin-bottom: -1rem;
+            color: rgb(50 93 121);
+        }
+
 
 
 
