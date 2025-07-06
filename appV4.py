@@ -26,9 +26,6 @@ from sklearn.metrics import accuracy_score, classification_report
 def main_frontend():
     st.markdown("""
     <style>
-
-
-
         #help-button {
             position: fixed;
             top: 20px;
@@ -1449,6 +1446,22 @@ if st.session_state["b1"]:
 
     
     if uploaded_file:
+        help_button_html = """
+        <button id="help-button">?</button>
+        <div id="help-balloon">Olá Este é o teu assistente!</div>
+
+        <script>
+        const btn = document.getElementById("help-button");
+        const balloon = document.getElementById("help-balloon");
+
+        btn.addEventListener("click", () => {
+            balloon.style.display = (balloon.style.display === "none" || balloon.style.display === "") 
+                ? "block" 
+                : "none";
+        });
+        </script>
+        """
+    components.html(help_button_html, height=0, width=0)
         #if st.button("Load Dataset"):
             with st.spinner("Loading dataset..."):
                 print("inicio")
@@ -1602,25 +1615,6 @@ if st.session_state["b1"]:
 
 
 
-    # HTML + CSS + JS como string
-    help_button_html = """
-    <button id="help-button">?</button>
-    <div id="help-balloon">Olá Este é o teu assistente!</div>
-
-    <script>
-    const btn = document.getElementById("help-button");
-    const balloon = document.getElementById("help-balloon");
-
-    btn.addEventListener("click", () => {
-        balloon.style.display = (balloon.style.display === "none" || balloon.style.display === "") 
-            ? "block" 
-            : "none";
-    });
-    </script>
-    """
-
-    # Renderizar o HTML
-    components.html(help_button_html, height=0, width=0)
 
         
 
