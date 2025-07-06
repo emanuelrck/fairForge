@@ -1600,20 +1600,67 @@ if st.session_state["b1"]:
     
         
 
+    import streamlit.components.v1 as components
+
+    # HTML + CSS + JS como string
+    help_button_html = """
+    <style>
+    #help-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 24px;
+        cursor: pointer;
+        z-index: 1000;
+    }
+    #help-balloon {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        background-color: #ffffff;
+        color: #333;
+        padding: 10px 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        display: none;
+        font-family: sans-serif;
+        z-index: 1000;
+    }
+    #help-balloon::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        right: 15px;
+        border-width: 10px 10px 0 10px;
+        border-style: solid;
+        border-color: #ffffff transparent transparent transparent;
+    }
+    </style>
 
     <button id="help-button">?</button>
-    <div id="help-balloon">Olá, Este é o teu assistente!</div>
+    <div id="help-balloon">Olá Este é o teu assistente!</div>
 
     <script>
-        const btn = document.getElementById("help-button");
-        const balloon = document.getElementById("help-balloon");
+    const btn = document.getElementById("help-button");
+    const balloon = document.getElementById("help-balloon");
 
-        btn.addEventListener("click", () => {
-            balloon.style.display = (balloon.style.display === "none" || balloon.style.display === "") 
-                ? "block" 
-                : "none";
-        });
+    btn.addEventListener("click", () => {
+        balloon.style.display = (balloon.style.display === "none" || balloon.style.display === "") 
+            ? "block" 
+            : "none";
+    });
     </script>
+    """
+
+    # Renderizar o HTML
+    components.html(help_button_html, height=0, width=0)
+
         
 
     
