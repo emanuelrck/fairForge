@@ -27,9 +27,11 @@ def main_frontend():
     st.markdown("""
     <style>
        iframe.stIFrame.st-emotion-cache-7z085q.e1q9bkxk0 {
-            margin-left: 90%;
-            width: 100%;
+            /* margin-left: 90%; */
+            width: 300%;
             position: absolute;
+            height: 800px;
+            margin-top: -15%;
         }
 
 
@@ -979,7 +981,8 @@ def main_frontend():
                     font-size: 24px;
                     cursor: pointer;
                     z-index: 1000;
-                    margin-left: 50%;
+                    margin-left: 80%;
+                    /* margin-top: 2%; */
                 }
                 #help-balloon {
                             position: fixed;
