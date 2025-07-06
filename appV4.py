@@ -26,42 +26,42 @@ from sklearn.metrics import accuracy_score, classification_report
 def main_frontend():
     st.markdown("""
     <style>
-        #help-button {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 1000;
-        }
+       #help-button {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    width: 50px;
+                    height: 50px;
+                    background-color: #007BFF;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    font-size: 24px;
+                    cursor: pointer;
+                    z-index: 1000;
+                }
         #help-balloon {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            background-color: #ffffff;
-            color: #333;
-            padding: 10px 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            display: none;
-            font-family: sans-serif;
-            z-index: 1000;
-        }
+                    position: fixed;
+                    top: 80px;
+                    right: 20px;
+                    background-color: #ffffff;
+                    color: #333;
+                    padding: 10px 15px;
+                    border-radius: 10px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                    display: none;
+                    font-family: sans-serif;
+                    z-index: 1000;
+                }
         #help-balloon::after {
-            content: "";
-            position: absolute;
-            bottom: -10px;
-            right: 15px;
-            border-width: 10px 10px 0 10px;
-            border-style: solid;
-            border-color: #ffffff transparent transparent transparent;
-        }
+                    content: "";
+                    position: absolute;
+                    top: -10px;
+                    right: 15px;
+                    border-width: 0 10px 10px 10px;
+                    border-style: solid;
+                    border-color: transparent transparent #ffffff transparent;
+                }
 
 
 
@@ -1447,21 +1447,27 @@ if st.session_state["b1"]:
     
     if uploaded_file:
             help_button_html = """
-            <button id="help-button">?</button>
-            <div id="help-balloon">Olá Este é o teu assistente!</div>
 
-            <script>
-            const btn = document.getElementById("help-button");
-            const balloon = document.getElementById("help-balloon");
+                <button id="help-button">?</button>
+                <div id="help-balloon">Olá Este é o teu assistente!</div>
 
-            btn.addEventListener("click", () => {
-                balloon.style.display = (balloon.style.display === "none" || balloon.style.display === "") 
-                    ? "block" 
-                    : "none";
-            });
-            </script>
+                <script>
+                const btn = document.getElementById("help-button");
+                const balloon = document.getElementById("help-balloon");
+
+                btn.addEventListener("click", () => {
+                    balloon.style.display = (balloon.style.display === "none" || balloon.style.display === "") 
+                        ? "block" 
+                        : "none";
+                });
+                </script>
             """
-            components.html(help_button_html, height=0, width=0)
+
+            # renderiza com altura mínima (mas > 0)
+            components.html(help_button_html, height=100)
+
+
+
         #if st.button("Load Dataset"):
             with st.spinner("Loading dataset..."):
                 print("inicio")
