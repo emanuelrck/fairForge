@@ -63,10 +63,12 @@ def main_frontend():
             padding-left: 10%;
         }
 
-        span.st-ar st-cg st-cf st-dw st-dx{
-        color: #325D79 !important;
+    
+        .st-cf {
+            color: #325D79; !important;
+            fill: #325D79; !important;
+            border-color: #325D79 !important;
         }
-
 
 
 
@@ -812,11 +814,6 @@ def main_frontend():
     }
     svg.st-dq.st-e5.st-fq.st-fr.st-fs {
         background-color: #325D79;
-    }
-    .st-cf {
-        color: #325D79; !important;
-        fill: #325D79; !important;
-        border-color: #325D79 !important;
     }
     .st-dr {
         background-color: #e1eef4;
