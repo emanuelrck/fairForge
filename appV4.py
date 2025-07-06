@@ -53,7 +53,7 @@ def main_frontend():
             background-color: #325D79 !important;
         }
         <div [data-baseweb="select"]{
-            background-color: #e1eef4 !important;
+            background-color: red !important;
         } 
         
 
