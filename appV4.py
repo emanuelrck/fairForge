@@ -1567,19 +1567,19 @@ if st.session_state["b1"]:
     help_button_html = """
             <style>
                 #help-button {
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    width: 50px;
-                    height: 50px;
-                    background-color: #E1EEF4;
-                    color: white;
-                    border: none;
-                    border-radius: 50%;
-                    font-size: 24px;
-                    cursor: pointer;
-                    z-index: 1000;
-                }
+                position: fixed;
+                /* top: 20px; */
+                /* right: 20px; */
+                width: 40px;
+                height: 40px;
+                background-color: #325d79;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                font-size: 24px;
+                cursor: pointer;
+                z-index: 1000;
+            }
                 #help-balloon {
                             position: fixed;
                             top: 80px;
