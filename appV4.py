@@ -1178,7 +1178,7 @@ def style_b6():
 
 
 
-help_button_html = """
+    help_button_html = """
             <style>
                 #help-button {
                 position: fixed;
