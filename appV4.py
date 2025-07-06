@@ -1571,6 +1571,7 @@ elif st.session_state["b2"]:
         selected_models = st.session_state["selected_models"]
         selected_metrics_fairness = st.session_state["selected_metrics_fairness"]
 
+        st.subheader("Bias Analysis")
         if st.button("Check Bias"):
             dataset_bias_metrics(st.session_state["df"],sensitive_columns,priveleged_classes,default_target_column ,favorable_classes_target)
             
