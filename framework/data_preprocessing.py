@@ -86,7 +86,7 @@ def dataset_bias_metrics(data, sensitive_attr, privileged_classes, target_name, 
     }
 
     for category in results.keys():
-        st.write("Metrics by  "+ category.capitalize())
+        st.markdown(f"**Metrics by {category.capitalize()}**")
         df_raca = metricas_para_df(results[category])
         st.dataframe(df_raca)
 
