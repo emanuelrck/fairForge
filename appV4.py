@@ -2304,7 +2304,7 @@ elif st.session_state["b4"]:
     <style>
     .st-key-csvdownload button:active {
         background-color: #325D79;
-        color: white;
+        color: red;
         border-color:#325D79;
         width: 100%;
     }
