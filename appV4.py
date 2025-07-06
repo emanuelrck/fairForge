@@ -69,9 +69,9 @@ def main_frontend():
             background-color: #e1eef4 !important;
             color: #325D79 !important;
         }
-        li[role="combobox"] {
-            background-color: #e1eef4 !important;
-            color: #325D79 !important;
+        li[role="option"][aria-selected="true"] > div {
+            color: red !important;
+            
         }
 
 
