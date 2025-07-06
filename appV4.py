@@ -27,7 +27,7 @@ def main_frontend():
     <style>
 
         input[type="number"] {
-            background-color: #e1eef4;  /* Cor de fundo azul clara */
+            background-color: #e1eef4;  
         }
 
         
@@ -36,7 +36,7 @@ def main_frontend():
         }
 
         div[data-baseweb="tab-panel"] {
-            background-color: red !important; /* Escolha a cor desejada */
+            background-color: #f5f5f5 !important; 
         }
         .st-dg {
             background-color: rgb(50 93 121);
