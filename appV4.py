@@ -47,19 +47,23 @@ def main_frontend():
             color: #325d79 !important;
         }
 
-        div [data-baseweb="tab-list"]{
+        div[data-baseweb="tab-list"]{
             background-color: #f5f5f5 !important; 
         }
 
-        div [data-baseweb="tab-highlight"]{
+        div[data-baseweb="tab-highlight"]{
             background-color: #325D79 !important;
         }
         
-        ul [data-testid="stSelectboxVirtualDropdown"]{
+        ul[data-testid="stSelectboxVirtualDropdown"]{
             background-color: #f5f5f5 !important;
             color: #325D79 !important;
         }
-       
+       div[data-baseweb="select"]{
+            background-color: #f5f5f5 !important;
+            color: #325D79 !important;
+            border-color: #325D79 !important;
+       }
 
         .st-dg {
             background-color: rgb(50 93 121);
