@@ -1602,7 +1602,7 @@ if st.session_state["b1"]:
 
 
     <button id="help-button">?</button>
-    <div id="help-balloon">Olá 👋 Este é o teu assistente!</div>
+    <div id="help-balloon">Olá, Este é o teu assistente!</div>
 
     <script>
         const btn = document.getElementById("help-button");
