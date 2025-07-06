@@ -97,6 +97,9 @@ def main_frontend():
             border-color: #325d79;
         }
 
+        .st-f4 {
+            background-color: #325d79;
+        }
 
 
 
@@ -588,9 +591,6 @@ def main_frontend():
     .stTextInput, .stNumberInput, .stSelectbox, .stMultiselect {
         border: 2px solid rgba(0, 0, 0, 0) !important;
         border-radius: 10px !important;
-    }
-    .st-f4 {
-        background-color: #a0a2a2;
     }
 
     .st-emotion-cache-1b2ybts {
