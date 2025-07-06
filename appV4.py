@@ -905,7 +905,7 @@ def main_frontend():
     if "b6" not in st.session_state:
         st.session_state["b6"] = False
 
-    col1, col2, col5 ,col3, col6, col4  = st.columns(6)
+    col1, col2, col5 ,col3, col6, col4, helpB  = st.columns(7)
 
     with col1:
         if st.button('✔ Upload', key='botao1', on_click = style_b1):
@@ -963,6 +963,66 @@ def main_frontend():
             st.session_state["b2"] = False
             st.session_state["b5"] = False
             st.session_state["b6"] = True
+    with helpB:
+        help_button_html = """
+            <style>
+                #help-button {
+                    position: fixed;
+                    /* top: 20px; */
+                    /* right: 20px; */
+                    width: 40px;
+                    height: 40px;
+                    background-color: #325d79;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    font-size: 24px;
+                    cursor: pointer;
+                    z-index: 1000;
+                    margin-left: 50%;
+                }
+                #help-balloon {
+                            position: fixed;
+                            top: 80px;
+                            right: 20px;
+                            background-color: #ffffff;
+                            color: #333;
+                            padding: 10px 15px;
+                            border-radius: 10px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                            display: none;
+                            font-family: sans-serif;
+                            z-index: 1000;
+                        }
+                #help-balloon::after {
+                            content: "";
+                            position: absolute;
+                            top: -10px;
+                            right: 15px;
+                            border-width: 0 10px 10px 10px;
+                            border-style: solid;
+                            border-color: transparent transparent #ffffff transparent;
+                        }
+            </style>
+
+            <button id="help-button">?</button>
+            <div id="help-balloon">Olá Este é o teu assistente!</div>
+
+            <script>
+                const btn = document.getElementById("help-button");
+                const balloon = document.getElementById("help-balloon");
+
+                btn.addEventListener("click", () => {
+                    balloon.style.display = (balloon.style.display === "none" || balloon.style.display === "") 
+                        ? "block" 
+                        : "none";
+                });
+            </script>
+        """
+        components.html(help_button_html, height=100)
+
+
+
 
 def style_b1():
     st.markdown("""
@@ -1403,63 +1463,6 @@ def automatic():
 
 st.markdown('<div class="conteudo">', unsafe_allow_html=True)
 if st.session_state["b1"]:
-    help_button_html = """
-            <style>
-                #help-button {
-                    position: fixed;
-                    /* top: 20px; */
-                    /* right: 20px; */
-                    width: 40px;
-                    height: 40px;
-                    background-color: #325d79;
-                    color: white;
-                    border: none;
-                    border-radius: 50%;
-                    font-size: 24px;
-                    cursor: pointer;
-                    z-index: 1000;
-                    margin-left: 50%;
-                }
-                #help-balloon {
-                            position: fixed;
-                            top: 80px;
-                            right: 20px;
-                            background-color: #ffffff;
-                            color: #333;
-                            padding: 10px 15px;
-                            border-radius: 10px;
-                            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-                            display: none;
-                            font-family: sans-serif;
-                            z-index: 1000;
-                        }
-                #help-balloon::after {
-                            content: "";
-                            position: absolute;
-                            top: -10px;
-                            right: 15px;
-                            border-width: 0 10px 10px 10px;
-                            border-style: solid;
-                            border-color: transparent transparent #ffffff transparent;
-                        }
-            </style>
-
-            <button id="help-button">?</button>
-            <div id="help-balloon">Olá Este é o teu assistente!</div>
-
-            <script>
-                const btn = document.getElementById("help-button");
-                const balloon = document.getElementById("help-balloon");
-
-                btn.addEventListener("click", () => {
-                    balloon.style.display = (balloon.style.display === "none" || balloon.style.display === "") 
-                        ? "block" 
-                        : "none";
-                });
-            </script>
-            """
-    components.html(help_button_html, height=100)
-    
     st.subheader("Improve Data")
     style_b1()
     # 📂 Upload dataset
