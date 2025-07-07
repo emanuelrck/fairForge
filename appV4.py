@@ -94,7 +94,7 @@ def main_frontend():
             color: #325D79 !important;
         }
 
-        button[kind="secondary"][data-testid="stBaseButton-secondary"]{
+       div [data-testid="stDownloadButton"] > div{
             width: 100%
         }
 
