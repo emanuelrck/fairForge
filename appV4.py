@@ -95,9 +95,11 @@ def main_frontend():
         }
 
        div [data-testid="stDownloadButton"] > button {
-            width: 100%;
+            width: 90%;
             border: None;
             border-radius: 25px;
+            padding-top: 2%;
+            padding-bottom: 2%;
         
         }
 
