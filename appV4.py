@@ -100,7 +100,8 @@ def main_frontend():
             border-radius: 25px;
             padding-top: 1.5%;
             padding-bottom: 1.5%;
-            margin-bottom: 2%;
+            margin-bottom: 3%;
+            margin-top: 2%;
         
         }
 
