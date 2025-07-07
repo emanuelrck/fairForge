@@ -86,6 +86,11 @@ def main_frontend():
             border-color: #325D79 !important;
        }
 
+       label[data-baseweb="checkbox"] > div {
+            background-color: #e1eef4 !important;
+            
+        }
+
         .st-dg {
             background-color: rgb(50 93 121);
         }
