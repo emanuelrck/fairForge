@@ -69,11 +69,27 @@ def main_frontend():
             background-color: #e1eef4 !important;
             color: #325D79 !important;
         }
-        li[role="option"][selected="true"] > div {
+        li[role="option"][aria-selected="true"] > div {
             color: red !important;
             
         }
 
+        div[data-baseweb="menu"] {
+            background-color: #e1eef4 !important;
+            color: #325D79 !important;
+            border: 1px solid #325D79 !important;
+        }
+
+        li[role="option"] {
+            background-color: #e1eef4 !important;
+            color: #325D79 !important;
+            font-weight: bold;
+        }
+
+        li[role="option"][aria-selected="true"] {
+            background-color: #c0dbea !important;
+            color: #1e3a8a !important;
+        }
 
         .st-dg {
             background-color: rgb(50 93 121);
