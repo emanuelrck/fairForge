@@ -87,8 +87,11 @@ def main_frontend():
        }
 
        label[data-baseweb="checkbox"] > div {
-            background-color: #e1eef4 !important;
+            background-color: #f5f5f5 !important;
             
+        }
+        div[data-testid="stMarkdownContainer"]{
+            color: #325D79 !important;
         }
 
         .st-dg {
