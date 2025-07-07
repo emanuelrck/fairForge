@@ -98,7 +98,9 @@ def main_frontend():
             width: 100%
         }
 
-
+        div[role="alert"][data-baseweb="notification"][data-testid="stAlertContainer"]{
+            background-color: #e1eef4 !important;
+        }
 
         .st-dg {
             background-color: rgb(50 93 121);
