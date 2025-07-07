@@ -95,7 +95,10 @@ def main_frontend():
         }
 
        div [data-testid="stDownloadButton"] > button {
-            width: 100%
+            width: 100%;
+            border: None;
+            border-radius: 25px;
+        
         }
 
         div[role="alert"][data-baseweb="notification"][data-testid="stAlertContainer"]{
