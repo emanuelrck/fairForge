@@ -75,6 +75,9 @@ def main_frontend():
             background-color: #e1eef4 !important;
             
         }
+        li [aria-live="polite"][aria-atomic="true"]{
+            color:#325D79 !important;
+        }
 
         
         div[data-baseweb="select"] > div {
