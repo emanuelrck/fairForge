@@ -102,6 +102,10 @@ def main_frontend():
             background-color: #e1eef4 !important;
         }
 
+        div[role="alert"][data-baseweb="notification"][data-testid="stAlertContainer"] > div > div{
+            background-color: #e1eef4 !important;
+        }
+
         .st-dg {
             background-color: rgb(50 93 121);
         }
