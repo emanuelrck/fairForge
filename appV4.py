@@ -94,6 +94,12 @@ def main_frontend():
             color: #325D79 !important;
         }
 
+        button[kind="secondary"][data-testid="stBaseButton-secondary"]{
+            width: 100%
+        }
+
+
+
         .st-dg {
             background-color: rgb(50 93 121);
         }
