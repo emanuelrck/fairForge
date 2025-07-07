@@ -98,8 +98,8 @@ def main_frontend():
             width: 90%;
             border: None;
             border-radius: 25px;
-            padding-top: 1%;
-            padding-bottom: 1%;
+            padding-top: 1.5%;
+            padding-bottom: 1.5%;
         
         }
 
