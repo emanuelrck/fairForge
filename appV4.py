@@ -76,9 +76,12 @@ def main_frontend():
             
         }
 
-         label[data-baseweb="tag"] > span{
-         border-color: #325D79 !important;
-         }
+        
+        div[data-baseweb="select"] > div {
+            background-color: #e1eef4 !important;
+            color: #325D79 !important;
+            border-color: #325D79 !important;
+       }
 
         .st-dg {
             background-color: rgb(50 93 121);
