@@ -69,7 +69,7 @@ def main_frontend():
             background-color: #e1eef4 !important;
             color: #325D79 !important;
         }
-        li[role="option"][aria-selected="true"] > div {
+        li[role="option"][selected="true"] > div {
             color: red !important;
             
         }
