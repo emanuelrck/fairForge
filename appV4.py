@@ -75,7 +75,7 @@ def main_frontend():
             background-color: #e1eef4 !important;
             
         }
-        ul[data-testid="stSelectboxVirtualDropdownEmpty"]{
+        ul[data-testid="stSelectboxVirtualDropdownEmpty"] > li {
             color: #325D79 !important;
         }
 
