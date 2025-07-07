@@ -74,21 +74,9 @@ def main_frontend():
             
         }
 
-        div[data-baseweb="menu"] {
-            background-color: #e1eef4 !important;
-            color: #325D79 !important;
-            border: 1px solid #325D79 !important;
-        }
-
-        li[role="option"] {
-            background-color: #e1eef4 !important;
-            color: #325D79 !important;
+        div[data-baseweb="select"] > div > div {
+            color: red !important;
             font-weight: bold;
-        }
-
-        li[role="option"][aria-selected="true"] {
-            background-color: #c0dbea !important;
-            color: #1e3a8a !important;
         }
 
         .st-dg {
