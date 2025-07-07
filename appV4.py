@@ -90,9 +90,7 @@ def main_frontend():
             background-color: #f5f5f5 !important;
             
         }
-        div[data-testid="stMarkdownContainer"]{
-            color: #325D79 !important;
-        }
+        
 
         .st-dg {
             background-color: rgb(50 93 121);
