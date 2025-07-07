@@ -69,14 +69,11 @@ def main_frontend():
             background-color: #e1eef4 !important;
             color: #325D79 !important;
         }
-        li[role="option"][aria-selected="true"] > div {
-            color: red !important;
-            
-        }
-
+        
         div[data-baseweb="select"] > div > div {
-            color: red !important;
-            font-weight: bold;
+            color: #325D79 !important;
+            background-color: #e1eef4 !important;
+            
         }
 
         .st-dg {
