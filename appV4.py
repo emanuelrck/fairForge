@@ -94,7 +94,7 @@ def main_frontend():
             color: #325D79 !important;
         }
 
-       div [data-testid="stDownloadButton"] > div{
+       div [data-testid="stDownloadButton"] > button {
             width: 100%
         }
 
