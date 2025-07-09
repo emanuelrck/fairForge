@@ -261,7 +261,7 @@ def display_categorys(df):
 
 
 
-    return default_sensitive_columns,  numeric_strategy, custom_value, categorical_strategy, custom_value_cat, use_knn, use_iterative, use_rf,resampling_method, cluster, sensitive_synt, group_synt, number_synt, include_columns, sensitive_change, group_change, number_change, protected_attribute_name_reweigh, privileged_classes_reweigh, repair_level_dir, protected_attribute_name_dir, privileged_classes_dir, protected_attribute_name_lfr, privileged_classes_lfr
+    return default_sensitive_columns,  numeric_strategy, custom_value, categorical_strategy, custom_value_cat, use_knn, use_iterative, use_rf,resampling_method, cluster, sensitive_synt, group_synt, number_synt, include_columns, sensitive_change, group_change, number_change, protected_attribute_name_reweigh, privileged_classes_reweigh, protected_attribute_name_lfr, privileged_classes_lfr
 
 def extract_metrics(report):
             """Processa o relatório para extrair métricas de performance e fairness"""
