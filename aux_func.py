@@ -201,7 +201,7 @@ def display_categorys(df):
 
     st.sidebar.markdown("""<h2>Data Correction Options</h2>""", unsafe_allow_html=True)
     with st.sidebar.expander("", expanded=False):
-        tab3, tab4, tab5,tab6, tab7 = st.tabs([ "Bliding", "Massaging", "Reweigh","LFR" ,"DisparateImpactRemover"])
+        tab3, tab4, tab5,tab6 = st.tabs([ "Bliding", "Massaging", "Reweigh","LFR" ,])
             
         
 
@@ -235,13 +235,7 @@ def display_categorys(df):
             index=0)
             privileged_classes_lfr = st.selectbox("Enter the privileged category:", st.session_state["df"][protected_attribute_name_lfr].unique().tolist(), key="privileged category lfr")
         
-        with tab7:
-            protected_attribute_name_dir = st.selectbox(
-            "Enter the sensitive attribute to DisparateImpactRemover", 
-            df.columns.tolist(), 
-            index=0)
-            privileged_classes_dir = st.selectbox("Enter the privileged category:", st.session_state["df"][protected_attribute_name_dir].unique().tolist(), key="privileged category dir")
-            repair_level_dir = st.number_input("Enter the repair value", min_value=0.0, max_value=1.0, value=1.0)
+        
 
     st.sidebar.markdown("""<h2>Data Resampling methods</h2>""", unsafe_allow_html=True)
     with st.sidebar.expander(""):
