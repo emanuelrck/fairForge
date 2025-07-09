@@ -50,7 +50,7 @@ def main_frontend():
         }
         svg[data-baseweb="icon"][title="open"] {
 
-            color: #325d79;
+            color: #325d79!important;
 
         }
 
