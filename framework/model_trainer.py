@@ -365,7 +365,7 @@ def apply_fair_training(self,X, y, x_test, y_test, model, sensitive_features,
     if fairness_method == "prejudice_remover":
         from aif360.algorithms.inprocessing import PrejudiceRemover
         from aif360.datasets import BinaryLabelDataset
-        import numpy as np
+        
 
         # --- PATCH ---
         def patched_predict(self, dataset):

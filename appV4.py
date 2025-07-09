@@ -25,6 +25,10 @@ from sklearn.metrics import accuracy_score, classification_report
 def main_frontend():
     st.markdown("""
     <style>
+
+        svg[data-baseweb="icon"] path {
+            fill: red !important; /* Cor desejada para o ícone */
+        }
          
 
         input[type="number"] {
