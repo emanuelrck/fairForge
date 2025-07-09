@@ -35,13 +35,14 @@ def main_frontend():
         label[data-baseweb="checkbox"] > span {
             background-color: #325D79 !important;
             border: None !important; 
+            padding-left: 0px;
+            padding-right: 0px;
         }
 
         label[data-baseweb="checkbox"] {
             background-color: #f5f5f5 !important;
             border: None !important; 
-            padding-left: 0px;
-            padding-right: 0px;
+            
         }
        
 
