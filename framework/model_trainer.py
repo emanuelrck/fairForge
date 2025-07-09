@@ -375,7 +375,7 @@ def apply_fair_training(self,X, y, x_test, y_test, model, sensitive_features,
                                  protected_attribute_names=[sensitive_features])
 
         fair_model = PrejudiceRemover(sensitive_attr=sensitive_features, eta=fairness_params.get('eta', 25.0))
-        fair_model.fit(bld)
+        fair_model.fit(bld_test)
         info += f" | Eta: {fairness_params.get('eta', 25.0)}"
         print("bld_test.features.shape:", bld_test.features.shape)
         
