@@ -116,6 +116,8 @@ def main_frontend():
         
         button[data-baseweb="tab"][role="tab"]{
             background-color: #e1eef4 !important;
+            padding-left: 20px;
+            padding-right: 20px;
         }
 
         .st-dg {
