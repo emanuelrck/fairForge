@@ -266,11 +266,12 @@ def display_categorys(df):
 def extract_metrics(report):
             """Processa o relatório para extrair métricas de performance e fairness"""
             metrics = {}
-            for line in report.split("\n"):
-                if "Accuracy" in line:
-                    model_name = line.split(" - ")[0].strip()
-                    acc = float(line.split(":")[1].strip())
-                    metrics[model_name] = acc
+            if report != None:
+                for line in report.split("\n"):
+                    if "Accuracy" in line:
+                        model_name = line.split(" - ")[0].strip()
+                        acc = float(line.split(":")[1].strip())
+                        metrics[model_name] = acc
             return metrics
 
 import streamlit as st
