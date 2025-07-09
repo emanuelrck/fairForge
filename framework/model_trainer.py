@@ -369,6 +369,9 @@ def apply_fair_training(self,X, y, x_test, y_test, model, sensitive_features,
 
         # --- PATCH ---
         def patched_predict(self, dataset):
+            if not hasattr(self, "model_"):
+                raise RuntimeError("PrejudiceRemover was not trained. Call `fit()` before `predict()`.")
+
             pred_dataset = dataset.copy()
             probs = self.model_.predict(dataset.features)
 
