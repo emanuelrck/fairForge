@@ -114,7 +114,9 @@ def main_frontend():
         }
 
         
-
+        button[data-baseweb="tab"][role="tab"]{
+            background-color: #e1eef4 !important;
+        }
 
         .st-dg {
             background-color: rgb(50 93 121);
