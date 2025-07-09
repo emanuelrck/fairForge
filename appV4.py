@@ -2059,7 +2059,7 @@ elif st.session_state["b3"]:
             st.session_state["previus_final_report"] = deepcopy(st.session_state["atual_final_report"])
             st.session_state["atual_final_report"] = deepcopy(st.session_state["final_report"])
 
-        if "report_after_performance" not in st.session_state or st.session_state["report_after_performance"] = None:
+        if "report_after_performance" not in st.session_state or st.session_state["report_after_performance"] == None:
             st.session_state["accuracy_atual"] = None
             st.session_state["accuracy_anterior"] = None
             st.session_state["report_after_performance"] = None
