@@ -365,52 +365,21 @@ def apply_fair_training(self,X, y, x_test, y_test, model, sensitive_features,
     if fairness_method == "prejudice_remover":
         from aif360.algorithms.inprocessing import PrejudiceRemover
         from aif360.datasets import BinaryLabelDataset
-        
 
-        # --- PATCH ---
-        def patched_predict(self, dataset):
-            if not hasattr(self, "model_"):
-                raise RuntimeError("PrejudiceRemover was not trained. Call `fit()` before `predict()`.")
+        bld = BinaryLabelDataset(df=df_all, 
+                                 label_names=[y.name], 
+                                 protected_attribute_names=[sensitive_features])
 
-            pred_dataset = dataset.copy()
-            probs = self.model_.predict(dataset.features)
+        bld_test = BinaryLabelDataset(df=df_all_test, 
+                                 label_names=[y.name], 
+                                 protected_attribute_names=[sensitive_features])
 
-            if probs.ndim == 1:
-                labels = (probs > 0.5).astype(int).reshape(-1, 1)
-                pred_dataset.labels = labels
-                pred_dataset.scores = probs.reshape(-1, 1)
-                return pred_dataset
-            else:
-                return PrejudiceRemover.predict.__wrapped__(self, dataset)
-
-        PrejudiceRemover.predict = patched_predict
-        # --------------
-
-        # Criando datasets
-        bld = BinaryLabelDataset(
-            df=df_all,
-            label_names=[y.name],
-            protected_attribute_names=[sensitive_features]
-        )
-
-        bld_test = BinaryLabelDataset(
-            df=df_all_test,
-            label_names=[y.name],
-            protected_attribute_names=[sensitive_features]
-        )
-
-        # Treinando modelo
-        fair_model = PrejudiceRemover(
-            sensitive_attr=sensitive_features,
-            eta=fairness_params.get('eta', 25.0)
-        )
+        fair_model = PrejudiceRemover(sensitive_attr=sensitive_features, eta=fairness_params.get('eta', 25.0))
         fair_model.fit(bld)
-
         info += f" | Eta: {fairness_params.get('eta', 25.0)}"
         print("bld_test.features.shape:", bld_test.features.shape)
-
-        # ✅ Retorno compatível com outros métodos
-        return fair_model, bld_test 
+        
+        return fair_model, bld_test
     #TODO: TEM DE SE VER TODAS AS FUNÇOES
     elif fairness_method == "adversarial_debiasing":
         from aif360.algorithms.inprocessing import AdversarialDebiasing
