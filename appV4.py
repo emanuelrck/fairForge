@@ -44,7 +44,15 @@ def main_frontend():
             border: None !important; 
             
         }
-       
+       svg[data-baseweb="icon"][title="Clear all"] {
+            background-color: #e1eef4 !important;
+            color: #325d79 !important;
+        }
+        svg[data-baseweb="icon"][title="open"] {
+
+            color: #325d79;
+
+        }
 
         div[data-baseweb="tab-panel"] {
             background-color: #f5f5f5 !important; 
