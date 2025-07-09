@@ -169,7 +169,7 @@ class ModelTrainer:
                     print("1")
                     predictions = model.predict(self.X_test)
                 else:
-                    print("2")
+                    print(model)
                     predictions = model.predict(bld).labels.ravel()
                 
             else:
@@ -375,7 +375,7 @@ def apply_fair_training(self,X, y, x_test, y_test, model, sensitive_features,
                                  protected_attribute_names=[sensitive_features])
 
         fair_model = PrejudiceRemover(sensitive_attr=sensitive_features, eta=fairness_params.get('eta', 25.0))
-        fair_model.fit(bld_test)
+        fair_model.fit(bld)
         info += f" | Eta: {fairness_params.get('eta', 25.0)}"
         print("bld_test.features.shape:", bld_test.features.shape)
         
