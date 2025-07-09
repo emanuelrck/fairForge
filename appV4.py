@@ -113,9 +113,7 @@ def main_frontend():
             background-color: #e1eef4 !important;
         }
 
-        svg[data-baseweb="icon"][title="open"] {
-        color:red!important;
-        }
+        
 
 
         .st-dg {
