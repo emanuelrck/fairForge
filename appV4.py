@@ -38,8 +38,10 @@ def main_frontend():
         }
 
         label[data-baseweb="checkbox"] {
-            background-color: red !important;
+            background-color: #f5f5f5 !important;
             border: None !important; 
+            padding-left: 0px;
+            padding-right: 0px;
         }
        
 
