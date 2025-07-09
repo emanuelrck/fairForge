@@ -166,8 +166,10 @@ class ModelTrainer:
 
                 print(bld)
                 if bld == None:
+                    print("1")
                     predictions = model.predict(self.X_test)
                 else:
+                    print("2")
                     predictions = model.predict(bld).labels.ravel()
                 
             else:
@@ -375,7 +377,7 @@ def apply_fair_training(self,X, y, x_test, y_test, model, sensitive_features,
         fair_model = PrejudiceRemover(sensitive_attr=sensitive_features, eta=fairness_params.get('eta', 25.0))
         fair_model.fit(bld)
         info += f" | Eta: {fairness_params.get('eta', 25.0)}"
-        print("inside prej", bld_test)
+        
         return fair_model, bld_test
     #TODO: TEM DE SE VER TODAS AS FUNÇOES
     elif fairness_method == "adversarial_debiasing":
