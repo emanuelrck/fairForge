@@ -1503,6 +1503,8 @@ def automatic():
     print("\n\n\n---------Clust-------")
     print(clusters)
     progress = st.progress(0)
+
+    st.session_state["automatic_datasets"] = {}
     #se existir missing values 
     if missing_data.iloc[0, 1] > 0:
         
@@ -1559,7 +1561,7 @@ def automatic():
             perfom_aut_write = pd.DataFrame.from_dict(aux_func.extract_metrics(perfom_aut), orient="index", columns=["Accuracy"])
             
             st.session_state["automatic_results"][automatic_combinations[i]] = [perfom_aut_write, fair_aut]
-            
+            st.session_state["automatic_datasets"][automatic_combinations[i]] = dados_automaticos.copy()
             
             st.session_state["b4"] = True
             st.session_state["b1"] = False
@@ -1599,7 +1601,7 @@ def automatic():
                 perfom_aut_write = pd.DataFrame.from_dict(aux_func.extract_metrics(perfom_aut), orient="index", columns=["Accuracy"])
             
                 st.session_state["automatic_results"][automatic_combinations[i]] = [perfom_aut_write, fair_aut]
-            
+                st.session_state["automatic_datasets"][automatic_combinations[i]] = dados_automaticos.copy()
             
             st.session_state["b4"] = True
             st.session_state["b1"] = False
@@ -2363,7 +2365,11 @@ elif st.session_state["b4"]:
             model_name = st.selectbox("Model Name:", st.session_state.current_model.models.keys())
         return model_name
 
-    
+    def sidebar_dataframe():
+        st.sidebar.markdown("""<h2>Dataset Download</h2>""", unsafe_allow_html=True)
+        with st.sidebar.expander(" ", expanded=False):
+            data_name = st.selectbox("Dataset Name:", st.session_state["automatic_datasets"].keys())
+        return data_name
 
 
     def download_dataframe(df, filename="data.csv"):
@@ -2411,7 +2417,12 @@ elif st.session_state["b4"]:
     
 
     st.subheader("Dataset Downloads")
-    download_dataframe(st.session_state.df, filename="data.csv")
+
+    if st.session_state["automatic"]:
+        data = st.session_state["automatic_datasets"][sidebar_dataframe()]
+        download_dataframe(data, filename="data.csv")
+    else:
+        download_dataframe(st.session_state.df, filename="data.csv")
     if "current_model" in st.session_state:
         model_name = sidebar_model_download()
         model = st.session_state.current_model.models[model_name]
