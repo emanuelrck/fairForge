@@ -1964,11 +1964,11 @@ elif st.session_state["b5"]:
 
     # ----------------------------------
     st.subheader("Logistic Regression Classifier")
-    if st.button("Prejudice Remover"):
-        st.session_state["inprocessing_method"] = "prejudice_remover"
-        st.session_state["inprocessing_params"] = {"eta": st.session_state["inprocessing_eta"]}
-        st.success("Using Prejudice Remover")
-        st.session_state["final_report"]["inprocessing"] = "Prejudice Remover"
+    #if st.button("Prejudice Remover"):
+    #    st.session_state["inprocessing_method"] = "prejudice_remover"
+    #    st.session_state["inprocessing_params"] = {"eta": st.session_state["inprocessing_eta"]}
+    #    st.success("Using Prejudice Remover")
+    #    st.session_state["final_report"]["inprocessing"] = "Prejudice Remover"
 
     if st.button("Meta Fair Classifier"):
         st.session_state["inprocessing_method"] = "meta_fair_classifier"
