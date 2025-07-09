@@ -36,6 +36,11 @@ def main_frontend():
             background-color: #325D79 !important;
             border: None !important; 
         }
+
+        label[data-baseweb="checkbox"] {
+            background-color: red !important;
+            border: None !important; 
+        }
        
 
         div[data-baseweb="tab-panel"] {
