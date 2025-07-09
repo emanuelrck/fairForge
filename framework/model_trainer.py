@@ -365,21 +365,20 @@ def apply_fair_training(self,X, y, x_test, y_test, model, sensitive_features,
     if fairness_method == "prejudice_remover":
         from aif360.algorithms.inprocessing import PrejudiceRemover
         from aif360.datasets import BinaryLabelDataset
+        import numpy as np
 
-        bld = BinaryLabelDataset(df=df_all, 
-                                 label_names=[y.name], 
-                                 protected_attribute_names=[sensitive_features])
+        # --- PATCH ---
+        def patched_predict(self, dataset):
+            pred_dataset = dataset.copy()
+            probs = self.model_.predict(dataset.features)
 
-        bld_test = BinaryLabelDataset(df=df_all_test, 
-                                 label_names=[y.name], 
-                                 protected_attribute_names=[sensitive_features])
-
-        fair_model = PrejudiceRemover(sensitive_attr=sensitive_features, eta=fairness_params.get('eta', 25.0))
-        fair_model.fit(bld)
-        info += f" | Eta: {fairness_params.get('eta', 25.0)}"
-        print("bld_test.features.shape:", bld_test.features.shape)
-        
-        return fair_model, bld_test
+            if probs.ndim == 1:
+                labels = (probs > 0.5).astype(int).reshape(-1, 1)
+                pred_dataset.labels = labels
+                pred_dataset.scores = probs.reshape(-1, 1)
+                return pred_dataset
+            else:
+                return PrejudiceRemover.predict.__wrapped__(self, dataset)
     #TODO: TEM DE SE VER TODAS AS FUNÇOES
     elif fairness_method == "adversarial_debiasing":
         from aif360.algorithms.inprocessing import AdversarialDebiasing
