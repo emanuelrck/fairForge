@@ -2146,6 +2146,7 @@ elif st.session_state["b6"]:
         st.session_state["final_report"]["postprocessing"] = "Reject Option Classification"
 
     if st.session_state["postprocessing_method"] != None:
+        print(st.session_state["atual_final_report"])
         dicio_all_fair = {}
         report_lines = ["===== Model Training & Evaluation Report ====="]
         for model in st.session_state["selected_models"]:
