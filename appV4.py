@@ -2117,37 +2117,37 @@ elif st.session_state["b6"]:
     print(st.session_state["accuracy_atual"])
     sensitive_post, priveledge_post = aux_func.postProcessing_caracteristics(st.session_state["df"])
     st.write("### PostProcessing Methods")
-    if "postprocessing" not in st.session_state["final_report"]:
-        st.session_state["final_report"]["postprocessing"] = "None"
+    if "postprocessing" not in st.session_state["atual_final_report"]:
+        st.session_state["atual_final_report"]["postprocessing"] = "None"
     
     if st.button("None"):
         st.session_state["postprocessing_method"] = None
         
         st.success("It will not be applied a postprocessing method")
-        st.session_state["final_report"]["postprocessing"] = "None"
+        st.session_state["atual_final_report"]["postprocessing"] = "None"
 
     # ----------------------------------
     #st.subheader("Logistic Regression Classifier")
     if st.button("Equalized Odds"):
         st.session_state["postprocessing_method"] = "Equalized Odds"
         st.success("Using Equalized Odds")
-        st.session_state["final_report"]["postprocessing"] = "Equalized Odds"
+        st.session_state["atual_final_report"]["postprocessing"] = "Equalized Odds"
         
 
     if st.button("Calibrated Equalized Odds"):
         st.session_state["postprocessing_method"] = "Calibrated Equalized Odds"
         st.success("Using Calibrated Equalized Odds")
-        st.session_state["final_report"]["postprocessing"] = "Calibrated Equalized Odds"
+        st.session_state["atual_final_report"]["postprocessing"] = "Calibrated Equalized Odds"
 
     if st.button("Threshold Optimizer"):
         st.session_state["postprocessing_method"] = "Threshold Optimizer"
         st.success("Using Threshold Optimizer")
-        st.session_state["final_report"]["postprocessing"] = "Threshold Optimizer"
+        st.session_state["atual_final_report"]["postprocessing"] = "Threshold Optimizer"
 
     if st.button("Reject Option Classification"):
         st.session_state["postprocessing_method"] = "Reject Option Classification"
         st.success("Using Reject Option Classification")
-        st.session_state["final_report"]["postprocessing"] = "Reject Option Classification"
+        st.session_state["atual_final_report"]["postprocessing"] = "Reject Option Classification"
 
     if st.session_state["postprocessing_method"] != None:
         #print(st.session_state["atual_final_report"])
