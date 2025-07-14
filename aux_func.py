@@ -503,7 +503,7 @@ def display_final_report(report):
     st.write("\n\n\n\n\n##### Inprocessing method applied")
     if "inprocessing" in report and len(report["inprocessing"]) > 0 :
         st.write("- "+report["inprocessing"])
-     else:
+    else:
         st.write("- "+ "None")
 
     st.write("\n\n\n\n\n##### Postprocessing method applied")
