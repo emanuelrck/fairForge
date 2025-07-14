@@ -510,7 +510,7 @@ def display_final_report(report):
     if "postprocessing" in report and len(report["postprocessing"]) > 0 :
         st.write("- "+report["postprocessing"])
     else:
-        st.write("- "+ "Nonae")
+        st.write("- "+ "Nonaae")
     
 
 # Função para selecionar as métricas e gerar o gráfico
