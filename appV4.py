@@ -2129,6 +2129,8 @@ elif st.session_state["b6"]:
         st.session_state["postprocessing_method"] = "Equalized Odds"
         st.success("Using Equalized Odds")
         st.session_state["final_report"]["postprocessing"] = "Equalized Odds"
+        print("-----------------------------------")
+        print(st.session_state["accuracy_atual"])
 
     if st.button("Calibrated Equalized Odds"):
         st.session_state["postprocessing_method"] = "Calibrated Equalized Odds"
