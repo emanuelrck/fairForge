@@ -499,8 +499,18 @@ def display_final_report(report):
                 st.markdown(f"{change + 1}º: {report['preprocessing'][change]}")
     else:
          st.write("\n\n\n\n\n##### Original Dataset")
+
     st.write("\n\n\n\n\n##### Inprocessing method applied")
-    st.write("- "+report["inprocessing"])
+    if "inprocessing" in report and len(report["inprocessing"]) > 0 :
+        st.write("- "+report["inprocessing"])
+     else:
+        st.write("- "+ "None")
+
+    st.write("\n\n\n\n\n##### Postprocessing method applied")
+    if "postprocessing" in report and len(report["postprocessing"]) > 0 :
+        st.write("- "+report["postprocessing"])
+    else:
+        st.write("- "+ "None")
     
 
 # Função para selecionar as métricas e gerar o gráfico
