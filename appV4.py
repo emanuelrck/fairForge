@@ -2117,7 +2117,9 @@ elif st.session_state["b6"]:
     print(st.session_state["accuracy_atual"])
     sensitive_post, priveledge_post = aux_func.postProcessing_caracteristics(st.session_state["df"])
     st.write("### PostProcessing Methods")
-    st.session_state["final_report"]["postprocessing"] = "None"
+    if "postprocessing" not in st.session_state["final_report"]:
+        st.session_state["final_report"]["postprocessing"] = "None"
+    
     if st.button("None"):
         st.session_state["postprocessing_method"] = None
         
