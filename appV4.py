@@ -1757,26 +1757,27 @@ if st.session_state["b1"]:
     with st.sidebar.expander("", expanded=False):
         # 📂 Upload dataset
         if prediction_dataset is not None:
-            TestModel_predictions = st.selectbox(
-                    "Choose target column:", 
-                    prediction_dataset.columns.tolist(), 
-                    index=len(prediction_dataset.columns) - 1
-                )
-            TestModel_target = st.selectbox(
-                    "Choose target column:", 
-                    prediction_dataset.columns.tolist(), 
-                    index=len(prediction_dataset.columns) - 2
-                )
-            TestModel_target_positive = st.selectbox("Enter the privileged category:",prediction_dataset[TestModel_target].unique().tolist())
+            if len(prediction_dataset.columns) > 2:
+                TestModel_predictions = st.selectbox(
+                        "Choose target column:", 
+                        prediction_dataset.columns.tolist(), 
+                        index=len(prediction_dataset.columns) - 1
+                    )
+                TestModel_target = st.selectbox(
+                        "Choose target column:", 
+                        prediction_dataset.columns.tolist(), 
+                        index=len(prediction_dataset.columns) - 2
+                    )
+                TestModel_target_positive = st.selectbox("Enter the privileged category:",prediction_dataset[TestModel_target].unique().tolist())
 
-            TestModel_sens = st.multiselect(
-                    "Select sensitive attributes:", 
-                    prediction_dataset.columns.tolist(), 
-                    default=[prediction_dataset.columns.tolist()[0]]
-                )
-            TestModel_priveledge = []
-            for col in TestModel_sens:
-                    TestModel_priveledge.append(st.selectbox("Enter the priveleged class of "+col, prediction_dataset[col].unique().tolist()))
+                TestModel_sens = st.multiselect(
+                        "Select sensitive attributes:", 
+                        prediction_dataset.columns.tolist(), 
+                        default=[prediction_dataset.columns.tolist()[0]]
+                    )
+                TestModel_priveledge = []
+                for col in TestModel_sens:
+                        TestModel_priveledge.append(st.selectbox("Enter the priveleged class of "+col, prediction_dataset[col].unique().tolist()))
 
        # else: 
         #    st.sidebar.markdown("""<h3>Load prediction dataset</h3>""", unsafe_allow_html=True)
