@@ -24,12 +24,12 @@ class DataReader:
             file_name = file.lower()
 
         if file_name.endswith('.csv'):
-            return pd.read_csv(file,sep=";")
+            return pd.read_csv(file, delimiter=delimiter, header=0 if header else None, names=column_names)
         elif file_name.endswith('.json'):
             return pd.read_json(file)
         elif file_name.endswith('.xlsx'):
             return pd.read_excel(file, engine='openpyxl')
         elif file_name.endswith('.data'):
-            return pd.read_csv(file, delimiter=",", header=0 if header else None, names=column_names)
+            return pd.read_csv(file, delimiter=delimiter, header=0 if header else None, names=column_names)
         else:
             raise ValueError("Unsupported file format! Use CSV, JSON, Excel, or .data.")

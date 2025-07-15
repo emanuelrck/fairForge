@@ -1642,13 +1642,17 @@ if st.session_state["b1"]:
     )
     shown = False
     
+    if uploaded_file and uploaded_file.name.lower().endswith(('.csv', '.data')):
+        delimiter = st.text_input("Escolha o delimitador (ex: , ; | \\t)", value=",")
+    else:
+        delimiter = None
 
     
     if uploaded_file:
         #if st.button("Load Dataset"):
             with st.spinner("Loading dataset..."):
                 print("inicio")
-                df = DataReader.read_data(uploaded_file)
+                df = DataReader.read_data(uploaded_file, delimiter)
                 
                 # Salvar o dataset no session_state
                 st.session_state["df"] = df
