@@ -1452,7 +1452,7 @@ def main_frontend():
 
 def enable_sec():
     st.session_state["enable_sec"] = True
-    
+
 def style_b1():
     st.session_state["b1"] = True
     st.session_state["b3"] = False
@@ -2078,7 +2078,7 @@ if st.session_state["b1"]:
         st.write(st.session_state["df"].head())
 
 
-    st.button('Continue', key='continue0', on_click = b0)
+    st.button('Continue', key='continue0', on_click = b0, disabled= not st.session_state["enable_first"])
 
    
             
@@ -2293,7 +2293,7 @@ elif st.session_state["b5"]:
 
 
     
-    st.button("Continue",  key='continue0',on_click = b2)
+    st.button("Continue",  key='continue0',on_click = b2, , disabled= not st.session_state["enable_first"])
        
 elif st.session_state["b3"]:
     style_b3()
@@ -2390,7 +2390,7 @@ elif st.session_state["b3"]:
     if st.button("Save current Model"): 
         st.session_state["saved_models"]["_".join(st.session_state["changes"])] = st.session_state["current_model"]
     
-    st.button("Continue",  key='continue0',on_click = b3)
+    st.button("Continue",  key='continue0',on_click = b3 , disabled= not st.session_state["enable_sec"])
 
 elif st.session_state["b6"]:
     style_b6()
@@ -2467,7 +2467,7 @@ elif st.session_state["b6"]:
         st.session_state["report_after_performance"] = "\n".join(report_lines)
         st.session_state["accuracy_atual"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_after_performance"]), orient="index", columns=["Accuracy"])
         print(st.session_state["accuracy_atual"])
-    st.button("Continue",  key='continue0',on_click = b4)
+    st.button("Continue",  key='continue0',on_click = b4, disabled= not st.session_state["enable_sec"])
 
 
 elif st.session_state["b4"]:
