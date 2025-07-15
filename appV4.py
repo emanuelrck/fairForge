@@ -1328,7 +1328,69 @@ def main_frontend():
 
     
 
-    
+    col1, col2, col5 ,col3, col6, col4, helpB  = st.columns(7)
+
+   
+    with helpB:
+        help_button_html = f"""
+    <style>
+        #help-button {{
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            background-color: #325d79;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1000;
+            margin-left: 75%;
+            margin-top: 2%;
+        }}
+        #help-balloon {{
+            position: fixed;
+            top: 8%;
+            right: 4%;
+            background-color: #ffffff;
+            color: #333;
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            display: none;
+            font-family: sans-serif;
+            z-index: 1000;
+            max-width: 400px;
+            overflow-y: auto;
+            max-height: 70vh;
+        }}
+        #help-balloon::after {{
+            content: "";
+            position: absolute;
+            top: -10px;
+            right: 15px;
+            border-width: 0 10px 10px 10px;
+            border-style: solid;
+            border-color: transparent transparent #ffffff transparent;
+        }}
+    </style>
+
+    <button id="help-button">?</button>
+    <div id="help-balloon">{st.session_state["help_text"]}</div>
+
+    <script>
+        const btn = document.getElementById("help-button");
+        const balloon = document.getElementById("help-balloon");
+
+        btn.addEventListener("click", () => {{
+            balloon.style.display = (balloon.style.display === "none" || balloon.style.display === "") 
+                ? "block" 
+                : "none";
+        }});
+    </script>
+"""
+
+        components.html(help_button_html, height=100)
 
 
 
@@ -2632,9 +2694,6 @@ elif st.session_state["b4"]:
 
 
 st.markdown('</div>', unsafe_allow_html=True)
-
-col1, col2, col5 ,col3, col6, col4, helpB  = st.columns(7)
-
 with col1:
     if st.button('✔ Upload', key='botao1', on_click = style_b1):
         st.session_state["b1"] = True
@@ -2683,67 +2742,14 @@ with col4:
         st.session_state["b5"] = False
         st.session_state["b6"] = False
 with col6:
-    if st.button('✔ PostProcessing', key='botao6', on_click = style_b6, disabled= not st.session_state["enable_sec"]):
-        st.session_state["b4"] = False
-        st.session_state["b1"] = False
-        st.session_state["b3"] = False
-        st.session_state["b2"] = False
-        st.session_state["b5"] = False
-        st.session_state["b6"] = True
-with helpB:
-    help_button_html = f"""
-<style>
-    #help-button {{
-        position: fixed;
-        width: 40px;
-        height: 40px;
-        background-color: #325d79;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        font-size: 24px;
-        cursor: pointer;
-        z-index: 1000;
-        
-    }}
-    #help-balloon {{
-        position: fixed;
-        
-        background-color: #ffffff;
-        color: #333;
-        padding: 10px 15px;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        display: none;
-        font-family: sans-serif;
-        z-index: 1000;
-        max-width: 400px;
-        overflow-y: auto;
-        max-height: 70vh;
-    }}
-    #help-balloon::after {{
-        content: "";
-        position: absolute;
-       
-        border-width: 0 10px 10px 10px;
-        border-style: solid;
-        border-color: transparent transparent #ffffff transparent;
-    }}
-</style>
-<button id="help-button">?</button>
-<div id="help-balloon">{st.session_state["help_text"]}</div>
-<script>
-    const btn = document.getElementById("help-button");
-    const balloon = document.getElementById("help-balloon");
-    btn.addEventListener("click", () => {{
-        balloon.style.display = (balloon.style.display === "none" || balloon.style.display === "") 
-            ? "block" 
-            : "none";
-    }});
-</script>
-"""
+        if st.button('✔ PostProcessing', key='botao6', on_click = style_b6, disabled= not st.session_state["enable_sec"]):
+            st.session_state["b4"] = False
+            st.session_state["b1"] = False
+            st.session_state["b3"] = False
+            st.session_state["b2"] = False
+            st.session_state["b5"] = False
+            st.session_state["b6"] = True
 
-components.html(help_button_html, height=100)
 
 
 
