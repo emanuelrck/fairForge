@@ -2078,7 +2078,7 @@ if st.session_state["b1"]:
         st.write(st.session_state["df"].head())
 
 
-    st.button('Continuea', key='continue0', on_click = b0, disabled= True)
+    st.button('Continue', key='continue0', on_click = b0, disabled= not st.session_state["enable_first"])
 
    
             
