@@ -21,8 +21,67 @@ import webbrowser
 #from frontend import main_frontend, style_b1, style_b2, style_b3, style_b4, style_b5,style_b6
 from sklearn.metrics import accuracy_score, classification_report
 
+tooltip_text_upload = """
+    <b>Welcome!</b><br><br>
+    Choose between two options:<br><br>
+    <b>1. Improve Data Quality:</b><br>
+    - Upload your dataset (CSV).<br>
+    - Select the correct delimiter.<br>
+    - In the top-left menu, define:<br>
+    &nbsp;&nbsp;• Target column<br>
+    &nbsp;&nbsp;• Privileged groups<br>
+    &nbsp;&nbsp;• Sensitive attributes<br>
+    - Use “Automatic” to improve data quality and train a model Automatically.<br>
+    &nbsp;&nbsp;- Check Performance and Fairness results.<br>
+    &nbsp;&nbsp;- Download the improved data or trained model.<br>
+    - Use "Continue" to advance in the pipeline and have more control over transformations.<br><br>
+    <b>2. Test a Pre-Existing Model:</b><br>
+    - Upload a dataset with a binary prediction column (1 = positive, 0 = negative).<br>
+    - Use the top-left menu to set:<br>
+    &nbsp;&nbsp;• Target column<br>
+    &nbsp;&nbsp;• Privileged groups<br>
+    &nbsp;&nbsp;• Sensitive attributes<br>
+    - The system will evaluate fairness and performance.
 
+    
+<b>2.1 Interpret the results:</b><br>
+    the CSV table presented summarizes fairness metrics. Each row corresponds to a different subgroup, and each column represents a fairness metric.<br><br>
+
+- **Values close to 0 mean good fairness** — minimal disparity between groups.<br>
+- **Higher absolute values indicate potential unfairness**.<br>
+- **Except disparate impact where values near 1 indicate fairness**.<br><br>
+
+Typical interpretation:<br>
+- Between **0.00 and ±0.10**: Generally considered acceptable.<br>
+- Between **±0.10 and ±0.25**: May need attention depending on context.<br>
+- Above **±0.25**: Indicates possible fairness issues.<br><br>
+
+Each metric highlights different types of bias. Consider this questions if you encounter problems in one of this metrics:<br>
+- <b>Equal Opportunity</b>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<i>“Are qualified individuals equally likely to be correctly identified across groups?”</i><br><br>
+
+- <b>Predictive Equality</b>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<i>“Does the model wrongly assign positive outcomes equally across groups?”</i><br><br>
+
+- <b>Positive Predictive Parity</b>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<i>“When the model predicts a positive, is it equally likely to be correct for all groups?”</i><br><br>
+
+- <b>True Positive Rate</b>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<i>“Among all true cases, how many were caught by the model?”</i><br><br>
+
+- <b>Statistical Parity</b>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<i>“Do groups receive positive decisions at similar rates, regardless of qualification?”</i><br><br>
+
+- <b>Disparate Impact</b>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<i>“Are priveledge and Unpriveledge treated equally?”</i><br><br>
+
+Use this to identify if your model behaves differently for privileged vs. unprivileged groups and consider retraining or mitigating if necessary.
+    """
+tooltip_text_preprocessing = "prrrr"
 def main_frontend():
+
+    if "help_text" not in st.session_state:
+        st.session_state["help_text"] = tooltip_text_upload
     st.markdown("""
     <style>
 
@@ -1068,62 +1127,7 @@ def main_frontend():
     </style>
     """, unsafe_allow_html=True)
 
-    tooltip_text = """
-    <b>Welcome!</b><br><br>
-    Choose between two options:<br><br>
-    <b>1. Improve Data Quality:</b><br>
-    - Upload your dataset (CSV).<br>
-    - Select the correct delimiter.<br>
-    - In the top-left menu, define:<br>
-    &nbsp;&nbsp;• Target column<br>
-    &nbsp;&nbsp;• Privileged groups<br>
-    &nbsp;&nbsp;• Sensitive attributes<br>
-    - Use “Automatic” to improve data quality and train a model Automatically.<br>
-    &nbsp;&nbsp;- Check Performance and Fairness results.<br>
-    &nbsp;&nbsp;- Download the improved data or trained model.<br>
-    - Use "Continue" to advance in the pipeline and have more control over transformations.<br><br>
-    <b>2. Test a Pre-Existing Model:</b><br>
-    - Upload a dataset with a binary prediction column (1 = positive, 0 = negative).<br>
-    - Use the top-left menu to set:<br>
-    &nbsp;&nbsp;• Target column<br>
-    &nbsp;&nbsp;• Privileged groups<br>
-    &nbsp;&nbsp;• Sensitive attributes<br>
-    - The system will evaluate fairness and performance.
-
     
-<b>2.1 Interpret the results:</b><br>
-    the CSV table presented summarizes fairness metrics. Each row corresponds to a different subgroup, and each column represents a fairness metric.<br><br>
-
-- **Values close to 0 mean good fairness** — minimal disparity between groups.<br>
-- **Higher absolute values indicate potential unfairness**.<br>
-- **Except disparate impact where values near 1 indicate fairness**.<br><br>
-
-Typical interpretation:<br>
-- Between **0.00 and ±0.10**: Generally considered acceptable.<br>
-- Between **±0.10 and ±0.25**: May need attention depending on context.<br>
-- Above **±0.25**: Indicates possible fairness issues.<br><br>
-
-Each metric highlights different types of bias. Consider this questions if you encounter problems in one of this metrics:<br>
-- <b>Equal Opportunity</b>:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<i>“Are qualified individuals equally likely to be correctly identified across groups?”</i><br><br>
-
-- <b>Predictive Equality</b>:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<i>“Does the model wrongly assign positive outcomes equally across groups?”</i><br><br>
-
-- <b>Positive Predictive Parity</b>:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<i>“When the model predicts a positive, is it equally likely to be correct for all groups?”</i><br><br>
-
-- <b>True Positive Rate</b>:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<i>“Among all true cases, how many were caught by the model?”</i><br><br>
-
-- <b>Statistical Parity</b>:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<i>“Do groups receive positive decisions at similar rates, regardless of qualification?”</i><br><br>
-
-- <b>Disparate Impact</b>:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<i>“Are priveledge and Unpriveledge treated equally?”</i><br><br>
-
-Use this to identify if your model behaves differently for privileged vs. unprivileged groups and consider retraining or mitigating if necessary.
-    """
 
     # Layout dos botões dentro da div
     st.markdown('<div class="button-container">', unsafe_allow_html=True)
@@ -1244,7 +1248,7 @@ Use this to identify if your model behaves differently for privileged vs. unpriv
     </style>
 
     <button id="help-button">?</button>
-    <div id="help-balloon">{tooltip_text}</div>
+    <div id="help-balloon">{st.session_state["help_text"]}</div>
 
     <script>
         const btn = document.getElementById("help-button");
@@ -1705,6 +1709,7 @@ def automatic():
 
 st.markdown('<div class="conteudo">', unsafe_allow_html=True)
 if st.session_state["b1"]:
+    st.session_state["help_text"] = tooltip_text_upload
     st.subheader("Improve Data")
     style_b1()
     # 📂 Upload dataset
@@ -1881,6 +1886,7 @@ if st.session_state["b1"]:
             
 
 elif st.session_state["b2"]:
+    st.session_state["help_text"] = tooltip_text_preprocessing
     style_b2()
     st.session_state["b1"] = False
     st.session_state["b2"] = True
