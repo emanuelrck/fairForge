@@ -141,7 +141,9 @@ def main_frontend():
             caret-color : rgb(0 0 0);
             border: None;
         }
-
+         div[data-baseweb="base-input"] {
+         border-color: #325D79 !important;
+         }
         
 
         .st-dg {
