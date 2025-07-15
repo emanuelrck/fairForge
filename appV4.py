@@ -141,7 +141,9 @@ def main_frontend():
             caret-color : rgb(0 0 0);
         }
        
-        
+        span [data-baseweb="tag"]{
+        background-color: #e1eef4 !important;
+        }
 
         .st-dg {
             background-color: rgb(50 93 121);
