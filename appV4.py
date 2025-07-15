@@ -27,7 +27,9 @@ def main_frontend():
     <style>
 
         
-
+        input[aria-autocomplete="list"]{
+            color: rgb(50 93 121);
+        }
         input[type="number"] {
             background-color: #e1eef4;  
         }
@@ -145,7 +147,6 @@ def main_frontend():
        
         span[data-baseweb="tag"]{
         background-color: rgb(225 238 244); !important;
-        color: rgb(50 93 121);!important;
         }
 
         .st-dg {
