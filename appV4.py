@@ -1924,8 +1924,8 @@ if st.session_state["b1"]:
     
     
     if uploaded_file:
-        st.session_state["enable_first"] = True 
-        #if st.button("Load Dataset"):
+            st.session_state["enable_first"] = True 
+            #if st.button("Load Dataset"):
             with st.spinner("Loading dataset..."):
                 print("inicio")
                 df = DataReader.read_data(uploaded_file, delimiter)
