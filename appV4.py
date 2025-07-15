@@ -1452,7 +1452,8 @@ def main_frontend():
 
 def enable_sec():
     st.session_state["enable_sec"] = True
-
+def enable_first():
+    st.session_state["enable_first"] = True
 def style_b1():
     st.session_state["b1"] = True
     st.session_state["b3"] = False
@@ -1913,7 +1914,7 @@ if st.session_state["b1"]:
     # 📂 Upload dataset
     uploaded_file = st.file_uploader(
         "Upload a CSV, JSON, Excel, or DATA file", 
-        type=["csv", "json", "xlsx", "data"], key="uploader1"
+        type=["csv", "json", "xlsx", "data"], key="uploader1", on_click = enable_first
     )
     shown = False
     
