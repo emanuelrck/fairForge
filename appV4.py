@@ -44,44 +44,68 @@ tooltip_text_upload = """
     - The system will evaluate fairness and performance.
 
     
-<b>2.1 Interpret the results:</b><br>
-    the CSV table presented summarizes fairness metrics. Each row corresponds to a different subgroup, and each column represents a fairness metric.<br><br>
+        <b>2.1 Interpret the results:</b><br>
+            the CSV table presented summarizes fairness metrics. Each row corresponds to a different subgroup, and each column represents a fairness metric.<br><br>
 
-- **Values close to 0 mean good fairness** — minimal disparity between groups.<br>
-- **Higher absolute values indicate potential unfairness**.<br>
-- **Except disparate impact where values near 1 indicate fairness**.<br><br>
+        - **Values close to 0 mean good fairness** — minimal disparity between groups.<br>
+        - **Higher absolute values indicate potential unfairness**.<br>
+        - **Except disparate impact where values near 1 indicate fairness**.<br><br>
 
-Typical interpretation:<br>
-- Between **0.00 and ±0.10**: Generally considered acceptable.<br>
-- Between **±0.10 and ±0.25**: May need attention depending on context.<br>
-- Above **±0.25**: Indicates possible fairness issues.<br><br>
+        Typical interpretation:<br>
+        - Between **0.00 and ±0.10**: Generally considered acceptable.<br>
+        - Between **±0.10 and ±0.25**: May need attention depending on context.<br>
+        - Above **±0.25**: Indicates possible fairness issues.<br><br>
 
-Each metric highlights different types of bias. Consider this questions if you encounter problems in one of this metrics:<br>
-- <b>Equal Opportunity</b>:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<i>“Are qualified individuals equally likely to be correctly identified across groups?”</i><br><br>
+        Each metric highlights different types of bias. Consider this questions if you encounter problems in one of this metrics:<br>
+        - <b>Equal Opportunity</b>:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<i>“Are qualified individuals equally likely to be correctly identified across groups?”</i><br><br>
 
-- <b>Predictive Equality</b>:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<i>“Does the model wrongly assign positive outcomes equally across groups?”</i><br><br>
+        - <b>Predictive Equality</b>:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<i>“Does the model wrongly assign positive outcomes equally across groups?”</i><br><br>
 
-- <b>Positive Predictive Parity</b>:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<i>“When the model predicts a positive, is it equally likely to be correct for all groups?”</i><br><br>
+        - <b>Positive Predictive Parity</b>:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<i>“When the model predicts a positive, is it equally likely to be correct for all groups?”</i><br><br>
 
-- <b>True Positive Rate</b>:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<i>“Among all true cases, how many were caught by the model?”</i><br><br>
+        - <b>True Positive Rate</b>:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<i>“Among all true cases, how many were caught by the model?”</i><br><br>
 
-- <b>Statistical Parity</b>:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<i>“Do groups receive positive decisions at similar rates, regardless of qualification?”</i><br><br>
+        - <b>Statistical Parity</b>:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<i>“Do groups receive positive decisions at similar rates, regardless of qualification?”</i><br><br>
 
-- <b>Disparate Impact</b>:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<i>“Are priveledge and Unpriveledge treated equally?”</i><br><br>
+        - <b>Disparate Impact</b>:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<i>“Are priveledge and Unpriveledge treated equally?”</i><br><br>
 
-Use this to identify if your model behaves differently for privileged vs. unprivileged groups and consider retraining or mitigating if necessary.
+        Use this to identify if your model behaves differently for privileged vs. unprivileged groups and consider retraining or mitigating if necessary.
     """
 tooltip_text_preprocessing = "prrrr"
 def main_frontend():
 
     if "help_text" not in st.session_state:
         st.session_state["help_text"] = tooltip_text_upload
+
+    if "b1" not in st.session_state:
+        st.session_state["b1"] = True
+    if "b2" not in st.session_state:
+        st.session_state["b2"] = False
+    if "b3" not in st.session_state:
+        st.session_state["b3"] = False
+    if "b4" not in st.session_state:
+        st.session_state["b4"] = False
+    if "b5" not in st.session_state:
+        st.session_state["b5"] = False
+    if "b6" not in st.session_state:
+        st.session_state["b6"] = False
+
+    if st.session_state["b1"]:
+        st.session_state["help_text"] = tooltip_text_upload
+    elif st.session_state["b2"]:
+        st.session_state["help_text"] = tooltip_text_preprocessing
+
+
+
+
+
+
     st.markdown("""
     <style>
 
@@ -1132,18 +1156,7 @@ def main_frontend():
     # Layout dos botões dentro da div
     st.markdown('<div class="button-container">', unsafe_allow_html=True)
 
-    if "b1" not in st.session_state:
-        st.session_state["b1"] = True
-    if "b2" not in st.session_state:
-        st.session_state["b2"] = False
-    if "b3" not in st.session_state:
-        st.session_state["b3"] = False
-    if "b4" not in st.session_state:
-        st.session_state["b4"] = False
-    if "b5" not in st.session_state:
-        st.session_state["b5"] = False
-    if "b6" not in st.session_state:
-        st.session_state["b6"] = False
+    
 
     col1, col2, col5 ,col3, col6, col4, helpB  = st.columns(7)
 
@@ -1886,7 +1899,6 @@ if st.session_state["b1"]:
             
 
 elif st.session_state["b2"]:
-    st.session_state["help_text"] = tooltip_text_preprocessing
     style_b2()
     st.session_state["b1"] = False
     st.session_state["b2"] = True
