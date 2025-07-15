@@ -1921,9 +1921,10 @@ if st.session_state["b1"]:
         delimiter = st.text_input("Enter the column delimiter (e.g., ',' ';' '|' '\\t')", value=",")
     else:
         delimiter = None
-    st.session_state["enable_first"] = True 
+    
     
     if uploaded_file:
+        st.session_state["enable_first"] = True 
         #if st.button("Load Dataset"):
             with st.spinner("Loading dataset..."):
                 print("inicio")
