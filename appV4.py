@@ -238,8 +238,8 @@ if "enable_first" not in st.session_state:
     st.session_state["enable_first"] = False
 if "enable_sec" not in st.session_state:
     st.session_state["enable_sec"] = False
-if "df" in st.session_state and st.session_state["df"] != None:
-    st.session_state["enable_first"] = True 
+
+
 def main_frontend():
 
     if "help_text" not in st.session_state:
@@ -1328,132 +1328,14 @@ def main_frontend():
 
     
 
-    col1, col2, col5 ,col3, col6, col4, helpB  = st.columns(7)
-
-    with col1:
-        if st.button('✔ Upload', key='botao1', on_click = style_b1):
-            st.session_state["b1"] = True
-            st.session_state["b2"] = False
-            st.session_state["b3"] = False
-            st.session_state["b4"] = False
-            st.session_state["b5"] = False
-            st.session_state["b6"] = False
-            st.markdown("""
-        <style>
-        
-        }
-        </style>
-            """, unsafe_allow_html=True)
-
-    with col2:
-        if st.button('✔ Preprocessing', key='botao2', on_click = style_b2, disabled= not st.session_state["enable_first"]):
-            st.session_state["b2"] = True
-            st.session_state["b1"] = False
-            st.session_state["b3"] = False
-            st.session_state["b4"] = False
-            st.session_state["b5"] = False
-            st.session_state["b6"] = False
-    with col5:
-        if st.button('✔ Inprocessing', key='botao5', on_click = style_b5, disabled= not st.session_state["enable_first"]):
-            st.session_state["b5"] = True   
-            st.session_state["b1"] = False
-            st.session_state["b3"] = False
-            st.session_state["b2"] = False
-            st.session_state["b4"] = False
-            st.session_state["b6"] = False
-            
-    with col3:
-        if st.button('✔ Training', key='botao3', on_click = style_b3, disabled= not st.session_state["enable_first"]):
-            st.session_state["b3"] = True
-            st.session_state["b1"] = False
-            st.session_state["b2"] = False
-            st.session_state["b4"] = False
-            st.session_state["b5"] = False
-            st.session_state["b6"] = False
-    with col4:
-        if st.button('✔ Results', key='botao4', on_click = style_b4, disabled= not st.session_state["enable_sec"]):
-            st.session_state["b4"] = True
-            st.session_state["b1"] = False
-            st.session_state["b3"] = False
-            st.session_state["b2"] = False
-            st.session_state["b5"] = False
-            st.session_state["b6"] = False
-    with col6:
-        if st.button('✔ PostProcessing', key='botao6', on_click = style_b6, disabled= not st.session_state["enable_sec"]):
-            st.session_state["b4"] = False
-            st.session_state["b1"] = False
-            st.session_state["b3"] = False
-            st.session_state["b2"] = False
-            st.session_state["b5"] = False
-            st.session_state["b6"] = True
-    with helpB:
-        help_button_html = f"""
-    <style>
-        #help-button {{
-            position: fixed;
-            width: 40px;
-            height: 40px;
-            background-color: #325d79;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 1000;
-            margin-left: 75%;
-            margin-top: 2%;
-        }}
-        #help-balloon {{
-            position: fixed;
-            top: 8%;
-            right: 4%;
-            background-color: #ffffff;
-            color: #333;
-            padding: 10px 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            display: none;
-            font-family: sans-serif;
-            z-index: 1000;
-            max-width: 400px;
-            overflow-y: auto;
-            max-height: 70vh;
-        }}
-        #help-balloon::after {{
-            content: "";
-            position: absolute;
-            top: -10px;
-            right: 15px;
-            border-width: 0 10px 10px 10px;
-            border-style: solid;
-            border-color: transparent transparent #ffffff transparent;
-        }}
-    </style>
-
-    <button id="help-button">?</button>
-    <div id="help-balloon">{st.session_state["help_text"]}</div>
-
-    <script>
-        const btn = document.getElementById("help-button");
-        const balloon = document.getElementById("help-balloon");
-
-        btn.addEventListener("click", () => {{
-            balloon.style.display = (balloon.style.display === "none" || balloon.style.display === "") 
-                ? "block" 
-                : "none";
-        }});
-    </script>
-"""
-
-        components.html(help_button_html, height=100)
+    
 
 
 
 
 def enable_sec():
     st.session_state["enable_sec"] = True
-def enable_first():
-    st.session_state["enable_first"] = True
+
 def style_b1():
     st.session_state["b1"] = True
     st.session_state["b3"] = False
@@ -1914,7 +1796,7 @@ if st.session_state["b1"]:
     # 📂 Upload dataset
     uploaded_file = st.file_uploader(
         "Upload a CSV, JSON, Excel, or DATA file", 
-        type=["csv", "json", "xlsx", "data"], key="uploader1", on_click = enable_first
+        type=["csv", "json", "xlsx", "data"], key="uploader1"
     )
     shown = False
     
@@ -1926,7 +1808,7 @@ if st.session_state["b1"]:
     
     if uploaded_file:
             st.session_state["enable_first"] = True 
-            #if st.button("Load Dataset"):
+        #if st.button("Load Dataset"):
             with st.spinner("Loading dataset..."):
                 print("inicio")
                 df = DataReader.read_data(uploaded_file, delimiter)
@@ -2751,7 +2633,124 @@ elif st.session_state["b4"]:
 
 st.markdown('</div>', unsafe_allow_html=True)
 
+col1, col2, col5 ,col3, col6, col4, helpB  = st.columns(7)
 
+    with col1:
+        if st.button('✔ Upload', key='botao1', on_click = style_b1):
+            st.session_state["b1"] = True
+            st.session_state["b2"] = False
+            st.session_state["b3"] = False
+            st.session_state["b4"] = False
+            st.session_state["b5"] = False
+            st.session_state["b6"] = False
+            st.markdown("""
+        <style>
+        
+        }
+        </style>
+            """, unsafe_allow_html=True)
+
+    with col2:
+        if st.button('✔ Preprocessing', key='botao2', on_click = style_b2, disabled= not st.session_state["enable_first"]):
+            st.session_state["b2"] = True
+            st.session_state["b1"] = False
+            st.session_state["b3"] = False
+            st.session_state["b4"] = False
+            st.session_state["b5"] = False
+            st.session_state["b6"] = False
+    with col5:
+        if st.button('✔ Inprocessing', key='botao5', on_click = style_b5, disabled= not st.session_state["enable_first"]):
+            st.session_state["b5"] = True   
+            st.session_state["b1"] = False
+            st.session_state["b3"] = False
+            st.session_state["b2"] = False
+            st.session_state["b4"] = False
+            st.session_state["b6"] = False
+            
+    with col3:
+        if st.button('✔ Training', key='botao3', on_click = style_b3, disabled= not st.session_state["enable_first"]):
+            st.session_state["b3"] = True
+            st.session_state["b1"] = False
+            st.session_state["b2"] = False
+            st.session_state["b4"] = False
+            st.session_state["b5"] = False
+            st.session_state["b6"] = False
+    with col4:
+        if st.button('✔ Results', key='botao4', on_click = style_b4, disabled= not st.session_state["enable_sec"]):
+            st.session_state["b4"] = True
+            st.session_state["b1"] = False
+            st.session_state["b3"] = False
+            st.session_state["b2"] = False
+            st.session_state["b5"] = False
+            st.session_state["b6"] = False
+    with col6:
+        if st.button('✔ PostProcessing', key='botao6', on_click = style_b6, disabled= not st.session_state["enable_sec"]):
+            st.session_state["b4"] = False
+            st.session_state["b1"] = False
+            st.session_state["b3"] = False
+            st.session_state["b2"] = False
+            st.session_state["b5"] = False
+            st.session_state["b6"] = True
+    with helpB:
+        help_button_html = f"""
+    <style>
+        #help-button {{
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            background-color: #325d79;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1000;
+            margin-left: 75%;
+            margin-top: 2%;
+        }}
+        #help-balloon {{
+            position: fixed;
+            top: 8%;
+            right: 4%;
+            background-color: #ffffff;
+            color: #333;
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            display: none;
+            font-family: sans-serif;
+            z-index: 1000;
+            max-width: 400px;
+            overflow-y: auto;
+            max-height: 70vh;
+        }}
+        #help-balloon::after {{
+            content: "";
+            position: absolute;
+            top: -10px;
+            right: 15px;
+            border-width: 0 10px 10px 10px;
+            border-style: solid;
+            border-color: transparent transparent #ffffff transparent;
+        }}
+    </style>
+
+    <button id="help-button">?</button>
+    <div id="help-balloon">{st.session_state["help_text"]}</div>
+
+    <script>
+        const btn = document.getElementById("help-button");
+        const balloon = document.getElementById("help-balloon");
+
+        btn.addEventListener("click", () => {{
+            balloon.style.display = (balloon.style.display === "none" || balloon.style.display === "") 
+                ? "block" 
+                : "none";
+        }});
+    </script>
+"""
+
+        components.html(help_button_html, height=100)
 
 
 
