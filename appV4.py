@@ -1330,7 +1330,62 @@ def main_frontend():
 
     col1, col2, col5 ,col3, col6, col4, helpB  = st.columns(7)
 
-   
+    with col1:
+        if st.button('✔ Upload', key='botao1', on_click = style_b1):
+            st.session_state["b1"] = True
+            st.session_state["b2"] = False
+            st.session_state["b3"] = False
+            st.session_state["b4"] = False
+            st.session_state["b5"] = False
+            st.session_state["b6"] = False
+            st.markdown("""
+        <style>
+        
+        }
+        </style>
+            """, unsafe_allow_html=True)
+
+    with col2:
+        if st.button('✔ Preprocessing', key='botao2', on_click = style_b2, disabled= not st.session_state["enable_first"]):
+            st.session_state["b2"] = True
+            st.session_state["b1"] = False
+            st.session_state["b3"] = False
+            st.session_state["b4"] = False
+            st.session_state["b5"] = False
+            st.session_state["b6"] = False
+    with col5:
+        if st.button('✔ Inprocessing', key='botao5', on_click = style_b5, disabled= not st.session_state["enable_first"]):
+            st.session_state["b5"] = True   
+            st.session_state["b1"] = False
+            st.session_state["b3"] = False
+            st.session_state["b2"] = False
+            st.session_state["b4"] = False
+            st.session_state["b6"] = False
+            
+    with col3:
+        if st.button('✔ Training', key='botao3', on_click = style_b3, disabled= not st.session_state["enable_first"]):
+            st.session_state["b3"] = True
+            st.session_state["b1"] = False
+            st.session_state["b2"] = False
+            st.session_state["b4"] = False
+            st.session_state["b5"] = False
+            st.session_state["b6"] = False
+    with col4:
+        if st.button('✔ Results', key='botao4', on_click = style_b4, disabled= not st.session_state["enable_sec"]):
+            st.session_state["b4"] = True
+            st.session_state["b1"] = False
+            st.session_state["b3"] = False
+            st.session_state["b2"] = False
+            st.session_state["b5"] = False
+            st.session_state["b6"] = False
+    with col6:
+        if st.button('✔ PostProcessing', key='botao6', on_click = style_b6, disabled= not st.session_state["enable_sec"]):
+            st.session_state["b4"] = False
+            st.session_state["b1"] = False
+            st.session_state["b3"] = False
+            st.session_state["b2"] = False
+            st.session_state["b5"] = False
+            st.session_state["b6"] = True
     with helpB:
         help_button_html = f"""
     <style>
@@ -2694,61 +2749,7 @@ elif st.session_state["b4"]:
 
 
 st.markdown('</div>', unsafe_allow_html=True)
-with col1:
-    if st.button('✔ Upload', key='botao1', on_click = style_b1):
-        st.session_state["b1"] = True
-        st.session_state["b2"] = False
-        st.session_state["b3"] = False
-        st.session_state["b4"] = False
-        st.session_state["b5"] = False
-        st.session_state["b6"] = False
-        st.markdown("""
-    <style>
-    
-    }
-    </style>
-        """, unsafe_allow_html=True)
-with col2:
-    if st.button('✔ Preprocessing', key='botao2', on_click = style_b2, disabled= not st.session_state["enable_first"]):
-        st.session_state["b2"] = True
-        st.session_state["b1"] = False
-        st.session_state["b3"] = False
-        st.session_state["b4"] = False
-        st.session_state["b5"] = False
-        st.session_state["b6"] = False
-with col5:
-    if st.button('✔ Inprocessing', key='botao5', on_click = style_b5, disabled= not st.session_state["enable_first"]):
-        st.session_state["b5"] = True   
-        st.session_state["b1"] = False
-        st.session_state["b3"] = False
-        st.session_state["b2"] = False
-        st.session_state["b4"] = False
-        st.session_state["b6"] = False
-        
-with col3:
-    if st.button('✔ Training', key='botao3', on_click = style_b3, disabled= not st.session_state["enable_first"]):
-        st.session_state["b3"] = True
-        st.session_state["b1"] = False
-        st.session_state["b2"] = False
-        st.session_state["b4"] = False
-        st.session_state["b5"] = False
-        st.session_state["b6"] = False
-with col4:
-    if st.button('✔ Results', key='botao4', on_click = style_b4, disabled= not st.session_state["enable_sec"]):
-        st.session_state["b4"] = True
-        st.session_state["b1"] = False
-        st.session_state["b3"] = False
-        st.session_state["b2"] = False
-        st.session_state["b5"] = False
-        st.session_state["b6"] = False
-with col6:
-        if st.button('✔ PostProcessing', key='botao6', on_click = style_b6, disabled= not st.session_state["enable_sec"]):
-            st.session_state["b4"] = False
-            st.session_state["b1"] = False
-            st.session_state["b3"] = False
-            st.session_state["b2"] = False
-            st.session_state["b5"] = False
-            st.session_state["b6"] = True
+
 
 
 
