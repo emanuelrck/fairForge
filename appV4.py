@@ -2704,13 +2704,11 @@ with helpB:
         font-size: 24px;
         cursor: pointer;
         z-index: 1000;
-        margin-left: 75%;
-        margin-top: 2%;
+        
     }}
     #help-balloon {{
         position: fixed;
-        top: 8%;
-        right: 4%;
+        
         background-color: #ffffff;
         color: #333;
         padding: 10px 15px;
@@ -2726,8 +2724,7 @@ with helpB:
     #help-balloon::after {{
         content: "";
         position: absolute;
-        top: -10px;
-        right: 15px;
+       
         border-width: 0 10px 10px 10px;
         border-style: solid;
         border-color: transparent transparent #ffffff transparent;
