@@ -1282,6 +1282,7 @@ def main_frontend():
 
 
 def style_b1():
+    b1()
     st.markdown("""
     <style>
     
@@ -1307,6 +1308,7 @@ def style_b1():
     </style>
     """, unsafe_allow_html=True)
 def style_b2():
+    b2()
     st.markdown("""
     <style>
     .st-key-botao1 button {
@@ -1332,6 +1334,7 @@ def style_b2():
     </style>
     """, unsafe_allow_html=True)
 def style_b3():
+    b3()
     st.markdown("""
     <style>
     .st-key-botao1 button {
@@ -1362,6 +1365,7 @@ def style_b3():
     </style>
     """, unsafe_allow_html=True)
 def style_b4():
+    b4()
     st.markdown("""
     <style>
     
@@ -1399,6 +1403,7 @@ def style_b4():
     </style>
     """, unsafe_allow_html=True)
 def style_b5():
+    b5()
     st.markdown("""
     <style>
     .st-key-botao1 button {
@@ -1428,6 +1433,7 @@ def style_b5():
 
 
 def style_b6():
+    b6()
     st.markdown("""
     <style>
     
