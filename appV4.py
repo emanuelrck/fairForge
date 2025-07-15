@@ -137,10 +137,12 @@ def main_frontend():
             padding-right: 20px;
         }
 
-        di[data-baseweb="base-input"] > input{
-        caret-color : rgb(0 0 0);
-        border: None;
+        div[data-baseweb="base-input"] > input{
+            caret-color : rgb(0 0 0);
+            border: None;
         }
+
+        
 
         .st-dg {
             background-color: rgb(50 93 121);
