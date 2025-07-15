@@ -1745,9 +1745,14 @@ if st.session_state["b1"]:
             "Upload a CSV, JSON, Excel, or DATA file", 
             type=["csv", "json", "xlsx", "data"], key="uploader2"
         )
+
+    if prediction_dataset_raw and prediction_dataset_raw.name.lower().endswith(('.csv', '.data')):
+        delimiter = st.text_input("Enter the column delimiter (e.g., ',' ';' '|' '\\t')", value=",")
+    else:
+        delimiter = None
     
     if prediction_dataset_raw:
-        prediction_dataset = DataReader.read_data(prediction_dataset_raw)
+        prediction_dataset = DataReader.read_data(prediction_dataset_raw, delimiter)
         st.sidebar.markdown("""<h2>Test Model</h2>""", unsafe_allow_html=True)
     with st.sidebar.expander("", expanded=False):
         # 📂 Upload dataset
