@@ -139,11 +139,8 @@ def main_frontend():
 
         div[data-baseweb="base-input"] > input{
             caret-color : rgb(0 0 0);
-            border: None;
         }
-         div[data-baseweb="base-input"] {
-         border-color: #325D79 !important;
-         }
+       
         
 
         .st-dg {
