@@ -1064,9 +1064,29 @@ def main_frontend():
     
     </style>
     """, unsafe_allow_html=True)
+
     tooltip_text = """
-    as
+    <b>Welcome!</b><br><br>
+    Choose between two options:<br><br>
+    <b>1. Improve Data Quality:</b><br>
+    - Upload your dataset (CSV).<br>
+    - Select the correct delimiter.<br>
+    - In the top-left menu, define:<br>
+    &nbsp;&nbsp;• Target column<br>
+    &nbsp;&nbsp;• Privileged groups<br>
+    &nbsp;&nbsp;• Sensitive attributes<br>
+    - Click “Automatic” to improve data quality and train a model.<br>
+    - Download the improved data or trained model.<br>
+    - Check fairness and performance, or continue in the pipeline.<br><br>
+    <b>2. Test a Pre-Existing Model:</b><br>
+    - Upload a dataset with a binary prediction column (1 = positive, 0 = negative).<br>
+    - Use the top-left menu to set:<br>
+    &nbsp;&nbsp;• Target column<br>
+    &nbsp;&nbsp;• Privileged groups<br>
+    &nbsp;&nbsp;• Sensitive attributes<br>
+    - The system will evaluate fairness and performance.
     """
+
     # Layout dos botões dentro da div
     st.markdown('<div class="button-container">', unsafe_allow_html=True)
 
@@ -1185,7 +1205,7 @@ def main_frontend():
             </style>
 
             <button id="help-button">?</button>
-            <div id="help-balloon"{tooltip_text}</div>
+            <div id="help-balloon"{}</div>
 
             <script>
                 const btn = document.getElementById("help-button");
@@ -1197,7 +1217,7 @@ def main_frontend():
                         : "none";
                 });
             </script>
-        """
+        """.format(tooltip_text)
         components.html(help_button_html, height=100)
 
 
