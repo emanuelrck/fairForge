@@ -78,56 +78,160 @@ tooltip_text_upload = """
         Use this to identify if your model behaves differently for privileged vs. unprivileged groups and consider retraining or mitigating if necessary.
     """
 tooltip_text_preprocessing = """
-<b>Preprocessing: Prepare your data before training</b><br><br>
+    <b>Preprocessing: Prepare your data before training</b><br><br>
 
-In this step, you can enhance your dataset before training a model. The menu on the left allows you to configure how to handle missing values, balance the data, and apply fairness corrections.<br><br>
+    In this step, you can enhance your dataset before training a model. The menu on the left allows you to configure how to handle missing values, balance the data, and apply fairness corrections.<br><br>
 
-<b>What you can do on this page:</b><br>
-• <b>Missing Data</b>: Choose how to fill in missing values for numeric and categorical columns. Options include simple strategies like mean or mode, and advanced ones like KNN, MICE, or Random Forest Imputation.<br><br>
+    <b>What you can do on this page:</b><br>
+    • <b>Missing Data</b>: Choose how to fill in missing values for numeric and categorical columns. Options include simple strategies like mean or mode, and advanced ones like KNN, MICE, or Random Forest Imputation.<br><br>
 
-• <b>Data Resampling</b>: Apply techniques to balance class distribution (e.g., if you have many more negatives than positives). You can also choose fairness-aware resampling methods to reduce bias between groups.<br><br>
+    • <b>Data Resampling</b>: Apply techniques to balance class distribution (e.g., if you have many more negatives than positives). You can also choose fairness-aware resampling methods to reduce bias between groups.<br><br>
 
-• <b>Bias & Fairness Preprocessing</b>: Apply bias mitigation strategies like:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;• <b>Blinding</b>: removes sensitive attributes before training.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;• <b>Massaging</b>: adjusts labels to reduce bias in the dataset.<br><br>
-&nbsp;&nbsp;&nbsp;&nbsp;• <b>Reweight</b>: assigns different weights to samples to balance group outcomes.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;• <b>LFR (Learning Fair Representations)</b>: transforms data into a fairer latent representation while preserving utility.<br><br>
+    • <b>Bias & Fairness Preprocessing</b>: Apply bias mitigation strategies like:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• <b>Blinding</b>: removes sensitive attributes before training.<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• <b>Massaging</b>: adjusts labels to reduce bias in the dataset.<br><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• <b>Reweight</b>: assigns different weights to samples to balance group outcomes.<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• <b>LFR (Learning Fair Representations)</b>: transforms data into a fairer latent representation while preserving utility.<br><br>
 
-<b>Bias Analysis: How to interpret the results</b><br>
-Clicking "Check Bias" evaluates fairness using 4 main metrics. Here’s what each one means and how to interpret the values:<br><br>
+    <b>Bias Analysis: How to interpret the results</b><br>
+    Clicking "Check Bias" evaluates fairness using 4 main metrics. Here’s what each one means and how to interpret the values:<br><br>
 
-<b>1. Statistical Parity Difference (SPD)</b><br>
-&nbsp;&nbsp;&nbsp;&nbsp;• Measures the difference in the rate of positive outcomes between privileged and unprivileged groups.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;• Ideal value: <b>0</b><br>
-&nbsp;&nbsp;&nbsp;&nbsp;• Value &lt; 0: privileged group benefits more.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;• Value &gt; 0: unprivileged group benefits more.<br><br>
+    <b>1. Statistical Parity Difference (SPD)</b><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• Measures the difference in the rate of positive outcomes between privileged and unprivileged groups.<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• Ideal value: <b>0</b><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• Value &lt; 0: privileged group benefits more.<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• Value &gt; 0: unprivileged group benefits more.<br><br>
 
-<b>2. Disparate Impact (DI)</b><br>
-&nbsp;&nbsp;&nbsp;&nbsp;• Ratio of positive outcome rates between unprivileged and privileged groups.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;• Ideal value: <b>1</b><br>
-&nbsp;&nbsp;&nbsp;&nbsp;• Value &lt; 1: favors the privileged group.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;• Value &gt; 1: favors the unprivileged group.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;• Values below 0.8 or above 1.25 usually indicate potential fairness issues.<br><br>
+    <b>2. Disparate Impact (DI)</b><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• Ratio of positive outcome rates between unprivileged and privileged groups.<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• Ideal value: <b>1</b><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• Value &lt; 1: favors the privileged group.<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• Value &gt; 1: favors the unprivileged group.<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• Values below 0.8 or above 1.25 usually indicate potential fairness issues.<br><br>
 
-<b>3. Mean Difference</b><br>
-&nbsp;&nbsp;&nbsp;&nbsp;• Measures the difference in average scores or predictions between the groups.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;• Ideal value: <b>0</b><br>
-&nbsp;&nbsp;&nbsp;&nbsp;• Value &lt; 0: higher average for the privileged group.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;• Value &gt; 0: higher average for the unprivileged group.<br><br>
+    <b>3. Mean Difference</b><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• Measures the difference in average scores or predictions between the groups.<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• Ideal value: <b>0</b><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• Value &lt; 0: higher average for the privileged group.<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• Value &gt; 0: higher average for the unprivileged group.<br><br>
 
-<b>4. Consistency</b><br>
-&nbsp;&nbsp;&nbsp;&nbsp;• Checks whether similar individuals receive similar predictions, regardless of group.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;• Ideal value: <b>1</b><br>
-&nbsp;&nbsp;&nbsp;&nbsp;• Value &lt; 1: indicates some unfair treatment among similar individuals.<br><br>
+    <b>4. Consistency</b><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• Checks whether similar individuals receive similar predictions, regardless of group.<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• Ideal value: <b>1</b><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;• Value &lt; 1: indicates some unfair treatment among similar individuals.<br><br>
 
-<b>Tip:</b> Use the menu on the left to configure each method. Then click the buttons in the center to apply changes and see results.<br>
-<b>Tip:</b> The applied changes are presented at the end of the page<br>
+    <b>Tip:</b> Use the menu on the left to configure each method. Then click the buttons in the center to apply changes and see results.<br>
+    <b>Tip:</b> The applied changes are presented at the end of the page<br>
 
-"""
-tooltip_text_inprocessing = "INNN"
-tooltip_text_trainning = "trrr"
-tooltip_text_postprocessing = "pstt"
-tooltip_text_results = "ress"
+    """
+tooltip_text_inprocessing = """
+    <b>Inprocessing: Apply fairness during model training</b><br><br>
+
+    This page allows you to apply fairness techniques while training the model — adjusting how the algorithm learns so that it treats different groups more equally.<br><br>
+
+    <b>What you can configure:</b><br>
+    • <b>ETA Value</b>: Controls how much the fairness constraint influences training. A higher value gives more importance to fairness (but may reduce accuracy).<br>
+    • <b>Sensitive Attribute</b>: Choose the attribute (e.g., race, gender) that you want fairness methods to protect.<br>
+    • <b>Models</b>: Select which models (e.g., Logistic Regression, Random Forest, etc.) will be trained using fairness-aware methods.<br><br>
+
+    <b>Available Inprocessing Methods:</b><br>
+
+    <b>Logistic Regression Classifier:</b><br>
+    • <b>Meta Fair Classifier</b>: Learns a classifier that balances accuracy and fairness using a tunable fairness parameter (like ETA).<br>
+    • <b>Gerry Fair Classifier</b>: Builds a fair model using a game-theoretic approach to minimize group unfairness during training.<br><br>
+
+    <b>Neural Net:</b><br>
+    • <b>Adversarial Debiasing</b>: Trains a neural network while another network tries to predict the sensitive attribute — the model learns to make fair predictions that hide group membership.<br><br>
+
+    <b>Choosen Models (Generic):</b><br>
+    • <b>Exponentiated Gradient Reduction</b>: Adjusts the model’s training distribution by reweighting samples to reduce bias.<br>
+    • <b>Grid Search Reduction</b>: Finds the best model by searching combinations of parameters that trade off fairness and accuracy.<br><br>
+
+    <b>Tip:</b> Start by selecting the sensitive feature, pick your models, and apply one of the fairness techniques. Use a small ETA if you want to prioritize accuracy more, or a larger one if fairness is your main goal.
+    """
+tooltip_text_trainning = """
+    <b>Model Training & Fairness Evaluation</b><br><br>
+
+    On this page, you can train one or more machine learning models and check their performance across both accuracy and fairness.<br><br>
+
+    <b>What you can configure (in the left panel):</b><br>
+    • <b>Choose Models</b>: Select the models you want to train (e.g., Logistic Regression, Random Forest, etc.).<br>
+    • <b>Select Fairness Metrics</b>: Pick the fairness metrics to evaluate once the model is trained.<br><br>
+
+    <b>What happens when you train:</b><br>
+    • The model(s) will be trained on your preprocessed data.<br>
+    • After training, each model will be evaluated using both traditional metrics (like accuracy) and fairness metrics.<br><br>
+
+    <b>Fairness Metrics to Choose From:</b><br>
+    • <b>Equal Opportunity</b>: Checks if qualified individuals are treated equally across groups.<br>
+    • <b>Predictive Equality</b>: Focuses on whether false positive rates are similar across groups.<br>
+    • <b>Positive Predictive Parity</b>: Measures whether positive predictions are equally accurate across groups.<br>
+    • <b>True Positive Rate</b>: Assesses if detection of positive cases is balanced across groups.<br>
+    • <b>Statistical Parity</b>: Ensures both groups receive favorable outcomes at similar rates.<br>
+    • <b>Disparate Impact</b>: Compares how often each group receives favorable outcomes (ideal = 1.0).<br><br>
+
+    <b>Tip:</b> Try training different models to compare how well they perform on both accuracy and fairness. Then decide which one best suits your needs.
+    """
+tooltip_text_postprocessing = """
+    <b>PostProcessing: Adjust model outputs to improve fairness</b><br><br>
+
+    This page helps you apply fairness corrections <i>after</i> the model has already been trained. The idea is to modify predictions (not the model itself) to ensure fairer outcomes across different groups.<br><br>
+
+    <b>What you can configure:</b><br>
+    • <b>Sensitive Attribute</b>: Select the attribute you want to protect (e.g., race, gender).<br>
+    • <b>Privileged Group</b>: Choose which group is considered "privileged" for fairness comparisons. The methods will try to reduce unfair advantage this group might have.<br><br>
+
+    <b>Available PostProcessing Methods:</b><br>
+
+    <b>Reject Option Classification</b><br>
+    • Tweaks predictions that are near the model's decision boundary (i.e., uncertain cases).<br>
+    • Favors unprivileged group when possible to improve fairness without significantly hurting accuracy.<br><br>
+
+    <b>Equalized Odds</b><br>
+    • Adjusts the model so that it has equal false positive and false negative rates across groups.<br>
+    • Ensures that mistakes are distributed fairly between the privileged and unprivileged groups.<br><br>
+
+    <b>Calibrated Equalized Odds</b><br>
+    • Similar to Equalized Odds but also ensures that the predicted probabilities remain well-calibrated.<br>
+    • Useful when you care about both fairness and meaningful probability scores (e.g., in risk scoring).<br><br>
+
+    <b>Threshold Optimizer</b><br>
+    • Finds different thresholds for each group to improve fairness while preserving as much accuracy as possible.<br>
+    • Especially useful when your model already gives good scores but shows some group imbalance.<br><br>
+
+    <b>Tip:</b> Start by selecting the sensitive feature and defining the privileged group. Then try applying one of the fairness correction methods to see how prediction fairness improves.
+    """
+tooltip_text_results = """
+    <b>Results Summary & Fairness Visualization</b><br><br>
+
+    This page presents the evaluation results of your trained models and lets you analyze and compare them in terms of performance and fairness.<br><br>
+
+    <b>1. Summary of Methods Applied</b><br>
+    • At the top, you can see a list of all preprocessing, inprocessing, or postprocessing techniques applied to the <b>current dataset and models</b>.<br>
+    • You can also see what methods were applied in the <b>previous experiment</b> for comparison.<br><br>
+
+    <b>2. Accuracy Overview</b><br>
+    • A bar chart shows the <b>accuracy</b> of all trained models.<br>
+    • You can quickly identify which models perform best overall.<br><br>
+
+    <b>3. Fairness Dynamics</b><br>
+    • Use this section to explore how fairness metrics vary across <b>sensitive attributes</b> and <b>groups</b> (e.g., "White" vs. "Not White", "Black" vs. "Not Black", etc.).<br>
+    • Select the fairness metric and sensitive group to visualize detailed comparisons.<br><br>
+
+    <b>4. Model History</b><br>
+    • Click the <b>History</b> button to view the methods applied to previously saved models.<br>
+    • Models saved using the <b>Save Models</b> button from the Training page will appear here.<br><br>
+
+    <b>5. Downloads</b><br>
+    • You can <b>download the trained model</b> and the corresponding dataset using the options in the left panel.<br>
+    • First, choose which model to export.<br><br>
+
+    <b>6. Metrics 2D Plot</b><br>
+    • In the <b>Metrics</b> section, you can visualize your models in a <b>2D scatter plot</b>.<br>
+    • Choose to compare models using <b>accuracy</b> or any of the <b>selected fairness metrics</b> to understand trade-offs.<br><br>
+
+    <b>Tip:</b> Use this page to make informed decisions—balance fairness and performance before selecting a final model.
+    """
 
 def main_frontend():
 
