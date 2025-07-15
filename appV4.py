@@ -1648,7 +1648,7 @@ if st.session_state["b1"]:
     shown = False
     
     if uploaded_file and uploaded_file.name.lower().endswith(('.csv', '.data')):
-        delimiter = st.text_input("Escolha o delimitador (ex: , ; | \\t)", value=",")
+        delimiter = st.text_input("Enter the column delimiter (e.g., ',' ';' '|' '\\t')", value=",")
     else:
         delimiter = None
 
