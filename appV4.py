@@ -78,6 +78,11 @@ tooltip_text_upload = """
         Use this to identify if your model behaves differently for privileged vs. unprivileged groups and consider retraining or mitigating if necessary.
     """
 tooltip_text_preprocessing = "prrrr"
+tooltip_text_inprocessing = "INNN"
+tooltip_text_trainning = "trrr"
+tooltip_text_postprocessing = "pstt"
+tooltip_text_results = "ress"
+
 def main_frontend():
 
     if "help_text" not in st.session_state:
@@ -100,6 +105,14 @@ def main_frontend():
         st.session_state["help_text"] = tooltip_text_upload
     elif st.session_state["b2"]:
         st.session_state["help_text"] = tooltip_text_preprocessing
+    elif st.session_state["b5"]:
+        st.session_state["help_text"] = tooltip_text_inprocessing
+    elif st.session_state["b3"]:
+        st.session_state["help_text"] = tooltip_text_trainning
+    elif st.session_state["b6"]:
+        st.session_state["help_text"] = tooltip_text_postprocessing
+    elif st.session_state["b4"]:
+        st.session_state["help_text"] = tooltip_text_results
 
 
 
