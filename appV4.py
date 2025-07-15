@@ -231,6 +231,7 @@ tooltip_text_results = """
     • Choose to compare models using <b>accuracy</b> or any of the <b>selected fairness metrics</b> to understand trade-offs.<br><br>
 
     <b>Tip:</b> Use this page to make informed decisions—balance fairness and performance before selecting a final model.
+    <b>Tip:</b> To compare the results with other combination of methods go back to the upload page and upload the original dataset.
     """
 
 def main_frontend():
