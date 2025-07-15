@@ -140,6 +140,7 @@ def main_frontend():
 
         div[data-baseweb="base-input"] > input{
             caret-color : rgb(0 0 0) !important;
+            color: rgb(255 0 0)
         }
        
         span[data-baseweb="tag"]{
