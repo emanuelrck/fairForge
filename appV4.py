@@ -234,6 +234,12 @@ tooltip_text_results = """
     <b>Tip:</b> To compare the results with other combination of methods go back to the upload page and upload the original dataset or to add to the methods applied go back to the preprocessing page.
     """
 
+if "enable_first" not in st.session_state:
+    st.session_state["enable_first"] = False
+if "enable_sec" not in st.session_state:
+    st.session_state["enable_sec"] = False
+
+
 def main_frontend():
 
     if "help_text" not in st.session_state:
@@ -1340,7 +1346,7 @@ def main_frontend():
             """, unsafe_allow_html=True)
 
     with col2:
-        if st.button('✔ Preprocessing', key='botao2', on_click = style_b2):
+        if st.button('✔ Preprocessing', key='botao2', on_click = style_b2, disabled= not st.session_state["enable_first"]):
             st.session_state["b2"] = True
             st.session_state["b1"] = False
             st.session_state["b3"] = False
@@ -1348,7 +1354,7 @@ def main_frontend():
             st.session_state["b5"] = False
             st.session_state["b6"] = False
     with col5:
-        if st.button('✔ Inprocessing', key='botao5', on_click = style_b5):
+        if st.button('✔ Inprocessing', key='botao5', on_click = style_b5, disabled= not st.session_state["enable_first"]):
             st.session_state["b5"] = True   
             st.session_state["b1"] = False
             st.session_state["b3"] = False
@@ -1357,7 +1363,7 @@ def main_frontend():
             st.session_state["b6"] = False
             
     with col3:
-        if st.button('✔ Training', key='botao3', on_click = style_b3):
+        if st.button('✔ Training', key='botao3', on_click = style_b3, disabled= not st.session_state["enable_first"]):
             st.session_state["b3"] = True
             st.session_state["b1"] = False
             st.session_state["b2"] = False
@@ -1365,7 +1371,7 @@ def main_frontend():
             st.session_state["b5"] = False
             st.session_state["b6"] = False
     with col4:
-        if st.button('✔ Results', key='botao4', on_click = style_b4):
+        if st.button('✔ Results', key='botao4', on_click = style_b4, disabled= not st.session_state["enable_sec"]):
             st.session_state["b4"] = True
             st.session_state["b1"] = False
             st.session_state["b3"] = False
@@ -1373,7 +1379,7 @@ def main_frontend():
             st.session_state["b5"] = False
             st.session_state["b6"] = False
     with col6:
-        if st.button('✔ PostProcessing', key='botao6', on_click = style_b6):
+        if st.button('✔ PostProcessing', key='botao6', on_click = style_b6, disabled= not st.session_state["enable_sec"]):
             st.session_state["b4"] = False
             st.session_state["b1"] = False
             st.session_state["b3"] = False
@@ -1896,6 +1902,9 @@ def automatic():
 
 
 st.markdown('<div class="conteudo">', unsafe_allow_html=True)
+
+
+
 if st.session_state["b1"]:
     st.subheader("Improve Data")
     style_b1()
@@ -1917,7 +1926,7 @@ if st.session_state["b1"]:
             with st.spinner("Loading dataset..."):
                 print("inicio")
                 df = DataReader.read_data(uploaded_file, delimiter)
-                
+                st.session_state["enable_first"] = True   
                 # Salvar o dataset no session_state
                 st.session_state["df"] = df
                 #st.session_state["df_previus"] = None  # Resetar histórico de edições
@@ -2373,7 +2382,7 @@ elif st.session_state["b3"]:
 
             st.session_state["accuracy_orig"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_orig_performance"]), orient="index", columns=["Accuracy"])
             
-
+        st.session_state["enable_sec"] = True
         st.success("Models trained on both datasets! Comparing results...")
     if st.button("Save current Model"): 
         st.session_state["saved_models"]["_".join(st.session_state["changes"])] = st.session_state["current_model"]
