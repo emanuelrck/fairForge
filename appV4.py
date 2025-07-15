@@ -1183,7 +1183,7 @@ def main_frontend():
             </style>
 
             <button id="help-button">?</button>
-            <div id="help-balloon">Olá Este é o teu assistente!</div>
+            <div id="help-balloon"{tooltip_text}</div>
 
             <script>
                 const btn = document.getElementById("help-button");
@@ -1199,6 +1199,28 @@ def main_frontend():
         components.html(help_button_html, height=100)
 
 
+tooltip_text = """
+<b>Bem-vindo!</b><br><br>
+Escolha entre duas opções:<br><br>
+<b>1. Melhorar Qualidade dos Dados:</b><br>
+- Faça o upload de um conjunto de dados (CSV).<br>
+- Escolha o delimitador usado no arquivo.<br>
+- No menu no canto superior esquerdo, defina as especificações dos atributos:<br>
+&nbsp;&nbsp;• Coluna alvo (target)<br>
+&nbsp;&nbsp;• Grupos privilegiados<br>
+&nbsp;&nbsp;• Atributos sensíveis<br>
+- Clique em <b>“Automático”</b> para melhorar a qualidade dos dados e treinar um modelo automaticamente.<br>
+- Ao final, baixe os dados tratados e/ou o modelo treinado.<br>
+- Você também pode verificar o desempenho e a equidade dos resultados ou continuar o pipeline.<br><br>
+
+<b>2. Testar um Modelo Existente:</b><br>
+- Faça o upload de um conjunto de dados contendo uma coluna com previsões binárias (1 = positivo, 0 = negativo).<br>
+- Acesse o menu no canto superior esquerdo e defina:<br>
+&nbsp;&nbsp;• Coluna alvo (target)<br>
+&nbsp;&nbsp;• Grupos privilegiados<br>
+&nbsp;&nbsp;• Atributos sensíveis<br>
+- O sistema avaliará o desempenho e a justiça do modelo com base nesses parâmetros.
+"""
 
 
 def style_b1():
