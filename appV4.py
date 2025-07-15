@@ -2293,7 +2293,7 @@ elif st.session_state["b5"]:
 
 
     
-    st.button("Continue",  key='continue0',on_click = b2, , disabled= not st.session_state["enable_first"])
+    st.button("Continue",  key='continue0',on_click = b2 , disabled= not st.session_state["enable_first"])
        
 elif st.session_state["b3"]:
     style_b3()
