@@ -1908,6 +1908,7 @@ st.markdown('<div class="conteudo">', unsafe_allow_html=True)
 
 
 if st.session_state["b1"]:
+    enable_cont = False
     st.subheader("Improve Data")
     style_b1()
     # 📂 Upload dataset
@@ -1922,9 +1923,10 @@ if st.session_state["b1"]:
     else:
         delimiter = None
     
-    
+    st.session_state["enable_first"] = True
     if uploaded_file:
-            st.session_state["enable_first"] = True 
+            enable_cont = True
+             
         #if st.button("Load Dataset"):
             with st.spinner("Loading dataset..."):
                 print("inicio")
@@ -2079,7 +2081,7 @@ if st.session_state["b1"]:
         st.write(st.session_state["df"].head())
 
 
-    st.button('Continue', key='continue0', on_click = b0, disabled= not st.session_state["enable_first"])
+    st.button('Continue', key='continue0', on_click = b0, disabled= not enable_cont)
 
    
             
