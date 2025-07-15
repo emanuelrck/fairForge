@@ -77,7 +77,51 @@ tooltip_text_upload = """
 
         Use this to identify if your model behaves differently for privileged vs. unprivileged groups and consider retraining or mitigating if necessary.
     """
-tooltip_text_preprocessing = "prrrr"
+tooltip_text_preprocessing = """
+<b>Preprocessing: Prepare your data before training</b><br><br>
+
+In this step, you can enhance your dataset before training a model. The menu on the left allows you to configure how to handle missing values, balance the data, and apply fairness corrections.<br><br>
+
+<b>What you can do on this page:</b><br>
+• <b>Missing Data</b>: Choose how to fill in missing values for numeric and categorical columns. Options include simple strategies like mean or mode, and advanced ones like KNN, MICE, or Random Forest Imputation.<br><br>
+
+• <b>Data Resampling</b>: Apply techniques to balance class distribution (e.g., if you have many more negatives than positives). You can also choose fairness-aware resampling methods to reduce bias between groups.<br><br>
+
+• <b>Bias & Fairness Preprocessing</b>: Apply bias mitigation strategies like:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;• <b>Blinding</b>: removes sensitive attributes before training.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;• <b>Massaging</b>: adjusts labels to reduce bias in the dataset.<br><br>
+
+<b>Bias Analysis: How to interpret the results</b><br>
+Clicking "Check Bias" evaluates fairness using 4 main metrics. Here’s what each one means and how to interpret the values:<br><br>
+
+<b>1. Statistical Parity Difference (SPD)</b><br>
+&nbsp;&nbsp;&nbsp;&nbsp;• Measures the difference in the rate of positive outcomes between privileged and unprivileged groups.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;• Ideal value: <b>0</b><br>
+&nbsp;&nbsp;&nbsp;&nbsp;• Value &lt; 0: privileged group benefits more.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;• Value &gt; 0: unprivileged group benefits more.<br><br>
+
+<b>2. Disparate Impact (DI)</b><br>
+&nbsp;&nbsp;&nbsp;&nbsp;• Ratio of positive outcome rates between unprivileged and privileged groups.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;• Ideal value: <b>1</b><br>
+&nbsp;&nbsp;&nbsp;&nbsp;• Value &lt; 1: favors the privileged group.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;• Value &gt; 1: favors the unprivileged group.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;• Values below 0.8 or above 1.25 usually indicate potential fairness issues.<br><br>
+
+<b>3. Mean Difference</b><br>
+&nbsp;&nbsp;&nbsp;&nbsp;• Measures the difference in average scores or predictions between the groups.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;• Ideal value: <b>0</b><br>
+&nbsp;&nbsp;&nbsp;&nbsp;• Value &lt; 0: higher average for the privileged group.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;• Value &gt; 0: higher average for the unprivileged group.<br><br>
+
+<b>4. Consistency</b><br>
+&nbsp;&nbsp;&nbsp;&nbsp;• Checks whether similar individuals receive similar predictions, regardless of group.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;• Ideal value: <b>1</b><br>
+&nbsp;&nbsp;&nbsp;&nbsp;• Value &lt; 1: indicates some unfair treatment among similar individuals.<br><br>
+
+<b>Tip:</b> Use the menu on the left to configure each method. Then click the buttons in the center to apply changes and see results.<br>
+<b>Tip:</b> The applied changes are presented at the end of the page<br>
+
+"""
 tooltip_text_inprocessing = "INNN"
 tooltip_text_trainning = "trrr"
 tooltip_text_postprocessing = "pstt"

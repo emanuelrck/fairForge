@@ -111,10 +111,10 @@ def metricas_para_df(metricas_dict):
         valor_float = valor[0] if isinstance(valor, np.ndarray) else float(valor)
         bias = detectar_bias(metrica, valor)
         rows.append({
-            "Métrica": metrica,
-            "Valor": round(valor_float, 4),
-            "Referência": referencia,
-            "Bias Detectado": bias
+            "Metric": metrica,
+            "Value": round(valor_float, 4),
+            "Reference": referencia,
+            "Bias detected": bias
         })
     return pd.DataFrame(rows)
 
