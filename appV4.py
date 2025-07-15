@@ -1450,7 +1450,9 @@ def main_frontend():
 
 
 
-
+def enable_sec():
+    st.session_state["enable_sec"] = True
+    
 def style_b1():
     st.session_state["b1"] = True
     st.session_state["b3"] = False
@@ -2331,7 +2333,8 @@ elif st.session_state["b3"]:
 
     
 
-    if st.button("Train Models and Compare Performance & Fairness"): 
+    if st.button("Train Models and Compare Performance & Fairness", on_click = enable_sec): 
+        st.session_state["enable_sec"] = True
 
         if st.session_state["atual_final_report"] == {}:
         
@@ -2382,7 +2385,7 @@ elif st.session_state["b3"]:
 
             st.session_state["accuracy_orig"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_orig_performance"]), orient="index", columns=["Accuracy"])
             
-        st.session_state["enable_sec"] = True
+        
         st.success("Models trained on both datasets! Comparing results...")
     if st.button("Save current Model"): 
         st.session_state["saved_models"]["_".join(st.session_state["changes"])] = st.session_state["current_model"]
