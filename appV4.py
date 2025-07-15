@@ -1919,14 +1919,14 @@ if st.session_state["b1"]:
         delimiter = st.text_input("Enter the column delimiter (e.g., ',' ';' '|' '\\t')", value=",")
     else:
         delimiter = None
-
+    st.session_state["enable_first"] = True 
     
     if uploaded_file:
         #if st.button("Load Dataset"):
             with st.spinner("Loading dataset..."):
                 print("inicio")
                 df = DataReader.read_data(uploaded_file, delimiter)
-                st.session_state["enable_first"] = True   
+                  
                 # Salvar o dataset no session_state
                 st.session_state["df"] = df
                 #st.session_state["df_previus"] = None  # Resetar histórico de edições
