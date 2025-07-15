@@ -1786,6 +1786,7 @@ available_models = [
 def automatic():
     df = st.session_state["df"]
     st.session_state["automatic"] = True
+    st.session_state["enable_sec"] = True
     missing_data = DataAnalyzer.check_missing_values(st.session_state["df"], file_path=missing_values_report_file)
     colunas_lower = {col.lower(): col for col in st.session_state["df"].columns}
     sensitive_col = [colunas_lower[col] for col in colunas_lower if col in tipical_sensitive_information()]
