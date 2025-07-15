@@ -101,6 +101,7 @@ def main_frontend():
             background-color: #e1eef4 !important;
             color: #325D79 !important;
             border-color: #325D79 !important;
+            caret-color : rgb(0 0 0) !important;
        }
 
        label[data-baseweb="checkbox"] > div {
