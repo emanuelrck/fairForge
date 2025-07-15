@@ -90,6 +90,8 @@ In this step, you can enhance your dataset before training a model. The menu on 
 • <b>Bias & Fairness Preprocessing</b>: Apply bias mitigation strategies like:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;• <b>Blinding</b>: removes sensitive attributes before training.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;• <b>Massaging</b>: adjusts labels to reduce bias in the dataset.<br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;• <b>Reweight</b>: assigns different weights to samples to balance group outcomes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;• <b>LFR (Learning Fair Representations)</b>: transforms data into a fairer latent representation while preserving utility.<br><br>
 
 <b>Bias Analysis: How to interpret the results</b><br>
 Clicking "Check Bias" evaluates fairness using 4 main metrics. Here’s what each one means and how to interpret the values:<br><br>
