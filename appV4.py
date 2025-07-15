@@ -238,8 +238,8 @@ if "enable_first" not in st.session_state:
     st.session_state["enable_first"] = False
 if "enable_sec" not in st.session_state:
     st.session_state["enable_sec"] = False
-
-
+if "df" in st.session_state and st.session_state["df"] != None:
+    st.session_state["enable_first"] = True 
 def main_frontend():
 
     if "help_text" not in st.session_state:
