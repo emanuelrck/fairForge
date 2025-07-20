@@ -409,6 +409,10 @@ def main_frontend():
         div[data-baseweb="select"] > div > div > div {
         background-color: rgb(225 238 244);
         }
+
+        div[data-testid="stMarkdownContainer"]{
+        color:#325D79;
+        }
         .st-dg {
             background-color: rgb(50 93 121);
         }
