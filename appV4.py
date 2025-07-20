@@ -402,6 +402,9 @@ def main_frontend():
         background-color: rgb(225 238 244); !important;
         }
 
+        div[data-baseweb="select"] > div > div > div {
+        background-color: rgb(225 238 244);
+        }
         .st-dg {
             background-color: rgb(50 93 121);
         }
