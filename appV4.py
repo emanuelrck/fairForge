@@ -392,8 +392,7 @@ def main_frontend():
             padding-left: 20px;
             padding-right: 20px;
         }
-button[kind="secondary"] > div {
-color:White;}
+
         div[data-baseweb="base-input"] > input{
             caret-color : rgb(0 0 0) !important;
             color: rgb(50 93 121);!important;
@@ -414,6 +413,8 @@ color:White;}
         div[data-testid="stMarkdownContainer"]{
         color:#325D79;
         }
+        button[kind="secondary"] > div {
+        color:White;}
         .st-dg {
             background-color: rgb(50 93 121);
         }
