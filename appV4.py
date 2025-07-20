@@ -402,6 +402,10 @@ def main_frontend():
         background-color: rgb(225 238 244); !important;
         }
 
+        span[data-baseweb="tag"] > span {
+        background-color: rgb(225 238 244); !important;
+        }
+
         div[data-baseweb="select"] > div > div > div {
         background-color: rgb(225 238 244);
         }
