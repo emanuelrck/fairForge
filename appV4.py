@@ -413,8 +413,7 @@ def main_frontend():
         div[data-testid="stMarkdownContainer"]{
         color:#325D79;
         }
-        button[kind="secondary"] > div {
-        color:White;}
+        
         .st-dg {
             background-color: rgb(50 93 121);
         }
@@ -1479,7 +1478,7 @@ def style_b1():
     div.st-key-botao1 button {
         background-color: #325D79 !important;
         color: white !important;
-
+    
     }
     .st-key-botao1 button:focus:not(:active) {
         background-color: #325D79 !important; 
