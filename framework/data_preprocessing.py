@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import streamlit as st
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.model_selection import train_test_split
 import streamlit as st
@@ -349,7 +350,7 @@ def reweigh(df, target, favorable_classes, protected_attribute_name, privileged_
     df_transf = revert_label_encoding(df_transf, label_encoders)
     df_transf = df_transf.reset_index(drop=True)
     print(df_transf[target].value_counts())
-    return df_transf, instance_weights
+    return instance_weights
 
 import pandas as pd
 import numpy as np
@@ -458,6 +459,8 @@ def Learning_fair_representations(
     tf.random.set_seed(70)
     label_encoders = {}
 
+    
+
     # 1. Save original dataframe and removed columns
     original_df = df.copy()
     target_data = original_df[target]
@@ -523,10 +526,10 @@ def Learning_fair_representations(
             valid_values = df_transf[col].round().astype(int).clip(0, len(le.classes_) - 1)
             df_transf[col] = le.inverse_transform(valid_values)
 
-    for col in df_transf:
-        print("---------")
-        print(col)
-        print(df_transf[col].unique())
+
+    df_transf[protected_attribute_name] = original_df[protected_attribute_name]
+   
+
     if len(df_transf[target].unique()) == 1:
         df_transf[target] = target_data
     return df_transf, original_df, label_encoders

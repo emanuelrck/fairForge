@@ -75,7 +75,7 @@ def postProcessing_caracteristics (df):
     st.sidebar.markdown("""<h2>PostProcessing attributes</h2>""", unsafe_allow_html=True)
     with st.sidebar.expander(" ", expanded=False):
         # Seleção dinâmica do fairness metric e do grupo protegido
-        
+        print("-------------st.session_state", st.session_state["sensitive_columns"])
         sensitive_post = st.selectbox("Choose sensitive attribute:", st.session_state["sensitive_columns"] )
         priveledge_post = st.selectbox("Priveledge Group:", st.session_state["df"][sensitive_post].unique().tolist())
         #unprotected_group = st.selectbox("Unprotected Group:", [val for val in st.session_state["df"][sensitive_attribute].unique().tolist() if val != protected_group])
@@ -87,6 +87,7 @@ def show_fairness_plot_single_model(
     automatic_results, column, protected_group, selected_fairness, 
     ax=None, max_y=1
 ):
+    print(automatic_results)
     unprotected_group = "not_" + str(protected_group)
     keys = list(automatic_results.keys())
     indices = np.arange(len(keys))
@@ -344,9 +345,9 @@ def show_plots(num_models, accuracy_anterior, accuracy_atual, accuracy_orig, col
 
     if accuracy_anterior is not None:
         bars1 = ax.bar(indices, accuracy_anterior[column], bar_width, label="Previous", color="blue")
-        bars2 = ax.bar(indices + bar_width, accuracy_atual[column], bar_width, label="Current", color="orange")
+        bars2 = ax.bar(indices + bar_width, accuracy_atual[column], bar_width, label="Current", color="skyblue")
     else:
-        bars2 = ax.bar(indices, accuracy_atual[column], bar_width, label="Current", color="orange")
+        bars2 = ax.bar(indices, accuracy_atual[column], bar_width, label="Current", color="skyblue")
 
     ax.set_xticks(indices)
     ax.set_xticklabels(common_indices, rotation=45, ha="right")
@@ -365,14 +366,12 @@ def show_plots_fairness(report_before, report_after, report_orig, column, protec
         fig, ax = plt.subplots(figsize=(10, 6))
     else:
         fig = ax.get_figure()
-    print(max_y)
+
+    
+   
     # Última linha da função (em vez de ax.set_ylim(0, 1)):
-    if selected_fairness == "disparate_impact":
-        ax.set_ylim(0, 1)
-    else:
-        if max_y is not None:
-            print("aqui")
-            ax.set_ylim(0, max_y * 1.05)  # leve margem visual
+    ymax = 1 if selected_fairness == "disparate_impact" else max_y * 1.05
+    ax.set_ylim(0, ymax)
 
     models = list(report_after.keys())
     num_models = len(models)
@@ -393,7 +392,8 @@ def show_plots_fairness(report_before, report_after, report_orig, column, protec
 
         if model in report_orig and column in report_orig[model]:
             orig_value = report_orig[model][column].get((protected_group, unprotected_group), {}).get(selected_fairness, None)
-
+            #print((protected_group, unprotected_group))
+            #print("ori", report_orig[model][column])
         if has_previous and model in report_before and column in report_before[model]:
             prev_value = report_before[model][column].get((protected_group, unprotected_group), {}).get(selected_fairness, None)
 
@@ -406,7 +406,7 @@ def show_plots_fairness(report_before, report_after, report_orig, column, protec
 
         orig_colors.append("gray")
         previous_colors.append("darkblue" if prev_value is not None and prev_value < 0 else "blue")
-        current_colors.append("darkorange" if curr_value is not None and curr_value < 0 else "orange")
+        current_colors.append("steelblue" if curr_value is not None and curr_value < 0 else "skyblue")
 
     # Plotando as barras com offset
     ax.bar(indices - bar_width, orig_values, bar_width, color=orig_colors, label="Original")
@@ -418,15 +418,15 @@ def show_plots_fairness(report_before, report_after, report_orig, column, protec
             Patch(facecolor='gray', label='Original'),
             Patch(facecolor='blue', label='Previous Positive'),
             Patch(facecolor='darkblue', label='Previous Negative'),
-            Patch(facecolor='orange', label='Current Positive'),
-            Patch(facecolor='darkorange', label='Current Negative')
+            Patch(facecolor='skyblue', label='Current Positive'),
+            Patch(facecolor='steelblue', label='Current Negative')
         ]
     else:
         ax.bar(indices, current_values, bar_width, color=current_colors, label="Current")
         legend_elements = [
             Patch(facecolor='gray', label='Original'),
-            Patch(facecolor='orange', label='Current Positive'),
-            Patch(facecolor='darkorange', label='Current Negative')
+            Patch(facecolor='skyblue', label='Current Positive'),
+            Patch(facecolor='steelblue', label='Current Negative')
         ]
 
     ax.set_xticks(indices)
@@ -434,7 +434,12 @@ def show_plots_fairness(report_before, report_after, report_orig, column, protec
     plt.ylabel(selected_fairness)
     plt.title(f"Fairness Comparison: {selected_fairness} ({column})")
     #ax.set_ylim(0, 1)
-    ax.legend(handles=legend_elements)
+    ax.legend(
+    handles=legend_elements,
+    loc='upper right',
+    bbox_to_anchor=(1, 1),   # (x=1, y=1) = canto sup. direito
+    frameon=True             # True = com caixa, False = sem
+)
 
     return fig
 

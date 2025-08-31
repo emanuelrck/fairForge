@@ -27,11 +27,11 @@ tooltip_text_upload = """
     <b>1. Improve Data Quality:</b><br>
     - Upload your dataset (CSV).<br>
     - Select the correct delimiter.<br>
-    - In the top-left menu, define:<br>
+    - In the top-left menu, configure attributes:<br>
     &nbsp;&nbsp;• Target column<br>
     &nbsp;&nbsp;• Privileged groups<br>
     &nbsp;&nbsp;• Sensitive attributes<br>
-    - Use “Automatic” to improve data quality and train a model Automatically.<br>
+    - Use “Automatic” button to improve data quality and train a model Automatically.<br>
     &nbsp;&nbsp;- Check Performance and Fairness results.<br>
     &nbsp;&nbsp;- Download the improved data or trained model.<br>
     - Use "Continue" to advance in the pipeline and have more control over transformations.<br><br>
@@ -66,8 +66,8 @@ tooltip_text_upload = """
         - <b>Positive Predictive Parity</b>:<br>
         &nbsp;&nbsp;&nbsp;&nbsp;<i>“When the model predicts a positive, is it equally likely to be correct for all groups?”</i><br><br>
 
-        - <b>True Positive Rate</b>:<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;<i>“Among all true cases, how many were caught by the model?”</i><br><br>
+        - <b>False Omission Rate</b>:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<i>““Among predicted negatives, what fraction are actually positive (missed cases)?”</i><br><br>
 
         - <b>Statistical Parity</b>:<br>
         &nbsp;&nbsp;&nbsp;&nbsp;<i>“Do groups receive positive decisions at similar rates, regardless of qualification?”</i><br><br>
@@ -166,7 +166,7 @@ tooltip_text_trainning = """
     • <b>Equal Opportunity</b>: Checks if qualified individuals are treated equally across groups.<br>
     • <b>Predictive Equality</b>: Focuses on whether false positive rates are similar across groups.<br>
     • <b>Positive Predictive Parity</b>: Measures whether positive predictions are equally accurate across groups.<br>
-    • <b>True Positive Rate</b>: Assesses if detection of positive cases is balanced across groups.<br>
+    • <b>False Omission Rate Difference</b>: Assesses if the rate of missed positives among predicted negatives is higher for the unprivileged group than the privileged group.<br>
     • <b>Statistical Parity</b>: Ensures both groups receive favorable outcomes at similar rates.<br>
     • <b>Disparate Impact</b>: Compares how often each group receives favorable outcomes (ideal = 1.0).<br><br>
 
@@ -1782,7 +1782,7 @@ def compute_max_fairness_value(automatic_results, selected_measures, column, pro
                         max_value = max(max_value, abs(value))
         return max_value
 
-available_fairness_metrics = ["equal_opportunity", "predictive_equality", "positive_predictive_parity", "true_positive_rate", "statistical_parity" , "disparate_impact"]     
+available_fairness_metrics = ["equal_opportunity", "predictive_equality", "positive_predictive_parity", "false_omission_rate", "statistical_parity" , "disparate_impact"]     
 available_models = [
             "Logistic Regression",
             "Random Forest",
@@ -2201,7 +2201,7 @@ elif st.session_state["b2"]:
             st.session_state["df_previus"] = st.session_state["df"]
             st.session_state["changes"].append(f"reweigh {protected_attribute_name_reweigh} with privileged group {privileged_classes_reweigh}")
             with st.spinner(f"reweighing {protected_attribute_name_reweigh} with privileged group {privileged_classes_reweigh}..."):
-                st.session_state["df"], st.session_state["instance_weights"] = reweigh(st.session_state["df"],
+                st.session_state["instance_weights"] = reweigh(st.session_state["df"],
                 target = default_target_column,
                 favorable_classes = favorable_classes_target,
                 protected_attribute_name  = protected_attribute_name_reweigh, 
@@ -2209,6 +2209,7 @@ elif st.session_state["b2"]:
             st.success(f" reweighed {protected_attribute_name_reweigh} with privileged group {privileged_classes_reweigh}")
 
         if st.button("LFR"):
+            print("-----------Inicio LFR", st.session_state["sensitive_columns"])
             st.session_state["df_previus"] = st.session_state["df"]
             st.session_state["changes"].append(f"LFR {protected_attribute_name_lfr} with privileged group {privileged_classes_lfr}")
             with st.spinner(f"LFR {protected_attribute_name_lfr} with privileged group {privileged_classes_lfr}..."):
@@ -2217,9 +2218,9 @@ elif st.session_state["b2"]:
                 favorable_classes = favorable_classes_target,
                 protected_attribute_name  = protected_attribute_name_lfr, 
                 privileged_classes = privileged_classes_lfr,
-                drop_columns =  st.session_state["sensitive_columns"])
+                drop_columns =  st.session_state["sensitive_columns"].copy())
             st.success(f" LFR {protected_attribute_name_lfr} with privileged group {privileged_classes_lfr}")
-
+            print("-----------Fim LFR", st.session_state["sensitive_columns"])
         dir = """if st.button("DisparateImpactRemover"):
             st.session_state["df_previus"] = st.session_state["df"]
             st.session_state["changes"].append(f"Removing disparate impact from {protected_attribute_name_dir} with privileged group {privileged_classes_dir} using a repair level of {repair_level_dir}")
@@ -2320,7 +2321,7 @@ elif st.session_state["b3"]:
     def sidebar():
         default_models = ["Logistic Regression", "Random Forest", "XGBoost", "LightGBM", "SVM", "MLP (Neural Network)"]
         available_metrics = ["Accuracy", "Precision", "Recall", "F1-Score"]
-        available_fairness_metrics = ["equal_opportunity", "predictive_equality", "positive_predictive_parity", "true_positive_rate", "statistical_parity", "disparate_impact"]
+        available_fairness_metrics = ["equal_opportunity", "predictive_equality", "positive_predictive_parity", "false_omission_rate", "statistical_parity", "disparate_impact"]
 
         # Models selection inside an expander
         st.sidebar.markdown("""<h2>Models</h2>""", unsafe_allow_html=True)
@@ -2390,11 +2391,14 @@ elif st.session_state["b3"]:
             st.session_state["report_after_performance"], st.session_state["report_after_fairness"]  = trainer_after.train_and_evaluate(selected_fairness=st.session_state["selected_metrics_fairness"], file_path = model_report_file, fairness_file_path = fairness_report_file)
             st.session_state["accuracy_atual"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_after_performance"]), orient="index", columns=["Accuracy"])
 
+            print("after", st.session_state["report_after_fairness"])
 
 
             trainer_orig = ModelTrainer(st.session_state["df_original"], st.session_state["default_target_column"], st.session_state["sensitive_columns"], test_size=0.3, random_state=42, selected_models=st.session_state["selected_models"], train_columns = st.session_state["df_original"].columns.to_list(), favorable_classes_target = st.session_state["favorable_classes_target"])
             trainer_orig.fairness_method = None
             st.session_state["report_orig_performance"], st.session_state["report_orig_fairness"]  = trainer_orig.train_and_evaluate(selected_fairness=st.session_state["selected_metrics_fairness"], file_path = model_report_file, fairness_file_path = fairness_report_file)
+
+            print("FAIRNESSS ORIG", st.session_state["report_orig_fairness"])
 
             st.session_state["accuracy_orig"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_orig_performance"]), orient="index", columns=["Accuracy"])
             
@@ -2567,13 +2571,13 @@ elif st.session_state["b4"]:
             st.subheader("Current:")
             aux_func.display_final_report(st.session_state["atual_final_report"])
         sensitive_attribute, protected_group, show_fairness, sensitive_attribute_scatter, protected_group_scatter, selected_metric_1_scatter, selected_metric_2_scatter, show_scatter = aux_func.ola (1)
-        
+       
         #------------------------------------------------Graficos
         if "report_after_performance"  in st.session_state:
             st.subheader("\n\n\n Accuracy")
             st.pyplot(aux_func.show_plots(len(st.session_state["selected_models"]),st.session_state["accuracy_anterior"], st.session_state["accuracy_atual"],st.session_state["accuracy_orig"] , "Accuracy" ))
         #-----------------------------------------------------Fairness
-
+          
             
             # Plotando o gráfico
             if show_fairness:
@@ -2583,30 +2587,35 @@ elif st.session_state["b4"]:
                 cols = 3
                 rows = math.ceil(num_measures / cols)
 
-
+         
                 # Coleta os valores máximos para definir a escala
                 max_fairness_value = 0
 
                 for fairness_measure in selected_measures:
                     if fairness_measure == "disparate_impact":
                         continue  # Pula disparate impact
-
+                  
                     for model in st.session_state["report_after_fairness"]:
                         if "report_before_fairness" in st.session_state:
                             for report in [st.session_state["report_orig_fairness"],
                                         st.session_state["report_before_fairness"],
                                         st.session_state["report_after_fairness"]]:
+                                
                                 if model in report and sensitive_attribute in report[model]:
+                                    
                                     value = report[model][sensitive_attribute].get(
-                                        (protected_group, "not_" + protected_group), {}).get(fairness_measure, None)
+                                        (str(protected_group), "not_" + str(protected_group)), {}).get(fairness_measure, None)
+                                    
                                     if value is not None:
                                         max_fairness_value = max(max_fairness_value, abs(value))
                         else:
                             for report in [st.session_state["report_orig_fairness"],
                                         st.session_state["report_after_fairness"]]:
+                                
                                 if model in report and sensitive_attribute in report[model]:
                                     value = report[model][sensitive_attribute].get(
                                         (str(protected_group), "not_" + str(protected_group)), {}).get(fairness_measure, None)
+                                    
                                     if value is not None:
                                         max_fairness_value = max(max_fairness_value, abs(value))
 

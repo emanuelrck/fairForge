@@ -225,7 +225,7 @@ class ModelTrainer:
                         'equal_opportunity': metrics['equal_opportunity'],
                         'predictive_equality': metrics['predictive_equality'],
                         'positive_predictive_parity': metrics['positive_predictive_parity'],
-                        'true_positive_rate': metrics['true_positive_rate'],
+                        'false_omission_rate': metrics['false_omission_rate'],
                         'disparate_impact': metrics['disparate_impact'],
                         'statistical_parity': metrics['statistical_parity'],
                     }
@@ -298,9 +298,8 @@ def experiment_fairness(predictions, name, sensitive_columns, target, positive_t
                 dicio_all_fair[sense_att][(priveledge, "not_"+priveledge)]["predictive_equality"] = metric.false_positive_rate_difference()
             if "positive_predictive_parity" in selected_fairness :
                 dicio_all_fair[sense_att][(priveledge, "not_"+priveledge)]["positive_predictive_parity"] = metric.average_predictive_value_difference()
-            if "true_positive_rate" in selected_fairness :
-                dicio_all_fair[sense_att][(priveledge, "not_"+priveledge)]["true_positive_rate"] = metric.true_positive_rate_difference()
-            
+            if "false_omission_rate" in selected_fairness :
+                dicio_all_fair[sense_att][(priveledge, "not_"+priveledge)]["false_omission_rate"] = metric.false_omission_rate_difference()
             if "statistical_parity" in selected_fairness :
                 dicio_all_fair[sense_att][(priveledge, "not_"+priveledge)]["statistical_parity"] = metric.statistical_parity_difference()
             if "disparate_impact" in selected_fairness :
@@ -319,7 +318,7 @@ def print_fairness_metrics(metric, name):
     print("Equal Opportunity Difference:", metric.equal_opportunity_difference())
     print("False Positive Rate Difference (Predictive Equality):", metric.false_positive_rate_difference())
     print("Positive Predictive Parity Difference:", metric.average_predictive_value_difference())
-    print("true_prd:", metric.true_positive_rate_difference())
+    print("false_omission_rate:", metric.false_omission_rate_difference())
    
 
 def apply_fair_training(self,X, y, x_test, y_test, model, sensitive_features, 
@@ -467,37 +466,73 @@ def apply_fair_training(self,X, y, x_test, y_test, model, sensitive_features,
         raise ValueError(f"Unknown fairness_method: {fairness_method}")
 
 
-def postProcessing(method, predictions, df_test, model,sensitive,priveledge ,target ):
+from sklearn.base import BaseEstimator
+from sklearn.calibration import CalibratedClassifierCV
+from fairlearn.postprocessing import ThresholdOptimizer
+from aif360.datasets import BinaryLabelDataset
+from aif360.algorithms.postprocessing import (
+    RejectOptionClassification,
+    EqOddsPostprocessing,
+    CalibratedEqOddsPostprocessing,
+)
+from sklearn.preprocessing import LabelEncoder
+import numpy as np
+
+def _is_sklearn_estimator(model):
+    # cobre a maioria dos casos; evita depender só de isinstance(BaseEstimator)
+    return hasattr(model, "get_params") and hasattr(model, "set_params")
+
+def postProcessing(method, predictions, df_test, model, sensitive, priveledge, target):
     print("----------------")
     print(sensitive)
+
     pred = None
-    # Grupos sensíveis
+
+    # --- preparar dados ---
     unprivileged = [{sensitive: 0}]
     privileged = [{sensitive: 1}]
 
     df_encoded = df_test.copy()
-    categorical_cols = df_test.select_dtypes(include='object').columns.drop([target, sensitive])
+    categorical_cols = df_encoded.select_dtypes(include='object').columns.tolist()
+    if target in categorical_cols:
+        categorical_cols.remove(target)
+    if sensitive in categorical_cols:
+        categorical_cols.remove(sensitive)
 
     for col in categorical_cols:
-        df_encoded[col] = LabelEncoder().fit_transform(df_encoded[col].astype(str))
-    print(df_encoded[target].unique()[1])
-    df_encoded[target] = (df_encoded[target] == df_encoded[target].unique()[0]).astype(int)
+        le = LabelEncoder()
+        df_encoded[col] = le.fit_transform(df_encoded[col].astype(str))
+
+    # tornar target binário de forma estável (evitar depender de unique()[0])
+    # assume que o "positivo" é o primeiro valor ordenado; adapta se precisares
+    classes = sorted(df_encoded[target].unique().tolist())
+    if len(classes) != 2:
+        raise ValueError(f"O target '{target}' não é binário (valores: {classes}).")
+    positive_class = classes[1]
+    df_encoded[target] = (df_encoded[target] == positive_class).astype(int)
+
+    # sensitive → 1 para grupo privilegiado
     df_encoded[sensitive] = (df_encoded[sensitive] == priveledge).astype(int)
 
-    assert df_encoded.dtypes.apply(lambda x: np.issubdtype(x, np.number)).all()
+    # sanity check
+    assert df_encoded.dtypes.apply(lambda x: np.issubdtype(x, np.number)).all(), \
+        "Existem colunas não numéricas após o encoding."
 
+    # construir datasets AIF360
     bld = BinaryLabelDataset(
         df=df_encoded,
         label_names=[target],
         protected_attribute_names=[sensitive]
     )
     pred_bld = bld.copy()
-    pred_bld.labels = predictions.reshape(-1, 1)
+    pred_bld.labels = np.asarray(predictions).reshape(-1, 1)
+
     features = df_encoded.drop(columns=[target])
     labels = df_encoded[target]
+    s_feat = df_encoded[sensitive]
 
+    # --- métodos ---
     if method == "Reject Option Classification":
-            # 1. Reject Option Classification
         roc = RejectOptionClassification(
             unprivileged_groups=unprivileged,
             privileged_groups=privileged,
@@ -507,21 +542,25 @@ def postProcessing(method, predictions, df_test, model,sensitive,priveledge ,tar
         )
         roc.fit(bld, pred_bld)
         pred = roc.predict(pred_bld).labels.flatten()
-    elif method == "Equalized Odds":
 
-        # 2. Equalized Odds Postprocessing
+    elif method == "Equalized Odds":
         eq_odds = EqOddsPostprocessing(
             privileged_groups=privileged,
             unprivileged_groups=unprivileged
         )
         eq_odds.fit(bld, pred_bld)
         pred = eq_odds.predict(pred_bld).labels.flatten()
-    elif method == "Calibrated Equalized Odds":
-        # 3. Calibrated Equalized Odds Postprocessing
-        cal_model = CalibratedClassifierCV(model, method='sigmoid', cv='prefit')
-        cal_model.fit(features, labels)
-        scores = cal_model.predict_proba(features)[:, 1]
 
+    elif method == "Calibrated Equalized Odds":
+        if not _is_sklearn_estimator(model):
+            return predictions
+            #raise TypeError(
+            #    "Calibrated Equalized Odds requer um estimador scikit-learn já treinado "
+            #    "com métodos predict_proba/decision_function."
+            #)
+        cal_model = CalibratedClassifierCV(model, method='sigmoid', cv='prefit')
+        cal_model.fit(features, labels)  # só ajusta o calibrador
+        scores = cal_model.predict_proba(features)[:, 1]
         bld.scores = scores.reshape(-1, 1)
 
         cal_eq_odds = CalibratedEqOddsPostprocessing(
@@ -532,19 +571,30 @@ def postProcessing(method, predictions, df_test, model,sensitive,priveledge ,tar
         )
         cal_eq_odds.fit(bld, pred_bld)
         pred = cal_eq_odds.predict(pred_bld).labels.flatten()
+
     elif method == "Threshold Optimizer":
-        # 4. Threshold Optimizer (via fairlearn)
+        if not _is_sklearn_estimator(model):    
+            return predictions
+            #raise TypeError(
+            #    "Threshold Optimizer (Fairlearn) requer um estimador scikit-learn. "
+            #    "Usa um modelo sklearn (p.ex., LogisticRegression) ou escolhe um pós-processamento AIF360."
+            #)
         threshold_optimizer = ThresholdOptimizer(
             estimator=model,
-            constraints="equalized_odds",
-            predict_method="predict_proba"
+            constraints="equalized_odds",     # ou "demographic_parity"
+            predict_method="predict_proba",
+            prefit=True                       # evita clone() e re-fit
         )
         threshold_optimizer.fit(
             X=features,
             y=labels,
-            sensitive_features=df_encoded[sensitive]
+            sensitive_features=s_feat
         )
         pred = threshold_optimizer.predict(
-            features, sensitive_features=df_encoded[sensitive]
+            features, sensitive_features=s_feat
         )
-    return pred
+
+    else:
+        raise ValueError(f"Método de pós-processamento desconhecido: {method}")
+
+    return np.asarray(pred)
