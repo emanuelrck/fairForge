@@ -86,8 +86,6 @@ class FairnessEvaluator:
 
 
         final_report = "\n".join(report_lines)
-        #print("/n /n /n fairness")
-        #print(final_report)
         if file_path:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(final_report + "\n")
