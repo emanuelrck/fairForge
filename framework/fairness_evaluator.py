@@ -28,8 +28,11 @@ class FairnessEvaluator:
                     continue
                 
                 cm = confusion_matrix(group_true, group_pred, labels=[0, 1])
-                
-                tn, fp, fn, tp = cm.ravel() if cm.shape == (2,2) else (cm[0,0], 0, 0, 0)
+
+                try:
+                    tn, fp, fn, tp = cm.ravel() if cm.shape == (2,2) else (0, 0, 0, 0)
+                except ValueError:
+                    tn, fp, fn, tp = 0, 0, 0, 0
                 
                 n = len(group_true)
                 metrics[group] = {"TP": tp, "FP": fp, "FN": fn, "TN": tn, "n": n}
@@ -55,9 +58,9 @@ class FairnessEvaluator:
                             negative_predictive_parity = (p["TN"] / (p["FN"] + p["TN"]) if (p["FN"] + p["TN"]) > 0 else 0) - \
                                                     (up["TN"] / (up["FN"] + up["TN"]) if (up["FN"] + up["TN"]) > 0 else 0)
                         if "accuracy_equality" in selected_fairness :
-                            accuracy_equality = ((p["TP"] + p["TN"]) / p["n"]) - ((up["TP"] + up["TN"]) / up["n"])
+                            accuracy_equality = ((p["TP"] + p["TN"]) / p["n"] if p["n"] > 0 else 0) - ((up["TP"] + up["TN"]) / up["n"] if up["n"] > 0 else 0)
                         if "statistical_parity" in selected_fairness :
-                            statistical_parity = ((p["TP"] + p["FP"]) / p["n"]) - ((up["TP"] + up["FP"]) / up["n"])
+                            statistical_parity = ((p["TP"] + p["FP"]) / p["n"] if p["n"] > 0 else 0) - ((up["TP"] + up["FP"]) / up["n"] if up["n"] > 0 else 0)
                         
                         report_lines.append(f"  - Comparação {protected_group} (protegido) vs {unprotected_group} (não protegido):")
                         if "equal_opportunity" in selected_fairness:

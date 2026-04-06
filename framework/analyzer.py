@@ -66,7 +66,10 @@ class DataAnalyzer:
         for value in custom_missing_values:
             missing_counts += (df == value).sum()
 
-        total_rows = len(df) 
+        total_rows = len(df)
+        if total_rows == 0:
+            missing_report_df = pd.DataFrame({"column": ["N/A"], "missing_percentage": [0]})
+            return missing_report_df
         missing_percent = (missing_counts / total_rows) * 100  
 
         # Gerar relatório

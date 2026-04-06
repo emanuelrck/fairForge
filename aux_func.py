@@ -86,8 +86,9 @@ def show_fairness_plot_single_model(
     for key in keys:
         _, fairness_dict = automatic_results[key]
         value = None
-        if column in fairness_dict["XGBoost"]:
-            value = fairness_dict["XGBoost"][column].get((str(protected_group), unprotected_group), {}).get(selected_fairness, None)
+        xgb_data = fairness_dict.get("XGBoost", {})
+        if column in xgb_data:
+            value = xgb_data[column].get((str(protected_group), unprotected_group), {}).get(selected_fairness, None)
         
         fairness_values.append(abs(value) if value is not None else 0)
         if value is None:
@@ -232,12 +233,15 @@ def display_categorys(df):
 def extract_metrics(report):
             """Processa o relatório para extrair métricas de performance e fairness"""
             metrics = {}
-            if report != None:
+            if report is not None:
                 for line in report.split("\n"):
                     if "Accuracy" in line:
-                        model_name = line.split(" - ")[0].strip()
-                        acc = float(line.split(":")[1].strip())
-                        metrics[model_name] = acc
+                        try:
+                            model_name = line.split(" - ")[0].strip()
+                            acc = float(line.split(":")[1].strip())
+                            metrics[model_name] = acc
+                        except (IndexError, ValueError):
+                            continue
             return metrics
 
 
@@ -392,13 +396,15 @@ def show_comparison_scatter_plot(accuracy_anterior, accuracy_atual, report_befor
     colors = []
 
     for idx, model in enumerate(models):
-        if "accuracy" in metric_1.lower():            
-            curr_value_1 = accuracy_atual.get(metric_1, None).get(model, {})
+        if "accuracy" in metric_1.lower():
+            acc_data = accuracy_atual.get(metric_1) if accuracy_atual else None
+            curr_value_1 = acc_data.get(model, None) if acc_data is not None else None
         else:
             curr_value_1 = report_after.get(model, {}).get(sensitive_attribute, {}).get((protected_group, unprotected_group), {}).get(metric_1, None)
 
         if "accuracy" in metric_2.lower():
-            curr_value_2 = accuracy_atual.get(metric_2, None).get(model, {})
+            acc_data = accuracy_atual.get(metric_2) if accuracy_atual else None
+            curr_value_2 = acc_data.get(model, None) if acc_data is not None else None
         else:
             curr_value_2 = report_after.get(model, {}).get(sensitive_attribute, {}).get((protected_group, unprotected_group), {}).get(metric_2, None)
 

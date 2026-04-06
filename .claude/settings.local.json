@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout:*)",
+      "Bash(python -c \"import py_compile; py_compile.compile\\('appV4.py', doraise=True\\)\")",
+      "Bash(python -c \"import py_compile; py_compile.compile\\('framework/reader.py', doraise=True\\); py_compile.compile\\('framework/analyzer.py', doraise=True\\); py_compile.compile\\('framework/fairness_evaluator.py', doraise=True\\); py_compile.compile\\('framework/data_preprocessing.py', doraise=True\\); py_compile.compile\\('framework/model_trainer.py', doraise=True\\); py_compile.compile\\('aux_func.py', doraise=True\\); print\\('All files OK'\\)\")",
+      "Bash(python -c \"import py_compile; py_compile.compile\\('appV4.py', doraise=True\\); print\\('OK'\\)\")",
+      "Bash(python -c \"import py_compile; py_compile.compile\\('appV4.py', doraise=True\\); py_compile.compile\\('framework/reader.py', doraise=True\\); py_compile.compile\\('framework/analyzer.py', doraise=True\\); py_compile.compile\\('framework/fairness_evaluator.py', doraise=True\\); py_compile.compile\\('framework/data_preprocessing.py', doraise=True\\); py_compile.compile\\('framework/model_trainer.py', doraise=True\\); py_compile.compile\\('aux_func.py', doraise=True\\); print\\('All files compile OK'\\)\")"
+    ]
+  }
+}

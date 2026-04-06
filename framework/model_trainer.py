@@ -29,7 +29,11 @@ tf.disable_v2_behavior()
 class ModelTrainer:
     def __init__(self, df, target_column, sensitive_columns, test_size=0.3, random_state=42, selected_models=None, train_columns = None, sample_weight = [], sensitive_attr = None, favorable_classes_target = None, inprocessing_models = None):
 
-        self.df = df.dropna()  
+        if target_column not in df.columns:
+            raise ValueError(f"Target column '{target_column}' not found in the dataset. Available columns: {df.columns.tolist()}")
+        self.df = df.dropna()
+        if len(self.df) == 0:
+            raise ValueError("The dataset is empty after removing rows with missing values. Please impute missing values first.")
         self.feature_names = df.columns.tolist()
         self.feature_names = [f for f in self.feature_names if f != target_column]
         self.fairness_method = None
@@ -46,7 +50,7 @@ class ModelTrainer:
         df = df.reset_index(drop=True)
         self.X = self.df.drop(columns=[target_column])
         self.y = self.df[target_column]
-        self.train_columns = train_columns
+        self.train_columns = train_columns if train_columns is not None else []
         if target_column in self.train_columns:
             self.train_columns.remove(target_column)
        
@@ -62,9 +66,18 @@ class ModelTrainer:
             self.label_encoders[target_column] = le
         
         if self.train_columns:
-            self.X = self.X[self.train_columns]
+            valid_cols = [c for c in self.train_columns if c in self.X.columns]
+            if valid_cols:
+                self.X = self.X[valid_cols]
 
         if len(self.sample_weight) != 0:
+          if len(self.sample_weight) != len(self.X):
+            self.sample_weight = []
+            self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+            self.X, self.y, test_size=self.test_size, random_state=self.random_state
+            )
+            self.sample_weight_train = []
+          else:
             self.X_train, self.X_test, self.y_train, self.y_test, self.sample_weight_train, self.sample_weight_test = train_test_split(
             self.X, self.y, self.sample_weight, test_size=self.test_size, random_state=self.random_state
             )
@@ -171,7 +184,7 @@ class ModelTrainer:
         return final_report, final_dicio_fairness
 
 def experiment_fairness(predictions, name, sensitive_columns, target, positive_target, selected_fairness, test_dataset):
-    print(predictions)
+    predictions = np.asarray(predictions)
     dicio_all_fair = {}
     for sense_att in sensitive_columns:
         if sense_att not in test_dataset.columns:
@@ -195,10 +208,16 @@ def experiment_fairness(predictions, name, sensitive_columns, target, positive_t
                 df_test_c[col] = le.fit_transform(df_test_c[col])
                 label_encoders[col] = le
             sex_mapping = dict(zip(label_encoders[sense_att].classes_, label_encoders[sense_att].transform(label_encoders[sense_att].classes_)))
+            if target not in label_encoders:
+                continue
             income_mapping = dict(zip(label_encoders[target].classes_, label_encoders[target].transform(label_encoders[target].classes_)))
+            positive_target_str = str(positive_target)
+            if positive_target_str not in income_mapping and positive_target not in income_mapping:
+                continue
+            fav_class_val = income_mapping.get(positive_target_str, income_mapping.get(positive_target))
             test_exp = StandardDataset(df_test_c,
                             label_name=target,
-                            favorable_classes=[income_mapping[positive_target]],
+                            favorable_classes=[fav_class_val],
                             protected_attribute_names=[sense_att],
                             privileged_classes=[[sex_mapping[priveledge]]])
 
@@ -236,11 +255,13 @@ def print_fairness_metrics(metric, name):
     print("false_omission_rate:", metric.false_omission_rate_difference())
    
 
-def apply_fair_training(self,X, y, x_test, y_test, model, sensitive_features, 
-                        fairness_method=None, 
+def apply_fair_training(self,X, y, x_test, y_test, model, sensitive_features,
+                        fairness_method=None,
                         fairness_params=None,
                         sensitive_attr = None,
                         ):
+    if fairness_params is None:
+        fairness_params = {}
     info = f"Fairness Method: {fairness_method or 'None'}"
     if fairness_method is None:
         model.fit(X, y)
@@ -385,7 +406,7 @@ def postProcessing(method, predictions, df_test, model, sensitive, priveledge, t
         df_encoded[col] = le.fit_transform(df_encoded[col].astype(str))
     classes = sorted(df_encoded[target].unique().tolist())
     if len(classes) != 2:
-        raise ValueError(f"O target '{target}' não é binário (valores: {classes}).")
+        raise ValueError(f"The target '{target}' is not binary (values: {classes}). Post-processing requires a binary target.")
     positive_class = classes[1]
     df_encoded[target] = (df_encoded[target] == positive_class).astype(int)
     df_encoded[sensitive] = (df_encoded[sensitive] == priveledge).astype(int)
@@ -428,8 +449,9 @@ def postProcessing(method, predictions, df_test, model, sensitive, priveledge, t
             return predictions
            
         cal_model = CalibratedClassifierCV(model, method='sigmoid', cv='prefit')
-        cal_model.fit(features, labels)  
-        scores = cal_model.predict_proba(features)[:, 1]
+        cal_model.fit(features, labels)
+        proba = cal_model.predict_proba(features)
+        scores = proba[:, 1] if proba.shape[1] > 1 else proba[:, 0]
         bld.scores = scores.reshape(-1, 1)
 
         cal_eq_odds = CalibratedEqOddsPostprocessing(

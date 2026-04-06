@@ -1771,10 +1771,13 @@ def compute_max_fairness_value(automatic_results, selected_measures, column, pro
             if fairness_measure == "disparate_impact":
                 continue
             for key in automatic_results:
-                _, fairness_dict = automatic_results[key]
-                if column in fairness_dict["XGBoost"]:
-
-                    value = fairness_dict["XGBoost"][column].get((protected_group, unprotected_group), {}).get(fairness_measure, None)
+                result = automatic_results[key]
+                if not isinstance(result, (list, tuple)) or len(result) < 2:
+                    continue
+                _, fairness_dict = result
+                xgb_data = fairness_dict.get("XGBoost", {}) if isinstance(fairness_dict, dict) else {}
+                if column in xgb_data:
+                    value = xgb_data[column].get((str(protected_group), unprotected_group), {}).get(fairness_measure, None)
                     if value is not None:
                         max_value = max(max_value, abs(value))
         return max_value
@@ -1790,112 +1793,146 @@ available_models = [
         ]
 
 def automatic():
+  try:
     df = st.session_state["df"]
     st.session_state["automatic"] = True
     st.session_state["enable_sec"] = True
     missing_data = DataAnalyzer.check_missing_values(st.session_state["df"], file_path=missing_values_report_file)
     colunas_lower = {col.lower(): col for col in st.session_state["df"].columns}
     sensitive_col = [colunas_lower[col] for col in colunas_lower if col in tipical_sensitive_information()]
+
+    if not sensitive_col:
+        st.error("No sensitive columns were automatically detected in the dataset. Please use the manual pipeline to select sensitive attributes.")
+        st.session_state["automatic"] = False
+        return
+
+    target_col = df.columns.tolist()[-1]
+    target_unique = df[target_col].unique().tolist()
+    if len(target_unique) < 2:
+        st.error("The target column has only one unique value. Cannot run automatic pipeline.")
+        st.session_state["automatic"] = False
+        return
+
     clusters = 1
     for col in sensitive_col:
         clusters *= len(st.session_state["df"][col].unique())
+    clusters = max(clusters, 1)
     progress = st.progress(0)
 
     st.session_state["automatic_datasets"] = {}
+    modelo_automatico = None
     if missing_data.iloc[0, 1] > 0:
-        
-            
-        
         dados_automaticos = st.session_state["df"]
         missing_possibilities_names = ["Original","MICE"]
         automatic_combinations = ["Original", "MICE","Smote", "MICE & Smote"," LFR", "MICE & Smote & LFR"]
         for i in range(len(automatic_combinations)):
             progress.progress((i + 1) / len(automatic_combinations))
             dados_automaticos = st.session_state["df"]
-            if i == 0:
-                dados_automaticos = dados_automaticos
-            if i == 1 or i == 3 or i == 5:
-                dados_automaticos, method = impute_missing_values(
-                        dados_automaticos,  
-                        numeric_strategy="",
-                        categorical_strategy="",
-                        custom_value="",
-                        use_knn=False,
-                        use_iterative=True,
-                        use_rf=False
-                    )
-            if i == 2 or i == 3 or i == 5:
-                dados_automaticos = oversampling(dados_automaticos, 
-                target_column=df.columns.tolist()[-1], 
-                sensitive_columns=sensitive_col, 
-                method="Smote",
-                clusters=clusters)
-            
-            if i == 4 or i == 5:
-                dados_automaticos, _ , _ = Learning_fair_representations(dados_automaticos,
-                target = df.columns.tolist()[-1],
-                favorable_classes = dados_automaticos[df.columns.tolist()[-1]].unique().tolist()[0],
-                protected_attribute_name  = sensitive_col[0], 
-                privileged_classes = dados_automaticos[sensitive_col[0]].unique().tolist()[0],
-                drop_columns =  sensitive_col.copy())
+            try:
+                if i == 0:
+                    dados_automaticos = dados_automaticos
+                if i == 1 or i == 3 or i == 5:
+                    dados_automaticos, method = impute_missing_values(
+                            dados_automaticos,
+                            numeric_strategy="",
+                            categorical_strategy="",
+                            custom_value="",
+                            use_knn=False,
+                            use_iterative=True,
+                            use_rf=False
+                        )
+                if i == 2 or i == 3 or i == 5:
+                    dados_automaticos = oversampling(dados_automaticos,
+                    target_column=target_col,
+                    sensitive_columns=sensitive_col,
+                    method="Smote",
+                    clusters=clusters)
 
-                
-            st.session_state["sensitive_columns"] = sensitive_col
-            st.session_state["selected_metrics_fairness"] = available_fairness_metrics
-            
-            modelo_automatico = ModelTrainer(dados_automaticos, df.columns.tolist()[-1], sensitive_col, test_size=0.3, random_state=42, selected_models="XGBoost", train_columns = df.columns.to_list(), favorable_classes_target = st.session_state["favorable_classes_target"], )
-            st.session_state["current_model"] = modelo_automatico
+                if i == 4 or i == 5:
+                    fav_classes = dados_automaticos[target_col].unique().tolist()
+                    sens_unique = dados_automaticos[sensitive_col[0]].unique().tolist()
+                    if len(fav_classes) < 1 or len(sens_unique) < 1:
+                        st.warning(f"Skipping '{automatic_combinations[i]}': insufficient unique values.")
+                        continue
+                    dados_automaticos, _ , _ = Learning_fair_representations(dados_automaticos,
+                    target = target_col,
+                    favorable_classes = fav_classes[0],
+                    protected_attribute_name  = sensitive_col[0],
+                    privileged_classes = sens_unique[0],
+                    drop_columns =  sensitive_col.copy())
 
-            perfom_aut, fair_aut  = modelo_automatico.train_and_evaluate(selected_fairness=available_fairness_metrics, file_path = model_report_file, fairness_file_path = fairness_report_file)
+                st.session_state["sensitive_columns"] = sensitive_col
+                st.session_state["selected_metrics_fairness"] = available_fairness_metrics
 
-            perfom_aut_write = pd.DataFrame.from_dict(aux_func.extract_metrics(perfom_aut), orient="index", columns=["Accuracy"])
-            
-            st.session_state["automatic_results"][automatic_combinations[i]] = [perfom_aut_write, fair_aut]
-            st.session_state["automatic_datasets"][automatic_combinations[i]] = dados_automaticos.copy()
-            
+                modelo_automatico = ModelTrainer(dados_automaticos, target_col, sensitive_col, test_size=0.3, random_state=42, selected_models="XGBoost", train_columns = df.columns.to_list(), favorable_classes_target = st.session_state["favorable_classes_target"], )
+                st.session_state["current_model"] = modelo_automatico
+
+                perfom_aut, fair_aut  = modelo_automatico.train_and_evaluate(selected_fairness=available_fairness_metrics, file_path = model_report_file, fairness_file_path = fairness_report_file)
+
+                perfom_aut_write = pd.DataFrame.from_dict(aux_func.extract_metrics(perfom_aut), orient="index", columns=["Accuracy"])
+
+                st.session_state["automatic_results"][automatic_combinations[i]] = [perfom_aut_write, fair_aut]
+                st.session_state["automatic_datasets"][automatic_combinations[i]] = dados_automaticos.copy()
+            except Exception as e:
+                st.warning(f"Skipping '{automatic_combinations[i]}': {str(e)}")
+                continue
+
             st.session_state["b4"] = True
             st.session_state["b1"] = False
-        
+
     else:
             automatic_combinations = ["Original","Smote"," LFR", "Smote & LFR"]
             for i in range(len(automatic_combinations)):
                 progress.progress((i + 1) / len(automatic_combinations))
                 dados_automaticos = st.session_state["df"]
+                try:
+                    if i == 1 or i == 3:
+                        dados_automaticos = oversampling(dados_automaticos,
+                        target_column=target_col,
+                        sensitive_columns=sensitive_col,
+                        method="Smote",
+                        clusters=clusters)
 
-                if i == 1 or i == 3:
-                    dados_automaticos = oversampling(dados_automaticos, 
-                    target_column=df.columns.tolist()[-1], 
-                    sensitive_columns=sensitive_col, 
-                    method="Smote",
-                    clusters=clusters)
-                
-                if i == 2 or i == 3:
-                    dados_automaticos, _ , _ = Learning_fair_representations(dados_automaticos,
-                    target = df.columns.tolist()[-1],
-                    favorable_classes = dados_automaticos[df.columns.tolist()[-1]].unique().tolist()[0],
-                    protected_attribute_name  = sensitive_col[0], 
-                    privileged_classes = dados_automaticos[sensitive_col[0]].unique().tolist()[0],
-                    drop_columns =  sensitive_col.copy())
+                    if i == 2 or i == 3:
+                        fav_classes = dados_automaticos[target_col].unique().tolist()
+                        sens_unique = dados_automaticos[sensitive_col[0]].unique().tolist()
+                        if len(fav_classes) < 1 or len(sens_unique) < 1:
+                            st.warning(f"Skipping '{automatic_combinations[i]}': insufficient unique values.")
+                            continue
+                        dados_automaticos, _ , _ = Learning_fair_representations(dados_automaticos,
+                        target = target_col,
+                        favorable_classes = fav_classes[0],
+                        protected_attribute_name  = sensitive_col[0],
+                        privileged_classes = sens_unique[0],
+                        drop_columns =  sensitive_col.copy())
 
-           
+                    st.session_state["sensitive_columns"] = sensitive_col
+                    st.session_state["selected_metrics_fairness"] = available_fairness_metrics
 
-                st.session_state["sensitive_columns"] = sensitive_col
-                st.session_state["selected_metrics_fairness"] = available_fairness_metrics
-                
-                modelo_automatico = ModelTrainer(dados_automaticos, df.columns.tolist()[-1], sensitive_col, test_size=0.2, random_state=42, selected_models="XGBoost", train_columns = df.columns.to_list(),  favorable_classes_target = st.session_state["favorable_classes_target"], sample_weight = st.session_state["instance_weights"])
+                    modelo_automatico = ModelTrainer(dados_automaticos, target_col, sensitive_col, test_size=0.2, random_state=42, selected_models="XGBoost", train_columns = df.columns.to_list(),  favorable_classes_target = st.session_state["favorable_classes_target"], sample_weight = st.session_state["instance_weights"])
 
-        
+                    perfom_aut, fair_aut  = modelo_automatico.train_and_evaluate(selected_fairness=available_fairness_metrics, file_path = model_report_file, fairness_file_path = fairness_report_file)
 
-                perfom_aut, fair_aut  = modelo_automatico.train_and_evaluate(selected_fairness=available_fairness_metrics, file_path = model_report_file, fairness_file_path = fairness_report_file)
+                    perfom_aut_write = pd.DataFrame.from_dict(aux_func.extract_metrics(perfom_aut), orient="index", columns=["Accuracy"])
 
-                perfom_aut_write = pd.DataFrame.from_dict(aux_func.extract_metrics(perfom_aut), orient="index", columns=["Accuracy"])
-            
-                st.session_state["automatic_results"][automatic_combinations[i]] = [perfom_aut_write, fair_aut]
-                st.session_state["automatic_datasets"][automatic_combinations[i]] = dados_automaticos.copy()
-            
+                    st.session_state["automatic_results"][automatic_combinations[i]] = [perfom_aut_write, fair_aut]
+                    st.session_state["automatic_datasets"][automatic_combinations[i]] = dados_automaticos.copy()
+                except Exception as e:
+                    st.warning(f"Skipping '{automatic_combinations[i]}': {str(e)}")
+                    continue
+
             st.session_state["b4"] = True
             st.session_state["b1"] = False
-    st.session_state.current_model = modelo_automatico
+
+    if modelo_automatico is not None:
+        st.session_state.current_model = modelo_automatico
+    else:
+        st.error("The automatic pipeline could not train any models. Please try the manual pipeline.")
+        st.session_state["automatic"] = False
+    return
+  except Exception as e:
+    st.error(f"An error occurred during the automatic pipeline: {str(e)}")
+    st.session_state["automatic"] = False
     return
 
 
@@ -1922,9 +1959,10 @@ if st.session_state["b1"]:
              
         #if st.button("Load Dataset"):
             with st.spinner("Loading dataset..."):
+              try:
                 df = DataReader.read_data(uploaded_file, delimiter)
                 st.session_state["df"] = df
-                st.session_state["df_original"] = df.copy()  
+                st.session_state["df_original"] = df.copy()
                 if "saved_models" not in st.session_state:
                     st.session_state["saved_models"] = {}
 
@@ -1933,7 +1971,10 @@ if st.session_state["b1"]:
                 st.session_state["current_model"] = None
                 st.session_state["columns_train"] = df.columns.to_list()
                 st.session_state["default_target_column"] = df.columns.tolist()[-1]
-                st.session_state["favorable_classes_target"] = df[st.session_state["default_target_column"]].unique()[1]
+                target_unique = df[st.session_state["default_target_column"]].dropna().unique()
+                if len(target_unique) == 0:
+                    raise ValueError(f"The target column '{st.session_state['default_target_column']}' has no valid values.")
+                st.session_state["favorable_classes_target"] = target_unique[1] if len(target_unique) > 1 else target_unique[0]
                 st.session_state["sensitive_columns"] = [colunas_lower[col] for col in colunas_lower if col in tipical_sensitive_information()]
                 st.session_state["selected_models"] = available_models
                 st.session_state["selected_metrics_fairness"] = available_fairness_metrics
@@ -1952,8 +1993,11 @@ if st.session_state["b1"]:
                 st.session_state["automatic"] = False
                 st.session_state["automatic_results"] = {}
                 if "atual_final_report" not in st.session_state:
-                    st.session_state["atual_final_report"]={} 
+                    st.session_state["atual_final_report"]={}
                     st.session_state["previus_final_report"]={}
+              except Exception as e:
+                st.error(f"Error loading dataset: {str(e)}")
+                enable_cont = False
 
             st.write("### Dataset Preview:")
             st.write(df.head())
@@ -1968,7 +2012,9 @@ if st.session_state["b1"]:
                         df.columns.tolist(), 
                         index=len(df.columns) - 1
                     )
-                    st.session_state["favorable_classes_target"] = st.selectbox("Enter the privileged category:",st.session_state["df"][st.session_state["default_target_column"]].unique().tolist(), index =1, key="favorable_classes")
+                    _target_unique_list = st.session_state["df"][st.session_state["default_target_column"]].unique().tolist()
+                    _fav_index = 1 if len(_target_unique_list) > 1 else 0
+                    st.session_state["favorable_classes_target"] = st.selectbox("Enter the privileged category:", _target_unique_list, index=_fav_index, key="favorable_classes")
                     colunas_lower = {col.lower(): col for col in df.columns}
                     default_sensitive_columns = [colunas_lower[col] for col in colunas_lower if col in tipical_sensitive_information()]
 
@@ -1995,9 +2041,13 @@ if st.session_state["b1"]:
         delimiter = None
     
     if prediction_dataset_raw:
+      try:
         prediction_dataset = DataReader.read_data(prediction_dataset_raw, delimiter)
         st.sidebar.markdown("""<h2>Test Model</h2>""", unsafe_allow_html=True)
         st.write(prediction_dataset.head())
+      except Exception as e:
+        st.error(f"Error reading prediction dataset: {str(e)}")
+        prediction_dataset = None
     with st.sidebar.expander("", expanded=False):
         # 📂 Upload dataset
         if prediction_dataset is not None:
@@ -2024,18 +2074,24 @@ if st.session_state["b1"]:
                         TestModel_priveledge.append(st.selectbox("Enter the priveleged class of "+col, prediction_dataset[col].unique().tolist()))
 
     if prediction_dataset is not None and st.button("Check Fairness"):
-        with st.spinner("Calculating fairness metrics..."):
-            dicio_all_fair = experiment_fairness(
-                predictions=prediction_dataset.iloc[:, -1].to_numpy(),
-                name="",
-                sensitive_columns=TestModel_sens,
-                target=TestModel_target,
-                positive_target=TestModel_target_positive,
-                selected_fairness=available_fairness_metrics,
-                test_dataset=prediction_dataset
-            )
-            aux_func.show_fairness_test_model(dicio_all_fair)
-        st.success("Fairness check completed.")
+        if len(prediction_dataset.columns) < 3:
+            st.error("The dataset must have at least 3 columns (features, target, and predictions).")
+        else:
+          try:
+            with st.spinner("Calculating fairness metrics..."):
+                dicio_all_fair = experiment_fairness(
+                    predictions=prediction_dataset.iloc[:, -1].to_numpy(),
+                    name="",
+                    sensitive_columns=TestModel_sens,
+                    target=TestModel_target,
+                    positive_target=TestModel_target_positive,
+                    selected_fairness=available_fairness_metrics,
+                    test_dataset=prediction_dataset
+                )
+                aux_func.show_fairness_test_model(dicio_all_fair)
+            st.success("Fairness check completed.")
+          except Exception as e:
+            st.error(f"Error calculating fairness metrics: {str(e)}")
 
     if "df" in st.session_state and not shown:
         st.write("### Dataset Preview:")
@@ -2058,18 +2114,27 @@ elif st.session_state["b2"]:
     #   Valores selecionados pelo user
         default_sensitive_columns, numeric_strategy, custom_value, categorical_strategy, custom_value_cat, use_knn, use_iterative, use_rf, resampling_method, clusters, sensitive_synt, group_synt, number_synt, include_columns, sensitive_change, group_change, number_change, protected_attribute_name_reweigh, privileged_classes_reweigh, protected_attribute_name_lfr, privileged_classes_lfr = aux_func.display_categorys(st.session_state["df"])
 
-        priveleged_classes = st.session_state["priveleged_classes"]
-        favorable_classes_target = st.session_state["favorable_classes_target"]
-        default_target_column = st.session_state["default_target_column"]
-        sensitive_columns = st.session_state["sensitive_columns"]
-        selected_models = st.session_state["selected_models"]
+        priveleged_classes = st.session_state.get("priveleged_classes", [])
+        favorable_classes_target = st.session_state.get("favorable_classes_target", None)
+        default_target_column = st.session_state.get("default_target_column", st.session_state["df"].columns.tolist()[-1] if len(st.session_state["df"].columns) > 0 else None)
+        sensitive_columns = st.session_state.get("sensitive_columns", [])
+        selected_models = st.session_state.get("selected_models", [])
         selected_metrics_fairness = st.session_state["selected_metrics_fairness"]
         st.subheader("Bias Analysis")
         if st.button("Check Bias"):
-            dataset_bias_metrics(st.session_state["df"],sensitive_columns,priveleged_classes,default_target_column ,favorable_classes_target)
+          if not sensitive_columns:
+            st.error("Please select at least one sensitive attribute before checking bias.")
+          elif len(priveleged_classes) != len(sensitive_columns):
+            st.error("Please select a privileged class for each sensitive attribute.")
+          else:
+            try:
+                dataset_bias_metrics(st.session_state["df"],sensitive_columns,priveleged_classes,default_target_column ,favorable_classes_target)
+            except Exception as e:
+                st.error(f"Error analyzing bias: {str(e)}")
             
         st.subheader("Missing Data Handling")
         if st.button("Check Missing Values"):
+          try:
             with st.spinner("Checking for missing values..."):
                 missing_data = DataAnalyzer.check_missing_values(st.session_state["df"], file_path=missing_values_report_file)
             st.text(missing_data)
@@ -2079,8 +2144,11 @@ elif st.session_state["b2"]:
             missing_info_str = "".join(aux_info)
             st.session_state["final_report"]["dataset_car"].append(missing_info_str)
             st.success("Missing values report saved!")
+          except Exception as e:
+            st.error(f"Error checking missing values: {str(e)}")
 
         if st.button("Impute Missing Values"):
+          try:
             with st.spinner("Imputing missing values..."):
                 if "df" in st.session_state:
                     st.session_state["df_previous"] = st.session_state["df"]
@@ -2095,34 +2163,53 @@ elif st.session_state["b2"]:
                 )
                 st.session_state["changes"].append("Imputed missing values with: " + method)
             st.success("Missing values imputed!")
+          except Exception as e:
+            st.error(f"Error imputing missing values: {str(e)}")
 
         st.subheader("Class Imbalance Handling")
         if st.button("Analyze Imbalance"):
-            with st.spinner("Running class imbalance analysis..."):
-                report = DataAnalyzer.analyze_multiple_targets(st.session_state["df"], sensitive_columns, threshold=0.05, file_path=imbalance_report_file)
-                st.session_state["final_report"]["dataset_car"].append(aux_func.display_class_distribution(report))
-            st.success("Imbalance report saved!")
+          if not sensitive_columns:
+            st.error("Please select at least one sensitive attribute before analyzing imbalance.")
+          else:
+            try:
+                with st.spinner("Running class imbalance analysis..."):
+                    report = DataAnalyzer.analyze_multiple_targets(st.session_state["df"], sensitive_columns, threshold=0.05, file_path=imbalance_report_file)
+                    st.session_state["final_report"]["dataset_car"].append(aux_func.display_class_distribution(report))
+                st.success("Imbalance report saved!")
+            except Exception as e:
+                st.error(f"Error analyzing imbalance: {str(e)}")
 
         if st.button("Resample"):
-            st.session_state["df_previus"] = st.session_state["df"]
-            st.session_state["changes"].append(f"Remsampled with {resampling_method}")
-            with st.spinner(f"Applying {resampling_method}..."):
-                st.session_state["df"] = oversampling(st.session_state["df"], 
-                                                        target_column=default_target_column, 
-                                                        sensitive_columns=sensitive_columns, 
-                                                        method=resampling_method, clusters=clusters)
-            st.success(f"{resampling_method} applied!")
+          if resampling_method == "None":
+            st.warning("Please select a resampling method first.")
+          else:
+            try:
+                st.session_state["df_previus"] = st.session_state["df"]
+                st.session_state["changes"].append(f"Remsampled with {resampling_method}")
+                with st.spinner(f"Applying {resampling_method}..."):
+                    st.session_state["df"] = oversampling(st.session_state["df"],
+                                                            target_column=default_target_column,
+                                                            sensitive_columns=sensitive_columns,
+                                                            method=resampling_method, clusters=clusters)
+                st.success(f"{resampling_method} applied!")
+            except Exception as e:
+                st.session_state["changes"].pop()
+                st.error(f"Error during resampling: {str(e)}")
 
         if st.button("Generate syntetic data"):
+          try:
             st.session_state["df_previus"] = st.session_state["df"]
             st.session_state["changes"].append(f"Generated {number_synt} syntetic data for  {sensitive_synt} -> {group_synt}")
             with st.spinner(f"Generating syntetic data for  {sensitive_synt} -> {group_synt}..."):
-                st.session_state["df"] = augment_minority_group(st.session_state["df"], 
-                                                    target_column=default_target_column, 
-                                                    sensitive_column=sensitive_synt, 
+                st.session_state["df"] = augment_minority_group(st.session_state["df"],
+                                                    target_column=default_target_column,
+                                                    sensitive_column=sensitive_synt,
                                                     group_value = group_synt,
                                                     N = number_synt)
             st.success(f"Generated {number_synt} syntetic  data for  {sensitive_synt} -> {group_synt} applied!")
+          except Exception as e:
+            st.session_state["changes"].pop()
+            st.error(f"Error generating synthetic data: {str(e)}")
 
         st.subheader("Bias & Fairness Preprocessing")
         if st.button("Bliding"):
@@ -2132,37 +2219,49 @@ elif st.session_state["b2"]:
             st.success(f"Blinded attributes:{removed_att} applied!")
 
         if st.button("Massaging"):
+          try:
             st.session_state["df_previus"] = st.session_state["df"]
             st.session_state["changes"].append(f"Changed {number_change} targets from {sensitive_change} with value {group_change}")
             with st.spinner(f"Changing {number_change} targets from {sensitive_change} with value {group_change}..."):
-                st.session_state["df"] = change_labels(st.session_state["df"],target_column=default_target_column, 
-                sensitive_column=sensitive_change, 
+                st.session_state["df"] = change_labels(st.session_state["df"],target_column=default_target_column,
+                sensitive_column=sensitive_change,
                 sensitive_group_to_replace = group_change,
                 N = number_change)
             st.success(f"Changed {number_change} targets from {sensitive_change} with value {group_change}")
+          except Exception as e:
+            st.session_state["changes"].pop()
+            st.error(f"Error applying massaging: {str(e)}")
 
         if st.button("reweigh"):
+          try:
             st.session_state["df_previus"] = st.session_state["df"]
             st.session_state["changes"].append(f"reweigh {protected_attribute_name_reweigh} with privileged group {privileged_classes_reweigh}")
             with st.spinner(f"reweighing {protected_attribute_name_reweigh} with privileged group {privileged_classes_reweigh}..."):
                 st.session_state["instance_weights"] = reweigh(st.session_state["df"],
                 target = default_target_column,
                 favorable_classes = favorable_classes_target,
-                protected_attribute_name  = protected_attribute_name_reweigh, 
+                protected_attribute_name  = protected_attribute_name_reweigh,
                 privileged_classes = privileged_classes_reweigh)
             st.success(f" reweighed {protected_attribute_name_reweigh} with privileged group {privileged_classes_reweigh}")
+          except Exception as e:
+            st.session_state["changes"].pop()
+            st.error(f"Error applying reweigh: {str(e)}")
 
         if st.button("LFR"):
+          try:
             st.session_state["df_previus"] = st.session_state["df"]
             st.session_state["changes"].append(f"LFR {protected_attribute_name_lfr} with privileged group {privileged_classes_lfr}")
             with st.spinner(f"LFR {protected_attribute_name_lfr} with privileged group {privileged_classes_lfr}..."):
                 st.session_state["df"], df_legivel, encoders = Learning_fair_representations(st.session_state["df"],
                 target = default_target_column,
                 favorable_classes = favorable_classes_target,
-                protected_attribute_name  = protected_attribute_name_lfr, 
+                protected_attribute_name  = protected_attribute_name_lfr,
                 privileged_classes = privileged_classes_lfr,
                 drop_columns =  st.session_state["sensitive_columns"].copy())
             st.success(f" LFR {protected_attribute_name_lfr} with privileged group {privileged_classes_lfr}")
+          except Exception as e:
+            st.session_state["changes"].pop()
+            st.error(f"Error applying LFR: {str(e)}")
         dir = """if st.button("DisparateImpactRemover"):
             st.session_state["df_previus"] = st.session_state["df"]
             st.session_state["changes"].append(f"Removing disparate impact from {protected_attribute_name_dir} with privileged group {privileged_classes_dir} using a repair level of {repair_level_dir}")
@@ -2184,7 +2283,7 @@ elif st.session_state["b2"]:
 
 
     else:
-        st.subheader("LMissing the dataset")
+        st.error("No dataset loaded. Please go back to the Upload page and load a dataset first.")
 
 elif st.session_state["b5"]:
     style_b5()
@@ -2194,7 +2293,12 @@ elif st.session_state["b5"]:
     st.session_state["b4"] = False
     st.session_state["b5"] = True
     st.session_state["b6"] = False
-    st.session_state["inprocessing_eta"], st.session_state["inprocessing_sensitive_attr"], st.session_state["inprocessing_models"] = aux_func.inprocessing_categorys(st.session_state["df"])
+    if "df" not in st.session_state:
+        st.error("No dataset loaded. Please go back to the Upload page and load a dataset first.")
+    elif "sensitive_columns" not in st.session_state or not st.session_state["sensitive_columns"]:
+        st.error("No sensitive columns configured. Please go back and configure sensitive attributes.")
+    else:
+      st.session_state["inprocessing_eta"], st.session_state["inprocessing_sensitive_attr"], st.session_state["inprocessing_models"] = aux_func.inprocessing_categorys(st.session_state["df"])
 
     st.write("### Inprocessing Methods")
 
@@ -2278,53 +2382,67 @@ elif st.session_state["b3"]:
     st.session_state["selected_models"], st.session_state["selected_metrics_fairness"] = sidebar() 
     st.subheader("Train Models")
 
-    if st.button("Train Models and Compare Performance & Fairness", on_click = enable_sec): 
-        st.session_state["enable_sec"] = True
-        if st.session_state["atual_final_report"] == {}:
-            st.session_state["atual_final_report"] = deepcopy(st.session_state["final_report"])
-              
+    if st.button("Train Models and Compare Performance & Fairness", on_click = enable_sec):
+      if "df" not in st.session_state:
+        st.error("No dataset loaded. Please go back to the Upload page first.")
+      elif not st.session_state.get("selected_models"):
+        st.error("Please select at least one model to train.")
+      elif not st.session_state.get("sensitive_columns"):
+        st.error("Please configure sensitive attributes before training.")
+      else:
+        try:
+            st.session_state["enable_sec"] = True
+            if st.session_state["atual_final_report"] == {}:
+                st.session_state["atual_final_report"] = deepcopy(st.session_state["final_report"])
+
+            else:
+                st.session_state["previus_final_report"] = deepcopy(st.session_state["atual_final_report"])
+                st.session_state["atual_final_report"] = deepcopy(st.session_state["final_report"])
+
+            if "report_after_performance" not in st.session_state or st.session_state["report_after_performance"] == None:
+                st.session_state["accuracy_atual"] = None
+                st.session_state["accuracy_anterior"] = None
+                st.session_state["report_after_performance"] = None
+
+                fair_atual = None
+                fair_anterior = None
+                st.session_state["report_after_fairness"] = None
+
+            else:
+                st.session_state["report_before_performance"] = st.session_state["report_after_performance"]
+                st.session_state["accuracy_anterior"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_after_performance"]), orient="index", columns=["Accuracy"])
+
+                st.session_state["report_before_fairness"] = st.session_state["report_after_fairness"]
+
+            with st.spinner("Training models on corrected data..."):
+
+                trainer_after = ModelTrainer(st.session_state["df"], st.session_state["default_target_column"], st.session_state["sensitive_columns"], test_size=0.3, random_state=42, selected_models=st.session_state["selected_models"], train_columns = st.session_state["columns_train"], favorable_classes_target =  st.session_state["favorable_classes_target"], sample_weight = st.session_state["instance_weights"])
+
+                trainer_after.fairness_method = st.session_state.get("inprocessing_method")
+                trainer_after.fairness_params = st.session_state.get("inprocessing_params")
+                trainer_after.sensitive_attr = st.session_state.get("inprocessing_sensitive_attr")
+                trainer_after.inprocessing_models = st.session_state.get("inprocessing_models")
+
+                st.session_state["current_model"] = trainer_after
+
+                st.session_state["report_after_performance"], st.session_state["report_after_fairness"]  = trainer_after.train_and_evaluate(selected_fairness=st.session_state["selected_metrics_fairness"], file_path = model_report_file, fairness_file_path = fairness_report_file)
+                st.session_state["accuracy_atual"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_after_performance"]), orient="index", columns=["Accuracy"])
+
+                trainer_orig = ModelTrainer(st.session_state["df_original"], st.session_state["default_target_column"], st.session_state["sensitive_columns"], test_size=0.3, random_state=42, selected_models=st.session_state["selected_models"], train_columns = st.session_state["df_original"].columns.to_list(), favorable_classes_target = st.session_state["favorable_classes_target"])
+                trainer_orig.fairness_method = None
+                st.session_state["report_orig_performance"], st.session_state["report_orig_fairness"]  = trainer_orig.train_and_evaluate(selected_fairness=st.session_state["selected_metrics_fairness"], file_path = model_report_file, fairness_file_path = fairness_report_file)
+                st.session_state["accuracy_orig"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_orig_performance"]), orient="index", columns=["Accuracy"])
+
+
+            st.success("Models trained on both datasets! Comparing results...")
+        except Exception as e:
+            st.error(f"Error during model training: {str(e)}")
+    if st.button("Save current Model"):
+        if st.session_state.get("current_model") is None:
+            st.error("No model has been trained yet. Please train a model first.")
         else:
-            st.session_state["previus_final_report"] = deepcopy(st.session_state["atual_final_report"])
-            st.session_state["atual_final_report"] = deepcopy(st.session_state["final_report"])
-
-        if "report_after_performance" not in st.session_state or st.session_state["report_after_performance"] == None:
-            st.session_state["accuracy_atual"] = None
-            st.session_state["accuracy_anterior"] = None
-            st.session_state["report_after_performance"] = None
-
-            fair_atual = None
-            fair_anterior = None
-            st.session_state["report_after_fairness"] = None
-            
-        else:
-            st.session_state["report_before_performance"] = st.session_state["report_after_performance"]
-            st.session_state["accuracy_anterior"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_after_performance"]), orient="index", columns=["Accuracy"])
-
-            st.session_state["report_before_fairness"] = st.session_state["report_after_fairness"]
-
-        with st.spinner("Training models on corrected data..."):
-            
-            trainer_after = ModelTrainer(st.session_state["df"], st.session_state["default_target_column"], st.session_state["sensitive_columns"], test_size=0.3, random_state=42, selected_models=st.session_state["selected_models"], train_columns = st.session_state["columns_train"], favorable_classes_target =  st.session_state["favorable_classes_target"], sample_weight = st.session_state["instance_weights"])
-
-            trainer_after.fairness_method = st.session_state["inprocessing_method"]
-            trainer_after.fairness_params = st.session_state["inprocessing_params"]
-            trainer_after.sensitive_attr = st.session_state["inprocessing_sensitive_attr"]
-            trainer_after.inprocessing_models = st.session_state["inprocessing_models"]
-
-            st.session_state["current_model"] = trainer_after
-            
-            st.session_state["report_after_performance"], st.session_state["report_after_fairness"]  = trainer_after.train_and_evaluate(selected_fairness=st.session_state["selected_metrics_fairness"], file_path = model_report_file, fairness_file_path = fairness_report_file)
-            st.session_state["accuracy_atual"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_after_performance"]), orient="index", columns=["Accuracy"])
-
-            trainer_orig = ModelTrainer(st.session_state["df_original"], st.session_state["default_target_column"], st.session_state["sensitive_columns"], test_size=0.3, random_state=42, selected_models=st.session_state["selected_models"], train_columns = st.session_state["df_original"].columns.to_list(), favorable_classes_target = st.session_state["favorable_classes_target"])
-            trainer_orig.fairness_method = None
-            st.session_state["report_orig_performance"], st.session_state["report_orig_fairness"]  = trainer_orig.train_and_evaluate(selected_fairness=st.session_state["selected_metrics_fairness"], file_path = model_report_file, fairness_file_path = fairness_report_file)
-            st.session_state["accuracy_orig"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_orig_performance"]), orient="index", columns=["Accuracy"])
-            
-        
-        st.success("Models trained on both datasets! Comparing results...")
-    if st.button("Save current Model"): 
-        st.session_state["saved_models"]["_".join(st.session_state["changes"])] = st.session_state["current_model"]
+            st.session_state["saved_models"]["_".join(st.session_state.get("changes", []))] = st.session_state["current_model"]
+            st.success("Model saved!")
     
     st.button("Continue",  key='continue0',on_click = b3 , disabled= not st.session_state["enable_sec"])
 
@@ -2336,8 +2454,17 @@ elif st.session_state["b6"]:
     st.session_state["b4"] = False
     st.session_state["b5"] = False
     st.session_state["b6"] = True
-    sensitive_post, priveledge_post = aux_func.postProcessing_caracteristics(st.session_state["df"])
+    sensitive_post = None
+    priveledge_post = None
+    if "df" not in st.session_state:
+        st.error("No dataset loaded. Please go back to the Upload page first.")
+    elif st.session_state.get("current_model") is None:
+        st.error("No model has been trained yet. Please train a model before applying post-processing.")
+    else:
+      sensitive_post, priveledge_post = aux_func.postProcessing_caracteristics(st.session_state["df"])
     st.write("### PostProcessing Methods")
+    if "atual_final_report" not in st.session_state:
+        st.session_state["atual_final_report"] = {}
     if "postprocessing" not in st.session_state["atual_final_report"]:
         st.session_state["atual_final_report"]["postprocessing"] = "None"
     
@@ -2367,32 +2494,53 @@ elif st.session_state["b6"]:
         st.success("Using Reject Option Classification")
         st.session_state["atual_final_report"]["postprocessing"] = "Reject Option Classification"
 
-    if st.session_state["postprocessing_method"] != None:
-        dicio_all_fair = {}
-        report_lines = ["===== Model Training & Evaluation Report ====="]
-        for model in st.session_state["selected_models"]:
-            if model == "SVM" and st.session_state["postprocessing_method"] == "Threshold Optimizer":
-                continue
-            new_pred = postProcessing(st.session_state["postprocessing_method"], st.session_state["current_model"].predictions[model], st.session_state["current_model"].df_test, st.session_state["current_model"].models[model], sensitive_post, priveledge_post, st.session_state["default_target_column"])
-            
-            dicio_all_fair[model] = experiment_fairness(
-                        predictions=new_pred,
-                        name=model,
-                        sensitive_columns=st.session_state["sensitive_columns"],
-                        target=st.session_state["default_target_column"],
-                        positive_target=st.session_state["favorable_classes_target"],
-                        selected_fairness=available_fairness_metrics,
-                        test_dataset=st.session_state["current_model"].df_test
-                    )
-            accuracy = accuracy_score(st.session_state["current_model"].y_test, new_pred)
+    if st.session_state.get("postprocessing_method") is not None:
+      if st.session_state.get("current_model") is None:
+        st.error("No model has been trained yet. Please train a model before applying post-processing.")
+      elif sensitive_post is None or priveledge_post is None:
+        st.error("Please configure the sensitive attribute and privileged group for post-processing.")
+      else:
+        try:
+            dicio_all_fair = {}
+            report_lines = ["===== Model Training & Evaluation Report ====="]
+            for model in st.session_state["selected_models"]:
+                if model == "SVM" and st.session_state["postprocessing_method"] == "Threshold Optimizer":
+                    continue
+                if model not in st.session_state["current_model"].predictions:
+                    st.warning(f"Skipping '{model}': no predictions available. Was it trained?")
+                    continue
+                if model not in st.session_state["current_model"].models:
+                    st.warning(f"Skipping '{model}': model not found.")
+                    continue
+                try:
+                    new_pred = postProcessing(st.session_state["postprocessing_method"], st.session_state["current_model"].predictions[model], st.session_state["current_model"].df_test, st.session_state["current_model"].models[model], sensitive_post, priveledge_post, st.session_state["default_target_column"])
 
-            classification_rep = classification_report(st.session_state["current_model"].y_test, new_pred)
-            result = f"\n{model} - Accuracy: {accuracy:.4f}\n{classification_rep}"
-            report_lines.append(result)
-        st.session_state["report_after_fairness"] = dicio_all_fair
+                    dicio_all_fair[model] = experiment_fairness(
+                                predictions=new_pred,
+                                name=model,
+                                sensitive_columns=st.session_state["sensitive_columns"],
+                                target=st.session_state["default_target_column"],
+                                positive_target=st.session_state["favorable_classes_target"],
+                                selected_fairness=available_fairness_metrics,
+                                test_dataset=st.session_state["current_model"].df_test
+                            )
+                    accuracy = accuracy_score(st.session_state["current_model"].y_test, new_pred)
 
-        st.session_state["report_after_performance"] = "\n".join(report_lines)
-        st.session_state["accuracy_atual"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_after_performance"]), orient="index", columns=["Accuracy"])
+                    classification_rep = classification_report(st.session_state["current_model"].y_test, new_pred)
+                    result = f"\n{model} - Accuracy: {accuracy:.4f}\n{classification_rep}"
+                    report_lines.append(result)
+                except Exception as e:
+                    st.warning(f"Post-processing failed for '{model}': {str(e)}")
+                    continue
+
+            if dicio_all_fair:
+                st.session_state["report_after_fairness"] = dicio_all_fair
+                st.session_state["report_after_performance"] = "\n".join(report_lines)
+                st.session_state["accuracy_atual"] = pd.DataFrame.from_dict(aux_func.extract_metrics(st.session_state["report_after_performance"]), orient="index", columns=["Accuracy"])
+            else:
+                st.error("Post-processing could not be applied to any model.")
+        except Exception as e:
+            st.error(f"Error during post-processing: {str(e)}")
     st.button("Continue",  key='continue0',on_click = b4, disabled= not st.session_state["enable_sec"])
 
 
@@ -2404,14 +2552,19 @@ elif st.session_state["b4"]:
     st.session_state["b4"] = True
     st.session_state["b5"] = False
     st.session_state["b6"] = False
-    if  st.session_state["automatic"]:
+    if  st.session_state.get("automatic"):
+      if not st.session_state.get("automatic_results"):
+        st.warning("No automatic results available. The automatic pipeline may not have completed successfully.")
+      else:
         st.subheader("\n\n\n Accuracy")
         x_labels = []
         performance_values = []
         for key, value in st.session_state["automatic_results"].items():
-            perfom_aut_write, fair_aut = value  
+            if not isinstance(value, (list, tuple)) or len(value) < 2:
+                continue
+            perfom_aut_write, fair_aut = value
             x_labels.append(key)
-            performance = perfom_aut_write["Accuracy"].mean()  
+            performance = perfom_aut_write["Accuracy"].mean()
             performance_values.append(performance)
 
         fig = plt.figure(figsize=(10, 6))
@@ -2423,13 +2576,13 @@ elif st.session_state["b4"]:
         plt.tight_layout()
         plt.show()
         st.pyplot(fig)
-        selected_measures = st.session_state["selected_metrics_fairness"]
+        selected_measures = st.session_state.get("selected_metrics_fairness", [])
         num_measures = len(selected_measures)
         cols = 3
-        rows = math.ceil(num_measures / cols)
+        rows = max(1, math.ceil(num_measures / cols)) if num_measures > 0 else 1
         sensitive_attribute, protected_group, show_fairness = aux_func.automatic_fairness(st.session_state["df"])
-        
-        if show_fairness:
+
+        if show_fairness and num_measures > 0:
 
             max_fairness_value = compute_max_fairness_value(
                 st.session_state["automatic_results"],
@@ -2440,7 +2593,7 @@ elif st.session_state["b4"]:
             st.markdown('<div style="margin-bottom: 50px;">', unsafe_allow_html=True)
             st.subheader("\n\n\n Fairness")
             fig, axs = plt.subplots(rows, cols, figsize=(6 * cols, 4 * rows))
-            axs = axs.flatten()
+            axs = np.atleast_1d(axs).flatten()
 
             for i, fairness_measure in enumerate(selected_measures):
                 ax = axs[i]
@@ -2461,28 +2614,33 @@ elif st.session_state["b4"]:
             st.pyplot(fig)
   
     else:
-        if st.session_state["previus_final_report"] == {}:
+        if st.session_state.get("previus_final_report", {}) == {}:
             st.subheader("Current:")
-            aux_func.display_final_report(st.session_state["atual_final_report"])
+            if st.session_state.get("atual_final_report"):
+                aux_func.display_final_report(st.session_state["atual_final_report"])
         else:
             st.subheader("Previus:")
             aux_func.display_final_report(st.session_state["previus_final_report"])
             st.subheader("Current:")
-            aux_func.display_final_report(st.session_state["atual_final_report"])
+            if st.session_state.get("atual_final_report"):
+                aux_func.display_final_report(st.session_state["atual_final_report"])
         sensitive_attribute, protected_group, show_fairness, sensitive_attribute_scatter, protected_group_scatter, selected_metric_1_scatter, selected_metric_2_scatter, show_scatter = aux_func.ola (1)
        
         #------------------------------------------------Graficos
-        if "report_after_performance"  in st.session_state:
+        if "report_after_performance"  in st.session_state and st.session_state.get("accuracy_atual") is not None and st.session_state.get("accuracy_orig") is not None:
+          try:
             st.subheader("\n\n\n Accuracy")
             st.pyplot(aux_func.show_plots(len(st.session_state["selected_models"]),st.session_state["accuracy_anterior"], st.session_state["accuracy_atual"],st.session_state["accuracy_orig"] , "Accuracy" ))
+          except Exception as e:
+            st.error(f"Error displaying accuracy plot: {str(e)}")
         #-----------------------------------------------------Fairness
           
             if show_fairness:
                 st.subheader("\n\n\n Fairness")
-                selected_measures = st.session_state["selected_metrics_fairness"]
+                selected_measures = st.session_state.get("selected_metrics_fairness", [])
                 num_measures = len(selected_measures)
                 cols = 3
-                rows = math.ceil(num_measures / cols)
+                rows = max(1, math.ceil(num_measures / cols)) if num_measures > 0 else 1
                 max_fairness_value = 0
 
                 for fairness_measure in selected_measures:
@@ -2514,11 +2672,11 @@ elif st.session_state["b4"]:
                                         max_fairness_value = max(max_fairness_value, abs(value))
 
                 fig, axs = plt.subplots(rows, cols, figsize=(6 * cols, 4 * rows))
-                axs = axs.flatten()
+                axs = np.atleast_1d(axs).flatten()
 
                 for i, fairness_measure in enumerate(selected_measures):
                     ax = axs[i]
-                    
+
                     aux_func.show_plots_fairness(
                         st.session_state.get("report_before_fairness", {}),
                         st.session_state.get("report_after_fairness", {}),
@@ -2575,13 +2733,21 @@ elif st.session_state["b4"]:
     def sidebar_model_download():
         st.sidebar.markdown("""<h2>Model Download</h2>""", unsafe_allow_html=True)
         with st.sidebar.expander(" ", expanded=False):
-            model_name = st.selectbox("Model Name:", st.session_state.current_model.models.keys())
+            if st.session_state.get("current_model") is not None and hasattr(st.session_state.current_model, 'models') and st.session_state.current_model.models:
+                model_name = st.selectbox("Model Name:", st.session_state.current_model.models.keys())
+            else:
+                st.info("No trained models available.")
+                model_name = None
         return model_name
 
     def sidebar_dataframe():
         st.sidebar.markdown("""<h2>Dataset Download</h2>""", unsafe_allow_html=True)
         with st.sidebar.expander(" ", expanded=False):
-            data_name = st.selectbox("Dataset Name:", st.session_state["automatic_datasets"].keys())
+            if st.session_state.get("automatic_datasets"):
+                data_name = st.selectbox("Dataset Name:", st.session_state["automatic_datasets"].keys())
+            else:
+                st.info("No datasets available.")
+                data_name = None
         return data_name
 
 
@@ -2627,18 +2793,22 @@ elif st.session_state["b4"]:
 
     st.subheader("Dataset Downloads")
 
-    if st.session_state["automatic"]:
-        data = st.session_state["automatic_datasets"][sidebar_dataframe()]
-        download_dataframe(data, filename="data.csv")
-    else:
+    if st.session_state.get("automatic"):
+        data_name = sidebar_dataframe()
+        if data_name is not None:
+            data = st.session_state["automatic_datasets"][data_name]
+            download_dataframe(data, filename="data.csv")
+    elif "df" in st.session_state:
         download_dataframe(st.session_state.df, filename="data.csv")
-    if "current_model" in st.session_state:
+    else:
+        st.warning("No dataset available for download.")
+
+    if st.session_state.get("current_model") is not None:
         model_name = sidebar_model_download()
-        model = st.session_state.current_model.models[model_name]
-
-
-        st.subheader(f"Model: {model_name}")
-        download_model(model, filename=f"{model_name.replace(' ', '_').lower()}.pkl")
+        if model_name is not None and model_name in st.session_state.current_model.models:
+            model = st.session_state.current_model.models[model_name]
+            st.subheader(f"Model: {model_name}")
+            download_model(model, filename=f"{model_name.replace(' ', '_').lower()}.pkl")
     else:
         st.warning("Train a model first to enable downloads.")
 

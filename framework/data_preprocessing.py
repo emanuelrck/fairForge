@@ -35,15 +35,25 @@ from aif360.datasets import StandardDataset
 from aif360.metrics import BinaryLabelDatasetMetric
 
 def dataset_bias_metrics(data, sensitive_attr, privileged_classes, target_name, favorable_target ):
+    if not sensitive_attr or not privileged_classes:
+        raise ValueError("Sensitive attributes and privileged classes must not be empty.")
+    if len(sensitive_attr) != len(privileged_classes):
+        raise ValueError("Sensitive attributes and privileged classes must have the same length.")
+
     results = {}
     df = data.copy()
+    privileged_classes = list(privileged_classes)
     label_encoders = {}
 
     for col in range(len(sensitive_attr)):
+        if sensitive_attr[col] not in df.columns:
+            raise ValueError(f"Column '{sensitive_attr[col]}' not found in the dataset.")
         if len(df[sensitive_attr[col]].unique()) > 2:
             df[sensitive_attr[col]] = df[sensitive_attr[col]].apply(lambda x: str(x) if x == privileged_classes[col] else f"not_{privileged_classes[col]}")
             privileged_classes[col] = str(privileged_classes[col])
         df[sensitive_attr[col]] = df[sensitive_attr[col]].astype('object')
+    if target_name not in df.columns:
+        raise ValueError(f"Target column '{target_name}' not found in the dataset.")
     df[target_name] = df[target_name].astype('object')
     
     for col in df.select_dtypes(include='object').columns:
@@ -77,7 +87,10 @@ def dataset_bias_metrics(data, sensitive_attr, privileged_classes, target_name, 
 
 
 def detectar_bias(metrica, valor):
-    v = valor[0] if isinstance(valor, np.ndarray) else float(valor)
+    if isinstance(valor, np.ndarray):
+        v = valor[0] if len(valor) > 0 else 0.0
+    else:
+        v = float(valor)
     if metrica in ["Statistical Parity Difference", "Mean Difference"]:
         return "Bias Detected" if abs(v) > 0.1 else "No Bias"
     elif metrica == "Disparate Impact":
@@ -107,7 +120,7 @@ def impute_missing_values(df, numeric_strategy="mean", categorical_strategy="mod
     # Numeric Columns
     numeric_cols = df_imputed.select_dtypes(include=[np.number]).columns
     method += "Numeric: "
-    if numeric_cols.any():
+    if len(numeric_cols) > 0:
         if use_knn:
             imputer_knn = KNNImputer(n_neighbors=5)
             df_imputed[numeric_cols] = imputer_knn.fit_transform(df_imputed[numeric_cols])
@@ -122,6 +135,8 @@ def impute_missing_values(df, numeric_strategy="mean", categorical_strategy="mod
             rf = RandomForestRegressor(n_estimators=100, random_state=0)
             for col in numeric_cols:
                 train_data = df_imputed.dropna(subset=[col])
+                if len(train_data) == 0:
+                    continue
                 X_train = train_data.drop(col, axis=1)
                 y_train = train_data[col]
                 rf.fit(X_train, y_train)
@@ -191,7 +206,10 @@ def oversampling(df, target_column, sensitive_columns, method="None", random_sta
     )
     elif method == "SVM Smote":
         sampler = SVMSMOTE(random_state=0)
-    
+
+    if sampler is None:
+        raise ValueError(f"Unknown resampling method: '{method}'.")
+
     X_resampled, y_resampled = sampler.fit_resample(X, y)
     df_resampled = pd.DataFrame(X_resampled, columns=X.columns)
     df_resampled[target_column] = y_resampled
@@ -229,7 +247,10 @@ def reweigh(df, target, favorable_classes, protected_attribute_name, privileged_
     else:
         value_privileged_classes = privileged_classes
         privileged_groups = [{protected_attribute_name: privileged_classes}]
-        unprivileged_groups = [{protected_attribute_name: next(val for val in df[protected_attribute_name].unique().tolist() if val != value_privileged_classes)}]
+        unprivileged_vals = [val for val in df[protected_attribute_name].unique().tolist() if val != value_privileged_classes]
+        if not unprivileged_vals:
+            raise ValueError(f"All values in '{protected_attribute_name}' are the same as the privileged class.")
+        unprivileged_groups = [{protected_attribute_name: unprivileged_vals[0]}]
     
     if target in label_encoders:
         favorable_classes = label_encoders[target].transform([favorable_classes])[0]
@@ -267,6 +288,8 @@ def Dir(
 ):
     df = df.copy()
     original_df = df.copy()
+    if drop_columns is None:
+        drop_columns = []
     if protected_attribute in drop_columns:
         drop_columns.remove(protected_attribute)
     if drop_columns is not None:
@@ -299,13 +322,20 @@ def Dir(
 
         all_quantiles = []
         for g in groups:
-            all_quantiles.append(np.quantile(df[df[protected_attribute] == g][col], np.linspace(0, 1, 100)))
+            group_vals = df[df[protected_attribute] == g][col]
+            if len(group_vals) == 0:
+                continue
+            all_quantiles.append(np.quantile(group_vals, np.linspace(0, 1, 100)))
+        if len(all_quantiles) == 0:
+            continue
         median_quantile = np.median(np.stack(all_quantiles), axis=0)
         q_levels = np.linspace(0, 1, 100)
 
         for g in groups:
             mask = df[protected_attribute] == g
             vals = df.loc[mask, col].values
+            if len(vals) == 0:
+                continue
             ranks = rankdata(vals, method='average') / len(vals)
             orig_q = np.quantile(vals, ranks)
             interp_vals = np.interp(ranks, q_levels, median_quantile)
@@ -335,10 +365,12 @@ def Learning_fair_representations(
     label_encoders = {}
     original_df = df.copy()
     target_data = original_df[target]
+    if drop_columns is None:
+        drop_columns = []
     if protected_attribute_name in drop_columns:
         drop_columns.remove(protected_attribute_name)
 
-    if drop_columns is not None:
+    if len(drop_columns) > 0:
         dropped_data = df[drop_columns].copy()
         df = df.drop(columns=drop_columns)
     else:
@@ -354,8 +386,10 @@ def Learning_fair_representations(
     else:
         value_privileged_classes = privileged_classes
     privileged_groups = [{protected_attribute_name: value_privileged_classes}]
-    unprivileged_val = next(val for val in df[protected_attribute_name].unique()
-                            if val != value_privileged_classes)
+    unprivileged_vals = [val for val in df[protected_attribute_name].unique() if val != value_privileged_classes]
+    if not unprivileged_vals:
+        raise ValueError(f"All values in '{protected_attribute_name}' are the same as the privileged class. At least two distinct groups are required.")
+    unprivileged_val = unprivileged_vals[0]
     unprivileged_groups = [{protected_attribute_name: unprivileged_val}]
 
     if target in label_encoders:
@@ -382,6 +416,8 @@ def Learning_fair_representations(
     for col in [protected_attribute_name, target]:
         if col in label_encoders and col in df_transf:
             le = label_encoders[col]
+            if len(le.classes_) == 0:
+                continue
             valid_values = df_transf[col].round().astype(int).clip(0, len(le.classes_) - 1)
             df_transf[col] = le.inverse_transform(valid_values)
     df_transf[protected_attribute_name] = original_df[protected_attribute_name]
@@ -412,30 +448,48 @@ def revert_label_encoding(df, label_encoders):
 
 def change_labels(df, target_column, sensitive_column, sensitive_group_to_replace, N=100):
     filtered_df = df[df[sensitive_column] == sensitive_group_to_replace]
+    if len(filtered_df) == 0:
+        raise ValueError(f"No rows found for group '{sensitive_group_to_replace}' in column '{sensitive_column}'.")
     N = min(N, len(filtered_df))
-    label_encoder = LabelEncoder()
-    df[target_column] = label_encoder.fit_transform(df[target_column])  
-    filtered_df[target_column] = label_encoder.transform(filtered_df[target_column])
+    if N == 0:
+        return df
 
-    X = filtered_df.drop(columns=[target_column, sensitive_column]) 
-    y = filtered_df[target_column]  
-    X = pd.get_dummies(X)  
-    
+    label_encoder = LabelEncoder()
+    df[target_column] = label_encoder.fit_transform(df[target_column])
+    filtered_df = df[df[sensitive_column] == sensitive_group_to_replace]
+
+    unique_targets = df[target_column].unique()
+    if len(unique_targets) < 2:
+        df[target_column] = label_encoder.inverse_transform(df[target_column])
+        raise ValueError(f"The target column '{target_column}' must have at least 2 distinct values for label swapping.")
+
+    X = filtered_df.drop(columns=[target_column, sensitive_column])
+    y = filtered_df[target_column]
+    X = pd.get_dummies(X)
+
+    if len(y.unique()) < 2:
+        df[target_column] = label_encoder.inverse_transform(df[target_column])
+        raise ValueError(f"The filtered group only has one target class. Cannot train a classifier for label swapping.")
+
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     model = RandomForestClassifier(random_state=42)
     model.fit(X_train, y_train)
-    probas = model.predict_proba(X)[:, 1]  
-    
+
+    proba_cols = model.predict_proba(X)
+    probas = proba_cols[:, 1] if proba_cols.shape[1] > 1 else proba_cols[:, 0]
+
+    filtered_df = filtered_df.copy()
     filtered_df['prob_target'] = probas
     sorted_df = filtered_df.sort_values(by='prob_target', ascending=False)
     top_n_df = sorted_df.head(N)
     indices_to_replace = top_n_df.index
 
     for indx in indices_to_replace:
-        aux = set(df[target_column])  
-        aux.discard(df.loc[indx, target_column])  
-        df.loc[indx, target_column] = aux.pop()  
-    
+        aux = set(df[target_column])
+        aux.discard(df.loc[indx, target_column])
+        if len(aux) > 0:
+            df.loc[indx, target_column] = aux.pop()
+
     df[target_column] = label_encoder.inverse_transform(df[target_column])
     return df
