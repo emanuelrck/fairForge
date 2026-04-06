@@ -148,6 +148,15 @@ def display_categorys(df):
             "year_of_birth", "religion", "belief", "faith", "spirituality", "religious_affiliation", "sex9", "marital", "marital_status"
         }
 
+    target_col = st.session_state.get("default_target_column", df.columns.tolist()[-1] if len(df.columns) > 0 else None)
+    sensitive_cols = st.session_state.get("sensitive_columns", [])
+
+    # Columns that are not the target or sensitive — candidates for blinding
+    blinding_candidates = [c for c in df.columns.tolist() if c != target_col and c not in sensitive_cols]
+
+    # Columns available for fairness operations (all except target)
+    fairness_column_options = [c for c in df.columns.tolist() if c != target_col]
+
     #--------------------------------------------------------------------correçoes de data
     st.sidebar.markdown("""<h2>Missing Data</h2>""", unsafe_allow_html=True)
     with st.sidebar.expander("", expanded=False):
@@ -156,57 +165,75 @@ def display_categorys(df):
                 "Choose numeric imputation strategy",
                 ["mean", "median", "most_frequent", "constant"]
             )
-            
+
             custom_value = None
             if numeric_strategy == "constant":
                 custom_value = st.number_input("Enter constant value", value=0)
-            
+
             categorical_strategy = st.selectbox(
                 "Choose categorical imputation strategy",
                 ["mode", "constant", "unknown"]
             )
-            
+
             custom_value_cat = None
             if categorical_strategy == "constant":
                 custom_value_cat = st.text_input("Enter constant value for categorical", value="Unknown")
-            
+
             use_knn = st.checkbox("Use KNN Imputation (K-Nearest Neighbors)", False)
             use_iterative = st.checkbox("Use Iterative Imputation (MICE)", False)
             use_rf = st.checkbox("Use Random Forest Imputation", False)
-        
+
     st.sidebar.markdown("""<h2>Data Correction Options</h2>""", unsafe_allow_html=True)
     with st.sidebar.expander("", expanded=False):
         tab3, tab4, tab5,tab6 = st.tabs([ "Bliding", "Massaging", "Reweigh","LFR" ,])
-                                
+
         with tab3:
             include_columns = st.multiselect(
-            "Select columns to be included during the training phase:", 
-            df.columns.tolist(), 
-            default= df.columns.tolist()
+            "Select columns to exclude from training (sensitive and target are always included):",
+            blinding_candidates,
+            default=blinding_candidates
         )
+            # Always include target and sensitive columns
+            include_columns = include_columns + sensitive_cols + ([target_col] if target_col else [])
         with tab4:
-            sensitive_change = st.selectbox(
-            "Enter the sensitive attribute to change target value", 
-            df.columns.tolist(), 
-            index=0)
-            group_change = st.selectbox("Enter the category to chage target value:", st.session_state["df"][sensitive_change].unique().tolist(), key="category")
-            number_change = st.number_input("Enter the amount of instaces to change", value=100)
-    
+            if not fairness_column_options:
+                st.warning("No sensitive attributes configured.")
+                sensitive_change = None
+                group_change = None
+                number_change = 0
+            else:
+                sensitive_change = st.selectbox(
+                "Choose the sensitive attribute to change target value",
+                fairness_column_options,
+                index=0)
+                group_change = st.selectbox("Choose the category to change target value:", st.session_state["df"][sensitive_change].unique().tolist(), key="category")
+                number_change = st.number_input("Enter the amount of instances to change", value=100)
+
         with tab5:
-            protected_attribute_name_reweigh = st.selectbox(
-            "Enter the sensitive attribute to reweigh", 
-            df.columns.tolist(), 
-            index=0)
-            privileged_classes_reweigh = st.selectbox("Enter the privileged category:", st.session_state["df"][protected_attribute_name_reweigh].unique().tolist(), key="privileged category")
-        
+            if not fairness_column_options:
+                st.warning("No sensitive attributes configured.")
+                protected_attribute_name_reweigh = None
+                privileged_classes_reweigh = None
+            else:
+                protected_attribute_name_reweigh = st.selectbox(
+                "Choose the sensitive attribute to reweigh",
+                fairness_column_options,
+                index=0)
+                privileged_classes_reweigh = st.selectbox("Choose the privileged category:", st.session_state["df"][protected_attribute_name_reweigh].unique().tolist(), key="privileged category")
+
         with tab6:
-            protected_attribute_name_lfr = st.selectbox(
-            "Enter the sensitive attribute to LFR", 
-            df.columns.tolist(), 
-            index=0)
-            privileged_classes_lfr = st.selectbox("Enter the privileged category:", st.session_state["df"][protected_attribute_name_lfr].unique().tolist(), key="privileged category lfr")
-        
-        
+            if not fairness_column_options:
+                st.warning("No sensitive attributes configured.")
+                protected_attribute_name_lfr = None
+                privileged_classes_lfr = None
+            else:
+                protected_attribute_name_lfr = st.selectbox(
+                "Choose the sensitive attribute for LFR",
+                fairness_column_options,
+                index=0)
+                privileged_classes_lfr = st.selectbox("Choose the privileged category:", st.session_state["df"][protected_attribute_name_lfr].unique().tolist(), key="privileged category lfr")
+
+
     st.sidebar.markdown("""<h2>Data Resampling methods</h2>""", unsafe_allow_html=True)
     with st.sidebar.expander(""):
         tabr1, tabr2 = st.tabs([ "Resampling methods","Synthetic Data"])
@@ -218,13 +245,19 @@ def display_categorys(df):
             if resampling_method == "Kmeans Smote":
                 clusters = st.number_input("Enter number of clusters: ", value=10)
         with tabr2:
-            sensitive_synt = st.selectbox(
-            "Enter the sensitive attribute to generate syntetic samples", 
-            df.columns.tolist(), 
-            index=0)
-            group_synt = st.selectbox("Enter the Unrepresented category:", st.session_state["df"][sensitive_synt].unique().tolist(), key="Unrepresented category")
-            number_synt = st.number_input("Enter constant value", value=100)
-               
+            if not fairness_column_options:
+                st.warning("No sensitive attributes configured.")
+                sensitive_synt = None
+                group_synt = None
+                number_synt = 0
+            else:
+                sensitive_synt = st.selectbox(
+                "Choose the sensitive attribute to generate synthetic samples",
+                fairness_column_options,
+                index=0)
+                group_synt = st.selectbox("Choose the underrepresented category:", st.session_state["df"][sensitive_synt].unique().tolist(), key="Unrepresented category")
+                number_synt = st.number_input("Number of samples to generate", value=100)
+
     colunas_lower = {col.lower(): col for col in df.columns}
     default_sensitive_columns = [colunas_lower[col] for col in colunas_lower if col in tipical_sensitive_information]
 

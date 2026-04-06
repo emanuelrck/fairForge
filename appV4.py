@@ -2197,19 +2197,22 @@ elif st.session_state["b2"]:
                 st.error(f"Error during resampling: {str(e)}")
 
         if st.button("Generate syntetic data"):
-          try:
-            st.session_state["df_previus"] = st.session_state["df"]
-            st.session_state["changes"].append(f"Generated {number_synt} syntetic data for  {sensitive_synt} -> {group_synt}")
-            with st.spinner(f"Generating syntetic data for  {sensitive_synt} -> {group_synt}..."):
-                st.session_state["df"] = augment_minority_group(st.session_state["df"],
-                                                    target_column=default_target_column,
-                                                    sensitive_column=sensitive_synt,
-                                                    group_value = group_synt,
-                                                    N = number_synt)
-            st.success(f"Generated {number_synt} syntetic  data for  {sensitive_synt} -> {group_synt} applied!")
-          except Exception as e:
-            st.session_state["changes"].pop()
-            st.error(f"Error generating synthetic data: {str(e)}")
+          if sensitive_synt is None:
+            st.error("Please configure sensitive attributes first.")
+          else:
+            try:
+                st.session_state["df_previus"] = st.session_state["df"]
+                st.session_state["changes"].append(f"Generated {number_synt} syntetic data for  {sensitive_synt} -> {group_synt}")
+                with st.spinner(f"Generating syntetic data for  {sensitive_synt} -> {group_synt}..."):
+                    st.session_state["df"] = augment_minority_group(st.session_state["df"],
+                                                        target_column=default_target_column,
+                                                        sensitive_column=sensitive_synt,
+                                                        group_value = group_synt,
+                                                        N = number_synt)
+                st.success(f"Generated {number_synt} syntetic  data for  {sensitive_synt} -> {group_synt} applied!")
+            except Exception as e:
+                st.session_state["changes"].pop()
+                st.error(f"Error generating synthetic data: {str(e)}")
 
         st.subheader("Bias & Fairness Preprocessing")
         if st.button("Bliding"):
@@ -2219,49 +2222,58 @@ elif st.session_state["b2"]:
             st.success(f"Blinded attributes:{removed_att} applied!")
 
         if st.button("Massaging"):
-          try:
-            st.session_state["df_previus"] = st.session_state["df"]
-            st.session_state["changes"].append(f"Changed {number_change} targets from {sensitive_change} with value {group_change}")
-            with st.spinner(f"Changing {number_change} targets from {sensitive_change} with value {group_change}..."):
-                st.session_state["df"] = change_labels(st.session_state["df"],target_column=default_target_column,
-                sensitive_column=sensitive_change,
-                sensitive_group_to_replace = group_change,
-                N = number_change)
-            st.success(f"Changed {number_change} targets from {sensitive_change} with value {group_change}")
-          except Exception as e:
-            st.session_state["changes"].pop()
-            st.error(f"Error applying massaging: {str(e)}")
+          if sensitive_change is None:
+            st.error("Please configure sensitive attributes first.")
+          else:
+            try:
+                st.session_state["df_previus"] = st.session_state["df"]
+                st.session_state["changes"].append(f"Changed {number_change} targets from {sensitive_change} with value {group_change}")
+                with st.spinner(f"Changing {number_change} targets from {sensitive_change} with value {group_change}..."):
+                    st.session_state["df"] = change_labels(st.session_state["df"],target_column=default_target_column,
+                    sensitive_column=sensitive_change,
+                    sensitive_group_to_replace = group_change,
+                    N = number_change)
+                st.success(f"Changed {number_change} targets from {sensitive_change} with value {group_change}")
+            except Exception as e:
+                st.session_state["changes"].pop()
+                st.error(f"Error applying massaging: {str(e)}")
 
         if st.button("reweigh"):
-          try:
-            st.session_state["df_previus"] = st.session_state["df"]
-            st.session_state["changes"].append(f"reweigh {protected_attribute_name_reweigh} with privileged group {privileged_classes_reweigh}")
-            with st.spinner(f"reweighing {protected_attribute_name_reweigh} with privileged group {privileged_classes_reweigh}..."):
-                st.session_state["instance_weights"] = reweigh(st.session_state["df"],
-                target = default_target_column,
-                favorable_classes = favorable_classes_target,
-                protected_attribute_name  = protected_attribute_name_reweigh,
-                privileged_classes = privileged_classes_reweigh)
-            st.success(f" reweighed {protected_attribute_name_reweigh} with privileged group {privileged_classes_reweigh}")
-          except Exception as e:
-            st.session_state["changes"].pop()
-            st.error(f"Error applying reweigh: {str(e)}")
+          if protected_attribute_name_reweigh is None:
+            st.error("Please configure sensitive attributes first.")
+          else:
+            try:
+                st.session_state["df_previus"] = st.session_state["df"]
+                st.session_state["changes"].append(f"reweigh {protected_attribute_name_reweigh} with privileged group {privileged_classes_reweigh}")
+                with st.spinner(f"reweighing {protected_attribute_name_reweigh} with privileged group {privileged_classes_reweigh}..."):
+                    st.session_state["instance_weights"] = reweigh(st.session_state["df"],
+                    target = default_target_column,
+                    favorable_classes = favorable_classes_target,
+                    protected_attribute_name  = protected_attribute_name_reweigh,
+                    privileged_classes = privileged_classes_reweigh)
+                st.success(f" reweighed {protected_attribute_name_reweigh} with privileged group {privileged_classes_reweigh}")
+            except Exception as e:
+                st.session_state["changes"].pop()
+                st.error(f"Error applying reweigh: {str(e)}")
 
         if st.button("LFR"):
-          try:
-            st.session_state["df_previus"] = st.session_state["df"]
-            st.session_state["changes"].append(f"LFR {protected_attribute_name_lfr} with privileged group {privileged_classes_lfr}")
-            with st.spinner(f"LFR {protected_attribute_name_lfr} with privileged group {privileged_classes_lfr}..."):
-                st.session_state["df"], df_legivel, encoders = Learning_fair_representations(st.session_state["df"],
-                target = default_target_column,
-                favorable_classes = favorable_classes_target,
-                protected_attribute_name  = protected_attribute_name_lfr,
-                privileged_classes = privileged_classes_lfr,
-                drop_columns =  st.session_state["sensitive_columns"].copy())
-            st.success(f" LFR {protected_attribute_name_lfr} with privileged group {privileged_classes_lfr}")
-          except Exception as e:
-            st.session_state["changes"].pop()
-            st.error(f"Error applying LFR: {str(e)}")
+          if protected_attribute_name_lfr is None:
+            st.error("Please configure sensitive attributes first.")
+          else:
+            try:
+                st.session_state["df_previus"] = st.session_state["df"]
+                st.session_state["changes"].append(f"LFR {protected_attribute_name_lfr} with privileged group {privileged_classes_lfr}")
+                with st.spinner(f"LFR {protected_attribute_name_lfr} with privileged group {privileged_classes_lfr}..."):
+                    st.session_state["df"], df_legivel, encoders = Learning_fair_representations(st.session_state["df"],
+                    target = default_target_column,
+                    favorable_classes = favorable_classes_target,
+                    protected_attribute_name  = protected_attribute_name_lfr,
+                    privileged_classes = privileged_classes_lfr,
+                    drop_columns =  st.session_state["sensitive_columns"].copy())
+                st.success(f" LFR {protected_attribute_name_lfr} with privileged group {privileged_classes_lfr}")
+            except Exception as e:
+                st.session_state["changes"].pop()
+                st.error(f"Error applying LFR: {str(e)}")
         dir = """if st.button("DisparateImpactRemover"):
             st.session_state["df_previus"] = st.session_state["df"]
             st.session_state["changes"].append(f"Removing disparate impact from {protected_attribute_name_dir} with privileged group {privileged_classes_dir} using a repair level of {repair_level_dir}")
